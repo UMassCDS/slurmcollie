@@ -1,0 +1,315 @@
+---
+title: "Red River LoggerLoop"
+author: "Eva Gerstle"
+date: "2023-08-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(readr)
+library(readxl)
+library(VulnToolkit)
+```
+
+```{r}
+pwd <- "/Users/evagerstle/Downloads/Calibrated Data/RedRiverCsvs"
+files <- list.files(path=pwd, pattern = "cal.csv" )
+
+REDchannel_sheet <- read.csv("/Users/evagerstle/Downloads/WaterLoggerFlowMetrics_11Mar2024.csv")
+#setwd("/Users/evagerstle/Downloads")
+```
+
+```{r}
+redriverelev <- read_excel("/Users/evagerstle/Downloads/Calibrated Data/RedRiverCsvs/15Sep2022_RED_ArrayDataSheet.xlsx")
+
+redriverelev <- redriverelev %>% 
+  select(Serial, Type, Elevation) 
+  
+small_REDchannel_sheet <- REDchannel_sheet %>%
+  select(Serial, Elevation, H_OFD_Chan, H_OFD_Out1,EucDisStrm, EucDisOut_, ChaDisDif, OutDisDif)
+```
+```{r}
+redriverelev <- redriverelev %>% 
+  drop_na(Elevation)
+flood_list = list()
+flood_table = tibble('Serial'= "0", 'Proportion_Time_Innudated'= 0, 'Median_Time_Innudated' = 0, 'Median_Depth_Innudated' = 0, 'Logger_Elevation' = 0, 'Type' = "", 'percentile_80_depth' = 0, 'percentile_95_depth' = 0, 'wet_75_percentile_depth' = 0)
+```
+
+
+```{r}
+for (file1 in files) {
+  print(file1)
+  serialnum = substring(file1, 1, 8)
+  openedfile <- read_csv(file1, col_names = TRUE, skip=1)
+  
+  logger_elev_df <- redriverelev %>%
+    filter(Serial == serialnum) %>%
+   select(Elevation, Type)
+    logger_elev = as.numeric(logger_elev_df[1])
+    logger_type = as.character(logger_elev_df[2])
+
+
+
+   colnames(openedfile)[6] = "sensors"
+   openedfile <- openedfile %>%
+  drop_na(sensors)
+   
+  openedfile <- openedfile %>%
+     select(`Date Time, GMT-04:00`, `#`, sensors) %>%
+     mutate(fixed_sensor = if_else(sensors < 0, 0, sensors)) %>%
+    mutate(ht_above_SL = fixed_sensor + logger_elev ) %>%
+   mutate(DT2 = strptime(`Date Time, GMT-04:00`,format="%m/%d/%y %I:%M:%S %p")) %>%
+  filter(11464 < `#`) %>%
+  filter(`#` < 13029)
+
+ filesave <- paste(serialnum,"_processed.csv")
+  write.csv(openedfile, file= filesave)
+
+HL.NL <- HL(level = openedfile$ht_above_SL, time = openedfile$DT2)
+# elevs     <- data.frame(elev = seq(from = logger_elev + .005, to = 1.5, by = 0.005))
+# elevs$frq <- fld.frq(z = elevs$elev,
+#                      ht = HL.NL$level[HL.NL$tide == "H"])
+
+at_loggerelev_freq <- fld.dur(logger_elev + .02, openedfile$ht_above_SL)
+
+timeinnud <- dur.events(elevation = logger_elev + .02, level = openedfile$ht_above_SL, units = "10 minutes", percentile = 0.5)
+
+  
+med_depth <-fld.depth(level = openedfile$ht_above_SL, elevation=logger_elev + .02, percentile = 0.5)
+
+ wet_filter <- openedfile %>%
+  filter(sensors > 0 )
+ 
+ wet_percentile = quantile(wet_filter$fixed_sensor, probs = c(.75)) 
+
+eighty_per_depth = quantile(openedfile$fixed_sensor, probs = c(.8))
+ ninetyfive_per_depth = quantile(openedfile$fixed_sensor, probs = c(.95))
+
+flood_table <- flood_table %>%
+  add_row(Serial = serialnum, Proportion_Time_Innudated = at_loggerelev_freq, `Median_Time_Innudated` = timeinnud, `Median_Depth_Innudated` = med_depth, `Logger_Elevation` = logger_elev, `Type` = logger_type, `percentile_80_depth` =  eighty_per_depth, `percentile_95_depth` = ninetyfive_per_depth, `wet_75_percentile_depth` = wet_percentile) 
+
+
+
+
+# flood_table <- flood_table %>%
+#   mutate(elev_freq= at_loggerelev_freq)
+
+
+# plot(elev ~ frq, data = elevs, pch = 19, cex = 0.6, las = 1, type = "l",
+#      xlab = "flooding frequency (% of tides)",
+#      ylab = "elevation (m)")
+
+
+#  elevs$events <- dur.events(elevation = elevs$elev,
+#                      level = openedfile$ht_above_SL, units = "10 minutes")
+#  elevs <- elevs %>%
+#  mutate(log_floodevent_hr = log(elevs$events))
+# 
+#  plot(elevs$elev[!is.na(elevs$events)] ~
+#         I((elevs$events[!is.na(elevs$events)])) ,
+#       pch = 19, cex = 0.6, las = 1, type = "l",
+#       xlab = "median flooding event (hours)",
+#      ylab = "elevation (m)")
+# 
+# elevation_table <- paste(serialnum,"_elevation_flood_modeling.csv")
+# write.csv(elevs, file= elevation_table)
+
+
+
+
+#HighLowPlot <- HL.plot(level = openedfile$ht_above_SL, time = openedfile$DT2)
+#dev.copy(png,'myplot.png')
+# dev.off()
+
+}
+```
+
+```{r}#
+flood_table_no_outliers <- flood_table %>%
+  filter(Proportion_Time_Innudated > 0 & Proportion_Time_Innudated < .85) 
+flood_table_no_outliers %>%
+  ggplot(aes(Logger_Elevation, Median_Time_Innudated)) + geom_point() + 
+  geom_smooth(method = lm)
+
+flood_table_no_outliers %>%
+  ggplot(aes(Logger_Elevation, Proportion_Time_Innudated)) + geom_point() + geom_smooth(method = lm)
+  
+```
+
+```{r}
+flood_table[is.na(flood_table)] <- 0
+
+flood_table_Platonly <- flood_table %>%
+  filter(Type == "Plat" | Type == "Edge")
+
+flood_table_Platonly %>%
+  ggplot(aes(Logger_Elevation, Proportion_Time_Innudated)) + geom_point(color = "blue") + geom_smooth(method = lm, color = "blue") + ggtitle("Red River Platform Loggers, Proportion of Time Innudated")
+
+flood_table_Platonly %>% 
+  ggplot(aes(Logger_Elevation, Median_Time_Innudated)) + geom_point(color = "purple") + geom_smooth(method = lm, color="purple") + ggtitle("Red River Platform Loggers, Median Time Innudated")
+
+
+flood_table_PlatDitch<- flood_table %>%
+  filter(Type == "Plat" | Type == "Ditch" | Type == "Edge") 
+flood_table_PlatDitch %>%
+  ggplot(aes(Logger_Elevation,  Proportion_Time_Innudated)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Platform and Ditch")
+
+flood_table_PlatDitchCreek <- flood_table %>%
+  filter(Type == "Plat" | Type == "Ditch" | Type == "Creek"| Type == "Edge") 
+flood_table_PlatDitchCreek %>%
+  ggplot(aes(Logger_Elevation,  Proportion_Time_Innudated)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Platform, Ditch and Creek")
+
+flood_table_PlatDitchCreek %>%
+  ggplot(aes(Logger_Elevation, percentile_80_depth)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Red River (no ponds) 80% depth")
+
+flood_table_PlatDitchCreek %>%
+  ggplot(aes(Logger_Elevation, percentile_95_depth)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Red River (no ponds) 95% depth")
+#The loggers are tracking a period of 260 hours (10.86 days), this graph represents the min depth of 13 hours of the 260 hours. For 13 hours, the depth of the water was this depth or higher. 
+
+flood_table_PlatDitchCreek %>%
+  ggplot(aes(Logger_Elevation, wet_75_percentile_depth)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("RedRiver (no ponds) 75% depth (only wet data)")
+
+```
+```{r}
+flood_table_Platonly$Serial = as.integer(flood_table_Platonly$Serial)
+channel_metrics_flood_table_Platonly <- left_join(flood_table_Platonly, small_REDchannel_sheet,by = join_by(Serial)) 
+```
+
+
+
+```{r}#
+RedRiverProp_mod<- lm(Proportion_Time_Innudated ~ Logger_Elevation, data = channel_metrics_flood_table_Platonly)
+summary(RedRiverProp_mod)
+RedRiverTime_mod <- lm(Median_Time_Innudated ~ Logger_Elevation, data = channel_metrics_flood_table_Platonly)
+summary(RedRiverTime_mod)
+RedRiverDepth_mod <- lm(percentile_95_depth ~ Logger_Elevation, data = channel_metrics_flood_table_Platonly)
+summary(RedRiverDepth_mod)
+```
+
+
+#Checking Covariance amongst channel metrics
+
+```{r}
+RedRiverProp_mod<- lm(Proportion_Time_Innudated ~ Logger_Elevation, data = channel_metrics_flood_table_Platonly)
+summary(RedRiverProp_mod)
+RedRiver_prop_multi_mod <- lm(Proportion_Time_Innudated ~ Logger_Elevation + EucDisStrm + OutDisDif, data = channel_metrics_flood_table_Platonly)
+summary(RedRiver_prop_multi_mod)
+
+Euc_mod <- lm(EucDisStrm ~ ChaDisDif, data = channel_metrics_flood_table_Platonly)
+summary(Euc_mod)
+channel_metrics_flood_table_Platonly %>% 
+  ggplot(aes(ChaDisDif, EucDisStrm)) + geom_point(color = "purple")
+
+
+```
+```{r}
+RedRiverTime_mod <- lm(Median_Time_Innudated ~ Logger_Elevation, data = channel_metrics_flood_table_Platonly)
+summary(RedRiverTime_mod)
+channel_metrics_RedRiverTime_mod <- lm(Median_Time_Innudated ~ Logger_Elevation + ChaDisDif, data = channel_metrics_flood_table_Platonly)
+summary(channel_metrics_RedRiverTime_mod)
+```
+```{r}
+RedRiverDepth_mod <- lm(percentile_95_depth ~ Logger_Elevation, data = channel_metrics_flood_table_Platonly)
+summary(RedRiverDepth_mod)
+channel_metrics_RedRiverDepth_mod <- lm(percentile_95_depth ~ Logger_Elevation + EucDisStrm, data = channel_metrics_flood_table_Platonly)
+summary(channel_metrics_RedRiverDepth_mod)
+```
+#Examining CoVariance
+```{r}
+channel_metrics_flood_table_Platonly %>%
+  ggplot(aes(Elevation, H_OFD_Chan)) + geom_point()
+
+channel_metrics_flood_table_Platonly %>%
+  ggplot(aes(Elevation, H_OFD_Out1)) + geom_point()
+
+channel_metrics_flood_table_Platonly %>%
+  ggplot(aes(Elevation, EucDisStrm)) + geom_point()
+
+channel_metrics_flood_table_Platonly %>%
+  ggplot(aes(Elevation, EucDisOut_)) + geom_point()
+```
+
+
+
+
+
+
+```{r}
+rr_resid <- tibble(prop_resids = RedRiverProp_mod$residuals, 
+depth_resids = RedRiverDepth_mod$residuals, 
+time_resids = RedRiverTime_mod$residuals,
+Serial = flood_table_Platonly$Serial, Elevation = flood_table_Platonly$Logger_Elevation)
+
+residuals_table <- left_join(rr_resid, small_REDchannel_sheet, by = join_by(Serial))
+
+residuals_table %>%
+  ggplot(aes(prop_resids, H_OFD_Chan)) + geom_point()
+residuals_table %>%
+  ggplot(aes(prop_resids, H_OFD_Out1)) + geom_point()
+residuals_table %>%
+  ggplot(aes(prop_resids, EucDisStrm)) + geom_point()
+residuals_table %>%
+  ggplot(aes(prop_resids, EucDisOut_)) + geom_point()
+residuals_table %>%
+  ggplot(aes(prop_resids, ChaDisDif)) + geom_point()
+residuals_table %>%
+  ggplot(aes(prop_resids, OutDisDif)) + geom_point()
+
+summary(lm(OutDisDif ~ prop_resids, data = residuals_table))
+
+
+residuals_table %>%
+  ggplot(aes(time_resids, H_OFD_Chan)) + geom_point()
+residuals_table %>%
+  ggplot(aes(time_resids, H_OFD_Out1)) + geom_point()
+residuals_table %>%
+  ggplot(aes(time_resids, EucDisStrm)) + geom_point()
+residuals_table %>%
+  ggplot(aes(time_resids, EucDisOut_)) + geom_point()
+residuals_table %>%
+  ggplot(aes(time_resids, ChaDisDif)) + geom_point()
+residuals_table %>%
+  ggplot(aes(time_resids, OutDisDif)) + geom_point()
+
+
+residuals_table %>%
+  ggplot(aes(depth_resids, H_OFD_Chan)) + geom_point()
+residuals_table %>%
+  ggplot(aes(depth_resids, H_OFD_Out1)) + geom_point()
+residuals_table %>%
+  ggplot(aes(depth_resids, EucDisStrm)) + geom_point()
+residuals_table %>%
+  ggplot(aes(depth_resids, EucDisOut_)) + geom_point()
+residuals_table %>%
+  ggplot(aes(depth_resids, ChaDisDif)) + geom_point()
+residuals_table %>%
+  ggplot(aes(depth_resids, OutDisDif)) + geom_point()
+```
+```{r}
+plot(x=flood_table_no_outliers$Logger_Elevation, y=RedRiverProp_mod$residuals)
+abline(h=0)
+hist(RedRiverProp_mod$residuals)
+qqnorm(RedRiverProp_mod$residuals)
+qqline(RedRiverProp_mod$residuals)
+```
+```{r}
+plot(x=flood_table_no_outliers$Logger_Elevation, y=RedRiverTime_mod$residuals)
+abline(h=0)
+hist(RedRiverTime_mod$residuals)
+qqnorm(RedRiverTime_mod$residuals)
+qqline(RedRiverTime_mod$residuals)
+
+
+```
+
+

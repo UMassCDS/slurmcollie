@@ -1,0 +1,235 @@
+---
+title: "OTH_LoggerLoop"
+author: "Eva Gerstle"
+date: "2023-11-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+library(readr)
+library(readxl)
+library(VulnToolkit)
+library(mblm)
+```
+
+```{r}
+pwd <- "/Users/evagerstle/Downloads/OTH_Calibrated_Data"
+OTH_files <- list.files(path = pwd, pattern = "cal.xlsx")
+#setwd("/Users/evagerstle/Downloads/OTH_Calibrated_Data")
+```
+
+```{r}
+OTHelev <- read_csv("/Users/evagerstle/Downloads/OTH_Calibrated_Data/OTH_LoggerArray_Pull.csv")
+OTHelev <- OTHelev %>% 
+  select(`Serial #`, Type, Elevation) %>%
+  mutate(Serial = `Serial #`)
+  
+  
+```
+```{r}
+flood_table_OTH = tibble('Serial_Number'= "0", 'Proportion_Time_Innudated'= 0, 'Median_Time_Innudated' = 0, 'Median_Depth_Innudated' = 0, 'Logger_Elevation' = 0, 'Type' = "", 'percentile_80_depth' = 0, 'percentile_95_depth' = 0, 'wet_75_percentile_depth' = 0)
+```
+
+```{r}
+for (file1 in OTH_files) {
+  #print(file1)
+  serialnum = substring(file1, 1, 8)
+  file1.adj = paste(pwd,file1, sep = "/")
+  #print(file1.adj)
+  openedfile <- read_excel(file1.adj, range = "A5942:F9653", col_names = TRUE, skip=1, col_types = c("numeric","date","numeric", "numeric", "numeric", "numeric"))
+  
+  logger_OTHelev_df <- OTHelev %>%
+    filter(Serial == serialnum) %>%
+   select(Elevation, Type)
+    logger_OTHelev = as.numeric(logger_OTHelev_df[1])
+    logger_OTHtype = as.character(logger_OTHelev_df[2])
+    
+  colnames(openedfile)[6] = "sensors"
+  colnames(openedfile)[2] = "Date"
+  colnames(openedfile)[1] = "#"
+   openedfile <- openedfile %>%
+  drop_na(sensors)
+   
+ openedfile <- openedfile %>%
+     select(Date, `#`, sensors) %>%
+     mutate(fixed_sensor = if_else(sensors < 0, 0, sensors)) %>%
+    mutate(ht_above_SL = fixed_sensor + logger_OTHelev ) %>%
+   mutate(DT2 = strptime(Date,format="%m/%d/%y %I:%M:%S %p")) %>%
+   filter(`#` < 8941)
+ #This is noon on Sept 8th, the day of removal (earliest time removed 13:20)
+ wet_filter <- openedfile %>%
+  filter(sensors > 0 )
+ 
+ wet_percentile = quantile(wet_filter$fixed_sensor, probs = c(.75)) 
+ 
+ 
+eighty_per_depth = quantile(openedfile$fixed_sensor, probs = c(.8))
+ ninetyfive_per_depth = quantile(openedfile$fixed_sensor, probs = c(.95))
+  
+ 
+ HL.NL <- HL(level = openedfile$ht_above_SL, time = openedfile$Date)
+ at_loggerelev_freq <- fld.dur(logger_OTHelev + .02, openedfile$ht_above_SL)
+ 
+ timeinnud <- dur.events(elevation = logger_OTHelev + .02, level = openedfile$ht_above_SL, units = "10 minutes", percentile = 0.5)
+ 
+ 
+med_depth <-fld.depth(level = openedfile$ht_above_SL, elevation=logger_OTHelev + .02, percentile = 0.5)
+flood_table_OTH <- flood_table_OTH %>%
+  add_row(Serial_Number = serialnum, Proportion_Time_Innudated = at_loggerelev_freq, `Median_Time_Innudated` = timeinnud, `Median_Depth_Innudated` = med_depth, `Logger_Elevation` = logger_OTHelev, `Type` = logger_OTHtype, `percentile_80_depth` =  eighty_per_depth, `percentile_95_depth` = ninetyfive_per_depth, `wet_75_percentile_depth` = wet_percentile)
+
+}
+```
+
+
+```{r}
+
+
+file1 = "21071954_cal.xlsx"
+file1.adj = paste(pwd,file1, sep = "/")
+openedfile <- read_excel(file1.adj, range = "A5942:F9653", col_names = TRUE, skip=1, col_types = c("numeric","date","numeric", "numeric", "numeric", "numeric"))
+  
+  logger_OTHelev_df <- OTHelev %>%
+    filter(Serial == 21071954) %>%
+   select(Elevation, Type)
+    logger_OTHelev = as.numeric(logger_OTHelev_df[1])
+    logger_OTHtype = as.character(logger_OTHelev_df[2])
+    
+  colnames(openedfile)[6] = "sensors"
+  colnames(openedfile)[2] = "Date"
+  colnames(openedfile)[1] = "#"
+   openedfile <- openedfile %>%
+  drop_na(sensors)
+   
+ openedfile <- openedfile %>%
+     select(Date, `#`, sensors) %>%
+     mutate(fixed_sensor = if_else(sensors < 0, 0, sensors)) %>%
+    mutate(ht_above_SL = fixed_sensor + logger_OTHelev ) %>%
+   mutate(DT2 = strptime(Date,format="%m/%d/%y %I:%M:%S %p"))%>%
+   filter(`#` < 8967)
+ 
+ HL.NL <- HL(level = openedfile$ht_above_SL, time = openedfile$Date)
+ at_loggerelev_freq <- fld.dur(logger_OTHelev + .02, openedfile$ht_above_SL)
+ 
+ timeinnud <- dur.events(elevation = logger_OTHelev + .02, level = openedfile$ht_above_SL, units = "10 minutes", percentile = 0.5)
+
+openedfile %>% 
+  filter(fixed_sensor > 0) %>%
+  ggplot(aes(fixed_sensor)) + geom_histogram()
+
+wet_filter <- openedfile %>%
+  filter(sensors > 0 ) 
+eighty_per_depth = quantile(openedfile$fixed_sensor, probs = c(.8))
+
+
+```
+
+
+
+```{r}
+#Look under the hood at heavily inundated loggers
+
+file1 = "21410924_cal.xlsx"
+file1.adj = paste(pwd,file1, sep = "/")
+openedfile <- read_excel(file1.adj, range = "A5942:F9653", col_names = TRUE, skip=1, col_types = c("numeric","date","numeric", "numeric", "numeric", "numeric"))
+  
+  logger_OTHelev_df <- OTHelev %>%
+    filter(Serial == 	21410924) %>%
+   select(Elevation, Type)
+    logger_OTHelev = as.numeric(logger_OTHelev_df[1])
+    logger_OTHtype = as.character(logger_OTHelev_df[2])
+    
+  colnames(openedfile)[6] = "sensors"
+  colnames(openedfile)[2] = "Date"
+  colnames(openedfile)[1] = "#"
+   openedfile <- openedfile %>%
+  drop_na(sensors)
+   
+ openedfile <- openedfile %>%
+     select(Date, `#`, sensors) %>%
+     mutate(fixed_sensor = if_else(sensors < 0, 0, sensors)) %>%
+    mutate(ht_above_SL = fixed_sensor + logger_OTHelev ) %>%
+   mutate(DT2 = strptime(Date,format="%m/%d/%y %I:%M:%S %p"))
+ 
+ HL.NL <- HL(level = openedfile$ht_above_SL, time = openedfile$Date)
+ at_loggerelev_freq <- fld.dur(logger_OTHelev + .02, openedfile$ht_above_SL)
+ 
+ timeinnud <- dur.events(elevation = logger_OTHelev + .02, level = openedfile$ht_above_SL, units = "10 minutes", percentile = 0.5)
+ 
+nowetfile <- openedfile %>%
+  filter(fixed_sensor == 0)
+
+
+```
+
+
+```{r}
+flood_table_OTH_Platonly <- flood_table_OTH %>%
+  filter(Type == "Plat"| Type == "Edge") 
+flood_table_OTH_Platonly %>%
+  ggplot(aes(Logger_Elevation, Proportion_Time_Innudated)) + geom_point() + geom_smooth(method = lm) + ggtitle("Platform only")
+
+
+
+flood_table_OTH_PlatDitch<- flood_table_OTH %>%
+  filter(Type == "Plat" | Type == "Ditch" | Type == "Edge") 
+flood_table_OTH_PlatDitch %>%
+  ggplot(aes(Logger_Elevation,  Proportion_Time_Innudated)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Platform and Ditch")
+
+flood_table_OTH_PlatDitchCreek <- flood_table_OTH %>%
+  filter(Type == "Plat" | Type == "Ditch" | Type == "Creek"| Type == "Edge") 
+flood_table_OTH_PlatDitchCreek %>%
+  ggplot(aes(Logger_Elevation,  Proportion_Time_Innudated)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Platform, Ditch and Creek")
+
+
+
+flood_table_OTH_PlatDitchCreek %>%
+  ggplot(aes(Logger_Elevation, percentile_80_depth)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Old Town Hill (no ponds) 80% depth")
+flood_table_OTH_PlatDitchCreek %>%
+  ggplot(aes(Logger_Elevation, percentile_95_depth)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Old Town Hill (no ponds) 95% depth")
+#The loggers were deployed for about 21 days, this graph represents the min depth for 50 hours of the 21 days. For 50 hours, the depth of the water was this depth or higher. 
+
+
+flood_table_OTH_PlatDitchCreek %>%
+  ggplot(aes(Logger_Elevation, wet_75_percentile_depth)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Old Town Hill (no ponds) 75% depth (only wet data)")
+
+
+```
+
+```{r}
+flood_table_OTH_Platonly %>%
+  ggplot(aes(Logger_Elevation, Median_Time_Innudated)) + geom_point() + 
+  geom_smooth(method = lm)
+
+
+OTH_Prop_mod <- lm(Proportion_Time_Innudated ~ Logger_Elevation, data = flood_table_OTH_no_outliers)
+summary(OTH_Prop_mod)
+
+OTH_Prop_mod_ts <- mblm(Proportion_Time_Innudated ~ Logger_Elevation, flood_table_OTH_no_outliers, repeated = FALSE)
+summary(OTH_Prop_mod_ts)
+intercept_OTH_Prop_mod_ts = OTH_Prop_mod_ts$coefficients[1]
+slope_OTH_Prop_mod_ts = OTH_Prop_mod_ts$coefficients[2]
+
+
+
+flood_table_OTH_no_outliers %>%
+ggplot(aes(Logger_Elevation, Proportion_Time_Innudated)) + geom_point() + geom_abline(intercept = intercept_OTH_Prop_mod_ts, slope = slope_OTH_Prop_mod_ts)
+
+plot(flood_table_OTH_no_outliers$Logger_Elevation, OTH_Prop_mod$residuals)
+abline(h=0)
+hist(OTH_Prop_mod$residuals)
+qqnorm(OTH_Prop_mod$residuals)
+qqline(OTH_Prop_mod$residuals)
+```
+
+

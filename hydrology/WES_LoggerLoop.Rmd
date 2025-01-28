@@ -1,0 +1,210 @@
+---
+title: "Westport_LoggerLoop"
+author: "Eva Gerstle"
+date: "2024-03-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Step 2
+
+```{r}
+library(tidyverse)
+library(readr)
+library(readxl)
+library(VulnToolkit)
+```
+
+Step 3 & 4 Listing the file names of each logger's data
+
+```{r}
+pwd <- "/Users/evagerstle/Downloads/Westport_Calibrated_Data"
+WES_files <- list.files(path = pwd, pattern = ".xlsx")
+```
+
+Step 5 & 6 Reading in the elevation datasheet
+
+```{r}
+WESelev <- read_xlsx("/Users/evagerstle/Downloads/15Aug2022_WES_ArrayDataSheet.xlsx")
+WESelev <- WESelev %>% 
+  select(`Serial #`, Type, Elevation) %>%
+  mutate(Serial = `Serial #`)
+  
+```
+
+Step 7 Create empty data frame
+
+```{r}
+flood_table_WES = tibble('Serial_Number'= 0, 'Proportion_Time_Innudated'= 0, 'Median_Time_Innudated' = 0, 'Median_Depth_Innudated' = 0, 'Logger_Elevation' = 0, 'Type' = "", 'percentile_80_depth' = 0, 'percentile_95_depth' = 0, 'wet_75_percentile_depth' = 0)
+```
+
+For loop where the magic happens
+
+```{r}
+for (file1 in WES_files) {
+  serialnum = as.integer(substring(file1, 1, 8))
+  file1.adj = paste(pwd,file1, sep = "/")
+  
+  openedfile <- read_excel(file1.adj, col_names = TRUE, skip=1)
+  
+  logger_WESelev_df <- WESelev %>%
+    filter(Serial == serialnum) %>%
+   select(Elevation, Type)
+   logger_WESelev = as.numeric(logger_WESelev_df[1])
+    logger_WEStype = as.character(logger_WESelev_df[2])
+ 
+ colnames(openedfile)[6] = "sensors"
+  colnames(openedfile)[2] = "Date"
+  colnames(openedfile)[1] = "#"
+   openedfile <- openedfile %>%
+  drop_na(sensors)
+   
+   
+    openedfile <- openedfile %>%
+     select(Date, `#`, sensors) %>%
+     mutate(fixed_sensor = if_else(sensors < 0, 0, sensors)) %>%
+    mutate(ht_above_SL = fixed_sensor + logger_WESelev ) %>%
+   mutate(DT2 = strptime(Date,format="%m/%d/%y %I:%M:%S %p"))
+    
+
+ at_loggerelev_freq <- fld.dur(logger_WESelev + .02, openedfile$ht_above_SL)
+ timeinnud <- dur.events(elevation = logger_WESelev + .02, level = openedfile$ht_above_SL, units = "10 minutes", percentile = 0.5)
+ 
+wet_filter <- openedfile %>%
+  filter(sensors > 0 )
+ 
+ wet_percentile = quantile(wet_filter$fixed_sensor, probs = c(.75)) 
+ 
+ 
+eighty_per_depth = quantile(openedfile$fixed_sensor, probs = c(.8))
+ ninetyfive_per_depth = quantile(openedfile$fixed_sensor, probs = c(.95))
+ 
+ med_depth <-fld.depth(level = openedfile$ht_above_SL, elevation=logger_WESelev + .02, percentile = 0.5)
+flood_table_WES <- flood_table_WES %>%
+  add_row(Serial_Number = as.integer(serialnum), Proportion_Time_Innudated = at_loggerelev_freq, `Median_Time_Innudated` = timeinnud, `Median_Depth_Innudated` = med_depth, `Logger_Elevation` = logger_WESelev, `Type` = logger_WEStype, `percentile_80_depth` =  eighty_per_depth, `percentile_95_depth` = ninetyfive_per_depth, `wet_75_percentile_depth` = wet_percentile)
+
+
+ 
+}
+```
+
+```{r}
+flood_table_WES_Platonly <- flood_table_WES %>%
+  filter(Type == "Plat"| Type == "Edge") 
+flood_table_WES_Platonly %>%
+  ggplot(aes(Logger_Elevation, Proportion_Time_Innudated)) + geom_point() + geom_smooth(method = lm) + ggtitle("Platform only")
+flood_table_WES_Platonly %>%
+  ggplot(aes(Logger_Elevation, Median_Time_Innudated)) + geom_point() + 
+  geom_smooth(method = lm)
+
+
+
+flood_table_WES_PlatDitch<- flood_table_WES %>%
+  filter(Type == "Plat" | Type == "Ditch" | Type == "Edge") 
+flood_table_WES_PlatDitch %>%
+  ggplot(aes(Logger_Elevation,  Proportion_Time_Innudated)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Platform and Ditch")
+
+flood_table_WES_PlatDitchCreek <- flood_table_WES %>%
+  filter(Type == "Plat" | Type == "Ditch" | Type == "Creek"| Type == "Edge") 
+flood_table_WES_PlatDitchCreek %>%
+  ggplot(aes(Logger_Elevation,  Proportion_Time_Innudated)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Platform, Ditch and Creek")
+
+
+
+flood_table_WES_PlatDitchCreek %>%
+  ggplot(aes(Logger_Elevation, percentile_80_depth)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Westport (no ponds) 80% depth")
+flood_table_WES_Platonly %>%
+  ggplot(aes(Logger_Elevation, percentile_95_depth)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Westport Platform 95% depth")
+#The loggers were deployed for about 21 days, this graph represents the min depth for 50 hours of the 21 days. For 50 hours, the depth of the water was this depth or higher. 
+
+
+flood_table_WES_PlatDitchCreek %>%
+  ggplot(aes(Logger_Elevation, wet_75_percentile_depth)) + geom_point() + 
+  geom_smooth(method = lm) + ggtitle("Westport (no ponds) 75% depth (only wet data)")
+```
+
+Reading in the channel metric datasheet created in QGIS Cleaning the datatable into only the columns I want.
+
+```{r}
+wes_channel_metrics <- read_csv("/Users/evagerstle/Downloads/WES_logger_all_metrics_table.csv")
+
+wes_channel_metrics <- wes_channel_metrics %>% 
+  mutate(ID = field_1, Serial_Number = field_2, Elevation = field_5) %>%
+  select(ID, Serial_Number, Elevation, H_OFD_Dis1, H_OFD_Out_, EucDisSt_1, EucDisOut_)
+
+
+
+```
+
+Joining channel datasheet with the floodtable sheet by the key of Serial Number
+
+```{r}
+
+wes_channel_metrics_flood_table_Platonly <- left_join(flood_table_WES_Platonly, wes_channel_metrics,by = join_by(Serial_Number))
+
+wes_channel_metrics_flood_table_Platonly <- wes_channel_metrics_flood_table_Platonly %>% 
+  mutate(OutDisDif = H_OFD_Out_- EucDisOut_) %>%
+  mutate(ChaDisDif = H_OFD_Dis1 - EucDisSt_1)
+
+```
+
+Run initial simple Linear Regression
+
+```{r}
+Wes_prop_mod <- lm(Proportion_Time_Innudated ~ Logger_Elevation, data= wes_channel_metrics_flood_table_Platonly)
+summary(Wes_prop_mod)
+
+
+Wes_time_mod <- lm(Median_Time_Innudated ~ Logger_Elevation, data= wes_channel_metrics_flood_table_Platonly)
+summary(Wes_Time_mod)
+
+
+Wes_depth_mod <- lm(percentile_95_depth ~ Logger_Elevation, data= wes_channel_metrics_flood_table_Platonly)
+summary(Wes_depth_mod)
+```
+
+Trying multi-regression metrics
+
+```{r}
+Wes_multi_prop_mod <- lm(Proportion_Time_Innudated~ Logger_Elevation + EucDisSt_1, data= wes_channel_metrics_flood_table_Platonly)
+summary(Wes_multi_prop_mod)
+
+
+Wes_multi_time_mod <- lm(Median_Time_Innudated~ Logger_Elevation + ChaDisDif , data= wes_channel_metrics_flood_table_Platonly)
+summary(Wes_multi_Time_mod)
+
+
+Wes_multi_depth_mod <- lm(percentile_95_depth~ Logger_Elevation + ChaDisDif , data= wes_channel_metrics_flood_table_Platonly)
+summary(Wes_multi_depth_mod)
+```
+
+Building Residual Table
+
+```{r}
+wes_resid <- tibble(prop_resids = Wes_prop_mod$residuals, 
+depth_resids = Wes_depth_mod$residuals, 
+time_resids = Wes_time_mod$residuals,
+Serial = wes_channel_metrics_flood_table_Platonly$Serial_Number, Elevation = wes_channel_metrics_flood_table_Platonly$Logger_Elevation,
+H_OFD_Dis1= wes_channel_metrics_flood_table_Platonly$H_OFD_Dis1, 
+H_OFD_Out_ = wes_channel_metrics_flood_table_Platonly$H_OFD_Out_, 
+EucDisSt_1 = wes_channel_metrics_flood_table_Platonly$EucDisSt_1,
+EucDisOut_ = wes_channel_metrics_flood_table_Platonly$EucDisOut_, 
+OutDisDif = wes_channel_metrics_flood_table_Platonly$OutDisDif,
+ChaDisDif = wes_channel_metrics_flood_table_Platonly$ChaDisDif)
+```
+
+```{r}
+wes_resid %>%
+  ggplot(aes(Elevation, prop_resids)) + geom_point()
+wes_resid %>% 
+  ggplot(aes(Elevation, depth_resids)) + geom_point()
+wes_resid %>%
+  ggplot(aes(Elevation, time_resids)) + geom_point()
+```
