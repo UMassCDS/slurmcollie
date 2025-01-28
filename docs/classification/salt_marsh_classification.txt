@@ -1,0 +1,28 @@
+Class	Class_name	Subclass	Subclass_name	Scott_focus	ICS_V3	ICS_V3_name	ICS_V4	ICS_V4_name
+1	Vegetated	1	Low marsh	1			2	Low marsh or intermediate marsh
+1	Vegetated	2	Intermediate marsh	2			2	Low marsh or intermediate marsh
+1	Vegetated	3	Transitional marsh 1	3			3	Transitional marsh
+1	Vegetated	4	Transitional marsh 2	4			3	Transitional marsh
+1	Vegetated	5	Transitional marsh 3	5			3	Transitional marsh
+1	Vegetated	6	High marsh 1	6				
+1	Vegetated	7	High marsh 2	7			4	High marsh
+1	Vegetated	8	Juncus gerardii band	8			4	High marsh
+1	Vegetated	9	Salt-shrub marsh	9				
+1	Vegetated	10	Salicornia or Suaeda marsh	10			6	Other vegetation or bare ground
+1	Vegetated	11	Brackish marsh	11			4	High marsh
+1	Vegetated	12	Brackish marsh Phragmites	12			5	Border marsh
+1	Vegetated	13	Vegetated ditch edges	13			5	Border marsh
+1	Vegetated	14	High marsh with white clover	14			5	Border marsh
+1	Vegetated	15	Macroalgae	15			6	Other vegetation or bare ground
+2	Water feature	20	Water	20			1	Water
+2	Water feature	21	Ditch	20			1	Water
+2	Water feature	22	Natural creek	20			1	Water
+2	Water feature	23	Dug runnel	20			1	Water
+2	Water feature	24	Excavated sinuous creek	20			1	Water
+2	Water feature	25	Panne/pool	20			1	Water
+2	Water feature	26	Artificial pool	20			1	Water
+2	Water feature	27	Unvegetated bank	20			1	Water
+3	Bare ground	30	Bare ground	20			1	Water
+3	Bare ground	31	High marsh substrate deposition	30			6	Other vegetation or bare ground
+3	Bare ground	32	High marsh substrate wrack	30			6	Other vegetation or bare ground
+3	Bare ground	33	High marsh substrate	30			6	Other vegetation or bare ground

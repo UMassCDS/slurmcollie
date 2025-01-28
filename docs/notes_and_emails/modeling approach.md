@@ -1,8 +1,9 @@
 Bradley Compton <bcompton@umass.edu>
-	
+
 Mon, Jan 27, 9:56?AM (1 day ago)
-	
+
 to Stephen, Scott, Ryan, Ethan, Charles
+
 Hi all,
 
 I'm looking forward to discussing the modeling approach this afternoon. I've invited my colleague Ethan Plunkett, who has a good head for modeling. He can join us for the first 45 minutes.
