@@ -3,6 +3,7 @@ Stephen Fickas
 Jan 27, 2025, 12:19 PM (2 days ago)
 	
 to me, Scott, Ryan, Ethan, Charles
+
 Ryan, we probably should be capturing all this design discussion somewhere. I agree with Brad that using GitHub would probably be a good idea to start documenting and maintaining the project. Also, need some way to record results from different alternatives, given this is an exploration process. I am currently using a separate notebook for this, but there are libraries that support it more automatically.
 
 Brad: I did not mention, but for my project (detecting unhealthy creek banks), I am using a tiling (upscaling) approach. The difference is that you are suggesting pooling each tile using statistical methods to a single value. I am using straight-up image analysis tools, treating each tile as a separate image. What would be interesting is to combine both these approaches at some point. So run each model separately to get class probabilities, then combine them (e.g., through stacking as an ensemble) as a final stage. I like this because it really keeps them independent and if stacking does not provide better results, just omit it. Still have original models.
