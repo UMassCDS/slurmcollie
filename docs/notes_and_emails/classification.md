@@ -18,6 +18,8 @@ Two of the subclasses (6. High marsh 1 and 9. Salt-scrub marsh) are missing from
 Brad
 
 
+On Tue, Jan 28, 2025 at 8:31 AM Scott Jackson <sjackson@umext.umass.edu> wrote:
+
 Hi Steve,
 
 As far as I’m concerned, we can ignore the bare ground subclasses and stick with the class for now. We’ve tried to classify water feature subclasses (ditch, creek, pool, etc.) with poor results. For now, we can stick with the class level for water features. It is vegetation that I’m most interested in. We have already taken a shot at aggregating the vegetation subclasses into fewer categories in an effort to use an iterative RFM. The idea we were working on is the same as you suggested, Steve. Ryan can provide these aggregated subclasses.
