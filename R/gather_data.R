@@ -13,26 +13,26 @@
    #     subdirs        subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
    #                    nonexistent directories)
    #     basedir        full path to subdirs
-   # 		replace        if true, deletes the existing stack and replaces it. Use with care!
-   # 		resultbase     name of result base directory. The site name will be appended.
+   #     replace        if true, deletes the existing stack and replaces it. Use with care!
+   #     resultbase     name of result base directory. The site name will be appended.
    # 		
    # 	Source: 
-   # 	   geoTIFFs for each site
-   # 	   pars/sites.txt    table of site abbreviation, site name, footprint shapefile, raster standard
+   #     geoTIFFs for each site
+   #     pars/sites.txt    table of site abbreviation, site name, footprint shapefile, raster standard
    # 	   
    # 	Results: geoTIFFs, clipped, resampled, and aligned
    # 
-   # 	All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected.
+   #  All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected.
    # 	
-   # 	sites.txt must include the name of the footprint shapefile for each site.
+   #  sites.txt must include the name of the footprint shapefile for each site.
    # 
    #  sites.txt may include a standard geoTIFF for each site, to be used as the standard for grain and alignment; all rasters will be 
    #  resampled to match. If not specified, standard for each site will be set to orthomosiacs/ Mica file with earliest date (regardless 
    #  of whether it's in the rasters specification). 
    # 	
-   # 	Note that adding to an existing stack using a different standard will lead to sorrow. If an stack for the site already 
-   # 	exists and replace = FALSE, one of the rasters in the stack will be compared with the standard for alignment, potentially 
-   # 	producing an error. 
+   #  Note that adding to an existing stack using a different standard will lead to sorrow. If an stack for the site already 
+   #  exists and replace = FALSE, one of the rasters in the stack will be compared with the standard for alignment, potentially 
+   #  producing an error. 
    # 	
    # 	BEST PRACTICE: include standards in sites.txt and don't change them
    # 	
