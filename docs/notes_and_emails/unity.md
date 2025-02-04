@@ -22,7 +22,7 @@ usable (faster) storage (1 TB)
 /work/pi_cschweik_umass_edu/kate  
 
 
-long-term (slower) storage (5GB)  
+long-term (slower) storage ~~(5GB)~~ (5.5 TB)  
 /project/pi_cschweik_umass_edu/  
 
 
