@@ -1,6 +1,6 @@
 'gather_data' <- function(site = NULL, pattern = '.*', 
                           subdirs = c('RFM processing inputs/Orthomosaics', 'Share/Photogrammetry DEMs', 'Share/Canopy height models'), 
-                          basedir = 'c:/Work/etc/saltmarsh/data', replace = FALSE, resultbase = 'c:/Work/etc/saltmarsh/data/stacked') {
+                          basedir = 'c:/Work/etc/saltmarsh/data', replace = FALSE, resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/') {
    
    # Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. 
    # Clip to site boundary, resample and align to standard resolution.
@@ -15,7 +15,8 @@
    #                    nonexistent directories)
    #     basedir        full path to subdirs
    #     replace        if true, deletes the existing stack and replaces it. Use with care!
-   #     resultbase     name of result base directory. The site name will be appended.
+   #     resultbase     base name of result base directory. 
+   #     resultdir      subdir for results. Default is 'stacked/'. The site name will be appended to this.
    # 
    # Source: 
    #     geoTIFFs for each site
@@ -23,21 +24,17 @@
    #
    # Results: 
    #     geoTIFFs, clipped, resampled, and aligned   *** Make sure you've closed ArcGIS/QGIS projects that point to these before running! ***
-   #     gather_data.log, in basedir      
+   #     gather_data.log, in resultbase      
    # 
    # All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected.
    # 
    # sites.txt must include the name of the footprint shapefile for each site.
    # 
-   # sites.txt may include a standard geoTIFF for each site, to be used as the standard for grain and alignment; all rasters will be 
-   # resampled to match. If not specified, standard for each site will be set to orthomosiacs/ Mica file with earliest date (regardless 
-   # of whether it's in the rasters specification). 
+   # sites.txt must include a standard geoTIFF for each site, to be used as the standard for grain and alignment; all rasters will be 
+   # resampled to match. Standards MUST be in the standard projection, EPSG:4326. Use find_standards() to pick good candidates.
    # 
-   # Note that adding to an existing stack using a different standard will lead to sorrow. If an stack for the site already 
-   # exists and replace = FALSE, one of the rasters in the stack will be compared with the standard for alignment, potentially 
-   # producing an error. 
-   # 
-   # BEST PRACTICE: include standards in sites.txt and don't change them
+   # Note that adding to an existing stack using a different standard will lead to sorrow. BEST PRACTICE: don't change the standards
+   # in standards.txt; if you must change them, run with replace = TRUE.
    # 
    # Example runs:
    #    Complete for all sites:
@@ -62,7 +59,7 @@
    
    
    
-   lf <- file.path(basedir, 'gather_data.log')                                      # set up logging
+   lf <- file.path(resultbase, 'gather_data.log')                                   # set up logging
    'msg' <- function(message, logfile) {                                            # append message to the log file and also write it to the display
       timestamp <- stamp('[17 Feb 2025, 3:22:18 pm]  ', quiet = TRUE)
       if(!file.exists(logfile))
@@ -100,13 +97,7 @@
       for(j in subdirs)                                                             #    for each subdir,
          x <- c(x, paste0(j, list.files(file.path(dir, j))))                        #       get filenames ending in .tif
       x <- x[grep('.tif$', x)]
-      if(str_length(standard <- sites$standard[i]) == 0) {                          #    if standard supplied for this site, use it; else take earliest Mica Orthomosaic
-         d <- str_split(y <- x[grep('mica_ortho', tolower(x))], '_')         
-         d <- dmy(unlist(lapply(d, '[[', 1)))
-         standard <- y[order(d)[1]]
-         msg(paste0('   Using standard = ', standard), lf)
-      }
-      standard <- rast(file.path(dir, standard))
+      standard <- rast(file.path(dir, sites$standard[i]))
       
       x <- x[grep(tolower(pattern), tolower(x))]                                    #    now match user's pattern - this is our definitive list of geoTIFFs for this site
       msg(paste0('   Processing ', length(x), ' geoTIFFs...'), lf)
@@ -116,18 +107,20 @@
       
       if(!dir.exists(resultbase))                                                   #    prepare result directory
          dir.create(resultbase)
-      resultdir <- file.path(resultbase, sites$site_name[i], '/')                   
+      if(!dir.exists(f <- file.path(resultbase, resultdir)))
+         dir.create(f)
+      rd <- file.path(f, sites$site_name[i], '/')                   
       if(replace) 
-         unlink(resultdir, recursive = TRUE)
-      if(!dir.exists(resultdir))
-         dir.create(resultdir)
+         unlink(rd, recursive = TRUE)
+      if(!dir.exists(rd))
+         dir.create(rd)
       
       count <- count + length(x)
       for(j in x) {                                                                 #    for each target geoTIFF in site,
          msg(paste0('      processing ', j), lf)
 
          g <- rast(file.path(dir, j))
-         if (paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {
+         if(paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {
             msg(paste0('         !!! Reprojecting ', g), lf)
             g <- project(g, 'epsg:4326')
          }
@@ -135,7 +128,7 @@
          resample(g, standard, method = 'bilinear', threads = TRUE) |>
             crop(shapefile) |>
             mask(shapefile) |>
-            writeRaster(file.path(resultdir, basename(j)), overwrite = TRUE)
+            writeRaster(file.path(rd, basename(j)), overwrite = TRUE)
        }
       msg(paste0('Finished with site ', sites$site[i]), lf)
    }
