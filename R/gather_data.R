@@ -15,28 +15,34 @@
    #     basedir        full path to subdirs
    #     replace        if true, deletes the existing stack and replaces it. Use with care!
    #     resultbase     name of result base directory. The site name will be appended.
-   # 		
-   # 	Source: 
+   # 
+   # Source: 
    #     geoTIFFs for each site
    #     pars/sites.txt    table of site abbreviation, site name, footprint shapefile, raster standard
-   # 	   
-   # 	Results: geoTIFFs, clipped, resampled, and aligned
+   #
+   # Results: geoTIFFs, clipped, resampled, and aligned
    # 
-   #  All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected.
-   # 	
-   #  sites.txt must include the name of the footprint shapefile for each site.
+   # All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected.
    # 
-   #  sites.txt may include a standard geoTIFF for each site, to be used as the standard for grain and alignment; all rasters will be 
-   #  resampled to match. If not specified, standard for each site will be set to orthomosiacs/ Mica file with earliest date (regardless 
-   #  of whether it's in the rasters specification). 
-   # 	
-   #  Note that adding to an existing stack using a different standard will lead to sorrow. If an stack for the site already 
-   #  exists and replace = FALSE, one of the rasters in the stack will be compared with the standard for alignment, potentially 
-   #  producing an error. 
-   # 	
-   # 	BEST PRACTICE: include standards in sites.txt and don't change them
-   # 	
-   # 	B. Compton, 31 Jan 2025
+   # sites.txt must include the name of the footprint shapefile for each site.
+   # 
+   # sites.txt may include a standard geoTIFF for each site, to be used as the standard for grain and alignment; all rasters will be 
+   # resampled to match. If not specified, standard for each site will be set to orthomosiacs/ Mica file with earliest date (regardless 
+   # of whether it's in the rasters specification). 
+   # 
+   # Note that adding to an existing stack using a different standard will lead to sorrow. If an stack for the site already 
+   # exists and replace = FALSE, one of the rasters in the stack will be compared with the standard for alignment, potentially 
+   # producing an error. 
+   # 
+   # BEST PRACTICE: include standards in sites.txt and don't change them
+   # 
+   # Example runs:
+   #    Complete for all sites:
+   #       gather_data()
+   #    Run for 2 sites, low tide only:
+   #       gather_data(sites = c('oth', 'wes'), pattern = '_low_')
+   # 
+   # B. Compton, 31 Jan 2025
    
    
    ### for testing on my laptop    (don't forget to change OTH in sites.txt!)
