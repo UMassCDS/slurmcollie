@@ -9,6 +9,7 @@
    #     pattern        regex filtering rasters, case-insensitive. Default = '.*' (match all). Note: only files ending in .tif are included in any case.
    #        Examples: 
    #           - to match all Mica orthophotos, use pattern = 'mica_orth'
+   #           - to match all Mica files from July, use pattern = 'Jun.*mica'
    #           - to match Mica files for a series of dates, use pattern = '11nov20.*mica|14oct20.*mica'
    #     subdirs        subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
    #                    nonexistent directories)
@@ -20,7 +21,9 @@
    #     geoTIFFs for each site
    #     pars/sites.txt    table of site abbreviation, site name, footprint shapefile, raster standard
    #
-   # Results: geoTIFFs, clipped, resampled, and aligned
+   # Results: 
+   #     geoTIFFs, clipped, resampled, and aligned   *** Make sure you've closed ArcGIS/QGIS projects that point to these before running! ***
+   #     gather_data.log, in basedir      
    # 
    # All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected.
    # 
@@ -48,7 +51,7 @@
    ### for testing on my laptop    (don't forget to change OTH in sites.txt!)
    subdirs = c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
    site <- c('oth', 'wes')
-   pattern = 'mica'
+   pattern = 'nov.*mica'
    
    
    library(terra)
@@ -59,36 +62,54 @@
    
    
    
+   lf <- file.path(basedir, 'gather_data.log')                                      # set up logging
+   'msg' <- function(message, logfile) {                                            # append message to the log file and also write it to the display
+      timestamp <- stamp('[17 Feb 2025, 3:22:18 pm]  ', quiet = TRUE)
+      if(!file.exists(logfile))
+         cat(paste0(timestamp(now()), message), sep = '\n', file = logfile)
+      else
+         cat(paste0(timestamp(now()), message), sep = '\n', file = logfile, append = TRUE)
+      cat(message, sep = '\n')
+   }
+   
+   
+   
+   start <- Sys.time()
+   count <- 0
    allsites <- read.table('pars/sites.txt', sep = '\t', header = TRUE)              # site names from abbreviations to paths
    if(is.null(site))
       site <- allsites$site
    else
       sites <- allsites[match(tolower(site), tolower(allsites$site)), ]
-   if(any(is.na(sites$site_name)))                                               # check for missing sites
+   if(any(is.na(sites$site_name)))                                                  # check for missing sites
       stop(paste0('Bad site names: ', paste(site[is.na(sites$site_name)], collapse = ', ')))
    
    
    if(replace)
-      cat('\n!!! BEWARE: replace = TRUE will delete all existing contents in result directories !!!\n\n')
+      msg('\n!!! BEWARE: replace = TRUE will delete all existing contents in result directories !!!\n\n')
    
-   cat('Running for ', dim(sites)[1], ' sites...\n', sep = '')
+   msg('', lf)
+   msg(paste0('gather_data running for ', dim(sites)[1], ' sites...'), lf)
+   msg(paste0('site = ', paste(site, collapse = ', ')), lf)
+   msg(paste0('pattern = ', pattern), lf)
    
    for(i in 1:dim(sites)[1]) {                                                      # for each site,
-      cat('\nSite ', sites$site[i], '\n', sep = '')
+      msg(paste0('Site ', sites$site[i]), lf)
       dir <- file.path(basedir, sites$site_name[i], '/')
       x <- NULL
       for(j in subdirs)                                                             #    for each subdir,
          x <- c(x, paste0(j, list.files(file.path(dir, j))))                        #       get filenames ending in .tif
       x <- x[grep('.tif$', x)]
-      if(is.na(standard <- sites$standard[i])) {                                    #    if standard supplied for this site, use it; else take earliest Mica Orthomosaic
+      if(str_length(standard <- sites$standard[i]) == 0) {                          #    if standard supplied for this site, use it; else take earliest Mica Orthomosaic
          d <- str_split(y <- x[grep('mica_ortho', tolower(x))], '_')         
          d <- dmy(unlist(lapply(d, '[[', 1)))
          standard <- y[order(d)[1]]
-         cat('   Using standard = ', standard, '\n', sep = '')
-         standard <- rast(file.path(dir, standard))
+         msg(paste0('   Using standard = ', standard), lf)
       }
+      standard <- rast(file.path(dir, standard))
+      
       x <- x[grep(tolower(pattern), tolower(x))]                                    #    now match user's pattern - this is our definitive list of geoTIFFs for this site
-      cat('   Processing ', length(x), ' geoTIFFs...\n', sep = '')
+      msg(paste0('   Processing ', length(x), ' geoTIFFs...'), lf)
       
       shapefile <- st_read(file.path(dir, sites$footprint[i]), quiet = TRUE)        #    read boundary shapefile
       
@@ -101,20 +122,23 @@
       if(!dir.exists(resultdir))
          dir.create(resultdir)
       
-      
+      count <- count + length(x)
       for(j in x) {                                                                 #    for each target geoTIFF in site,
-         cat('      processing ', j, '\n', sep = '')
-         
+         msg(paste0('      processing ', j), lf)
+
          g <- rast(file.path(dir, j))
          if (paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {
-            cat('         !!! Reprojecting ', g, '\n', sep =)
+            msg(paste0('         !!! Reprojecting ', g), lf)
             g <- project(g, 'epsg:4326')
          }
-         
+
          resample(g, standard, method = 'bilinear', threads = TRUE) |>
             crop(shapefile) |>
             mask(shapefile) |>
             writeRaster(file.path(resultdir, basename(j)), overwrite = TRUE)
-      }
+       }
+      msg(paste0('Finished with site ', sites$site[i]), lf)
    }
+   d <- as.duration(interval(start, Sys.time()))
+   msg(paste0('Run finished. ', count,' geoTIFFs processed in ', round(d), '; ', round(d / count), ' per file.'), lf)
 }
