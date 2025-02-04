@@ -45,7 +45,6 @@ Although we plan to run models for individual sites, we want to try pooling acro
 # Data prep and modeling overview
 1. Copy geoTIFFs from the Google Drive for each site, resample and align, clip, and put separate geoTIFFs in a single folder on Unity for each site (the "stack," though they're separate files). That's what I've done, though want to make it read properly from the Google drive plus a couple more changes.
 2. Produce derived rasters such as NDVI in the stack folders. (optional)  
-    
 3. Upsample selected rasters into the stack folders. (optional)
 4. Sample rasters for transects at a site, producing an R data frame (this is the first time we have anything big in memory, and it's not that big). This data frame does NOT contain the entirety of the rasters, just the values at the sample points. Save as an RDS (binary R format that's fast to read).
 5. Stitch sample data frames for multiple sites and save as an RDS. If this gets too big, we'll have to subsample. Only for building models across multiple sites. (optional)
@@ -64,50 +63,50 @@ Step 6 will be run a lot of times, often in a loop. It'll only read the data fil
 
 Step 7 will take longer, as it has to go back to the raster data (but only for variables that end up in the model). I anticipate not running this nearly as many times as Step 6, as most models will obviously suck from the stats and we won't want to look at them.
 # Code 
-1. **gather_data**. Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. Clip to site boundary, resample and align to standard resolution.
-	*Arguments*:
-		**site** - one or more site names. Default = all sites
-		**pattern** -  regex filtering rasters. Default = '.\*' (match all)
-		**subdirs** - subdirectories to search. Default = c('RFM processing inputs/Orthomosaics/', 'Share/Photogrammetry DEMs/', 'Share/Canopy height models/')
-		**basedir** - full path to subdirs
-		**standard** - point to a raster that will be used as the standard for grain and alignment; all rasters will be resampled to match. Default: orthomosiacs/ Mica file with earliest date (regardless of whether it's in the rasters specification). 
-		**replace** = FALSE. If true, deletes the existing stack and replaces it. Use with care!
-		**resultdir** - name of result subdirectory. Default = 'predictors/'
-	*Source*: geoTIFFs for each site
-	*Results*: geoTIFFs, clipped, resampled, and aligned
+8. **gather_data**. Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. Clip to site boundary, resample and align to standard resolution.  
+	*Arguments*:  
+		**site** - one or more site names. Default = all sites  
+		**pattern** -  regex filtering rasters. Default = '.\*' (match all)  
+		**subdirs** - subdirectories to search. Default = c('RFM processing inputs/Orthomosaics/', 'Share/Photogrammetry DEMs/', 'Share/Canopy height models/')  
+		**basedir** - full path to subdirs  
+		**standard** - point to a raster that will be used as the standard for grain and alignment; all rasters will be resampled to match. Default: orthomosiacs/ Mica file with earliest date (regardless of whether it's in the rasters specification).   
+		**replace** = FALSE. If true, deletes the existing stack and replaces it. Use with care!  
+		**resultdir** - name of result subdirectory. Default = 'predictors/'  
+	*Source*: geoTIFFs for each site  
+	*Results*: geoTIFFs, clipped, resampled, and aligned  
 - All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected.
 - Note that adding to an existing stack using a different standard will lead to sorrow. If a stack for the site already exists and replace = FALSE, one of the rasters in the stack will be compared with the standard for alignment, potentially producing an error. **Not currently implemented**; not sure if I'll bother.
 - **May modify it to read from [Google drive](https://googledrive.tidyverse.org/)**, but not sure what the best approach to doing this on Unity is yet. It might make more sense to copy source files from the Google drive first. It'd be slicker but probably slower to read files from GD.
 		
-2. **upscale_predictors**. 
-	Upscale predictor variables. Create predictors at coarser grains (e.g., mean, SD, IQR, maybe 10th and 90th percentile)
-	*Arguments*:
-		rasters - regex or vector of target geoTIFFs. Default: all files with "ortho" in the name
-		functions - list of functions. Default = c('mean', 'sd', 'iqr', 'p10', 'p90')
-		scales - number of cells for focal functions. Must be odd. Default = c(3, 5, 7, 9, 11)
-	*Source*: processed geoTIFFs (from layer_stack_kcf) in site-specific stack folders
-	*Results*: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>\_\<scale>.tif
+9. **upscale_predictors**. 
+	Upscale predictor variables. Create predictors at coarser grains (e.g., mean, SD, IQR, maybe 10th and 90th percentile)  
+	*Arguments*:  
+		rasters - regex or vector of target geoTIFFs. Default: all files with "ortho" in the name  
+		functions - list of functions. Default = c('mean', 'sd', 'iqr', 'p10', 'p90')  
+		scales - number of cells for focal functions. Must be odd. Default = c(3, 5, 7, 9, 11)  
+	*Source*: processed geoTIFFs (from layer_stack_kcf) in site-specific stack folders  
+	*Results*: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>\_\<scale>.tif  
 	Dunno what functions and scales will make sense (if any). Will play with it.
 	
-3. **derive_predictors**. Derive indices by combining two or more predictor variables. Start with NDVI and NDWI. 
-	*Arguments*:
-		rasters - regex or vector of target geoTIFFs. Default: all files with "ortho" in the name. 
-		functions - list of functions. Default = c('NDVI', 'NWVI')
-	*Source*: processed geoTIFFs (from layer_stack_kcf) in site-specific stack folders
-	*Results*: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>.tif
+10. **derive_predictors**. Derive indices by combining two or more predictor variables. Start with NDVI and NDWI.   
+	*Arguments*:  
+		rasters - regex or vector of target geoTIFFs. Default: all files with "ortho" in the name.   
+		functions - list of functions. Default = c('NDVI', 'NWVI')  
+	*Source*: processed geoTIFFs (from layer_stack_kcf) in site-specific stack folders  
+	*Results*: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>.tif  
 	Need to do this only on files for sensors with near infrared (NDVI) or both near and short-wave infrared (NDWI). **WHICH SENSORS ARE THESE? Do we have sensors with 4 bands, or do we need to combine multiple sensors?** May need an argument to specify bands too.
 	
-4. **sample_predictors**. Read each raster, select all training points, collect in a data frame, and save as RDS (which takes seconds to read). Mild subsampling if necessary. Now we have all of the training data in something we can quickly read and select from.
-	Arguments:
-	Source: processed geoTIFFs from layer stack, transect polys
-	Result: site_name.RDS in dataframes/
+11. **sample_predictors**. Read each raster, select all training points, collect in a data frame, and save as RDS (which takes seconds to read). Mild subsampling if necessary. Now we have all of the training data in something we can quickly read and select from.  
+	Arguments:  
+	Source: processed geoTIFFs from layer stack, transect polys  
+	Result: site_name.RDS in dataframes/  
 	To figure out: how to do a block sampling scheme to reduce spatial autocorrelation
 
-5. **stitch_sites**. Stack data frames from individual sites for all sites or a selected subset.
-	Arguments: vector of site names, result name
-	Source: \*.RDS in dataframes/
-	Result: result.RDS in dataframes/
+12. **stitch_sites**. Stack data frames from individual sites for all sites or a selected subset.  
+	Arguments: vector of site names, result name  
+	Source: \*.RDS in dataframes/  
+	Result: result.RDS in dataframes/  
 
-6. **fit_model**. Read training data from RDS (if not already cached), select training points, pull out holdout set, run RF model, return CCR, confusion matrix, var importance, and save fit. This should be able to cycle quickly, allowing automated variable selection if we want. Option *reclass* to reclass dependent variable. 
+13. **fit_model**. Read training data from RDS (if not already cached), select training points, pull out holdout set, run RF model, return CCR, confusion matrix, var importance, and save fit. This should be able to cycle quickly, allowing automated variable selection if we want. Option *reclass* to reclass dependent variable. 
 
-7. **predict_fit**. For models we like, go back to raster stack, reading only variables used in model, predict, and write raster model prediction.
+14. **predict_fit**. For models we like, go back to raster stack, reading only variables used in model, predict, and write raster model prediction.
