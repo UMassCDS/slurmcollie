@@ -1,6 +1,5 @@
 'get_file' <- function(name, gd = NULL) {
    
-   
    # Arguments:
    #     name        file path and name
    #     gd          Google Drive info (optional), named list of 
@@ -19,7 +18,8 @@
       return(name)                                       #    just pass through the file path and name
    else {
       
-    
+    cat('do stuff here............................................................\n')
+      
       return(z)  
    }
 }

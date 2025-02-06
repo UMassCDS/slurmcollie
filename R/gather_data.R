@@ -1,7 +1,10 @@
 'gather_data' <- function(site = NULL, pattern = '.*', 
-                          subdirs = c('RFM processing inputs/Orthomosaics', '[site] Share/Photogrammetry DEMs', '[site] Share/Canopy height models'), 
-                          basedir = 'c:/Work/etc/saltmarsh/data', replace = FALSE, resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/',
-                          googledrive = FALSE, cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
+                          subdirs = c('RFM processing inputs/Orthomosaics/', '[site] Share/Photogrammetry DEMs/', '[site] Share/Canopy height models/'), 
+                          #basedir = 'c:/Work/etc/saltmarsh/data', 
+                          basedir = 'UAS Data Collection/',
+                          replace = FALSE, resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/',
+                          googledrive = TRUE, cachedir = 'c:/temp/cache/'){
+                          #cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
    
    # Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. 
    # Clip to site boundary, resample and align to standard resolution.
@@ -53,10 +56,10 @@
    
    
    ### for testing on my laptop    (don't forget to change OTH in sites.txt!)
-   subdirs = c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
- #  site <- c('oth', 'wes')
-   site <- c('wes')
-   pattern = 'nov.*mica'
+ #  subdirs = c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
+   site <- c('oth', 'wes')
+ #  site <- c('wes')
+   pattern = 'nov.*low*.mica'
 
    
    library(terra)
@@ -93,6 +96,8 @@
    if(any(t <- is.na(sites$standard) | sites$standard == ''))                       # check for missing standards
       stop(paste0('Missing standards for sites ', paste(sites$site[t], collapse = ', ')))
    
+   if(googledrive & !dir.exists(cachedir))                                          #    make sure cache directory exists
+      dir.create(cachedir)
    
    if(replace)
       msg('\n!!! BEWARE: replace = TRUE will delete all existing contents in result directories !!!\n\n')
@@ -106,13 +111,16 @@
       msg(paste0('Site ', sites$site[i]), lf)
       dir <- file.path(basedir, sites$site_name[i], '/')
       x <- NULL
+      
+    #  sites<<-sites;subdirs<<-subdirs;x;dirt<<-dir;googledrive<<-googledrive;cachedir<<-cachedir;return()
+      
       for(j in sub('[site]', sites$site_name[i], subdirs, fixed = TRUE))            #    for each subdir (with site name replacement),
          x <- rbind(x, get_dir(file.path(dir, j), googledrive))                     #       get directory
       x <- x[grep('.tif$', x$name), ]                                               #    only want files ending in .tif
       
       gd <- list(dir = x, googledrive = googledrive, cachedir = cachedir)           #    info for Google Drive
       
-      dirt<<-dir;sites<<-sites;i<<-i;gd<<-gd
+      dirt<<-dir;sites<<-sites;i<<-i;gd<<-gd;return()
       
       
       standard <- rast(get_file(file.path(dir, sites$standard[i]), gd))

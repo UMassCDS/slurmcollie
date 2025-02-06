@@ -4,7 +4,7 @@ BAR	Barnstable
 PEG	Peggotty Beach		
 WEL	Wellfleet Bay		
 RED	Red River		
-OTH	Old_Town_Hill	site footprint/OTH_100ac_Mask_24Mar23.shp	Orthomosaics/22Sept18_OTH_High_Mica_Ortho.tif
+OTH	Old Town Hill	site footprint/OTH_100ac_Mask_24Mar23.shp	Orthomosaics/22Sept18_OTH_High_Mica_Ortho.tif
 ESS	Essex Bay		
 NOR	North River		
 WES	Westport	footprint/WES_100ac_Mask_24Mar23.shp	Orthomosaics\05Oct20_WES_Low_Mica_Ortho.tif
