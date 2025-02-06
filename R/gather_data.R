@@ -1,7 +1,7 @@
 'gather_data' <- function(site = NULL, pattern = '.*', 
                           subdirs = c('RFM processing inputs/Orthomosaics', '[site] Share/Photogrammetry DEMs', '[site] Share/Canopy height models'), 
                           basedir = 'c:/Work/etc/saltmarsh/data', replace = FALSE, resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/',
-                          googledrive = TRUE, cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
+                          googledrive = FALSE, cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
    
    # Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. 
    # Clip to site boundary, resample and align to standard resolution.
@@ -53,10 +53,11 @@
    
    
    ### for testing on my laptop    (don't forget to change OTH in sites.txt!)
-   subdirs = c('[site] Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
-   site <- c('oth', 'wes')
+   subdirs = c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
+ #  site <- c('oth', 'wes')
+   site <- c('wes')
    pattern = 'nov.*mica'
-   
+
    
    library(terra)
    library(sf)
@@ -87,6 +88,10 @@
       sites <- allsites[match(tolower(site), tolower(allsites$site)), ]
    if(any(is.na(sites$site_name)))                                                  # check for missing sites
       stop(paste0('Bad site names: ', paste(site[is.na(sites$site_name)], collapse = ', ')))
+   if(any(t <- is.na(sites$footprint) | sites$footprint == ''))                       # check for missing standards
+      stop(paste0('Missing footprints for sites ', paste(sites$footprint[t], collapse = ', ')))
+   if(any(t <- is.na(sites$standard) | sites$standard == ''))                       # check for missing standards
+      stop(paste0('Missing standards for sites ', paste(sites$site[t], collapse = ', ')))
    
    
    if(replace)
@@ -101,15 +106,21 @@
       msg(paste0('Site ', sites$site[i]), lf)
       dir <- file.path(basedir, sites$site_name[i], '/')
       x <- NULL
-           for(j in sub('[site]', sites$site_name[i], subdirs, fixed = TRUE))                 #    for each subdir (with site name replacement),
-              x <- c(x, paste0(j, list.files(file.path(dir, j))))                        #       get filenames ending in .tif
-      x <- x[grep('.tif$', x)]
-      standard <- rast(file.path(dir, sites$standard[i]))
+      for(j in sub('[site]', sites$site_name[i], subdirs, fixed = TRUE))            #    for each subdir (with site name replacement),
+         x <- rbind(x, get_dir(file.path(dir, j), googledrive))                     #       get directory
+      x <- x[grep('.tif$', x$name), ]                                               #    only want files ending in .tif
+      
+      gd <- list(dir = x, googledrive = googledrive, cachedir = cachedir)           #    info for Google Drive
+      
+      dirt<<-dir;sites<<-sites;i<<-i;gd<<-gd
+      
+      
+      standard <- rast(get_file(file.path(dir, sites$standard[i]), gd))
       
       x <- x[grep(tolower(pattern), tolower(x))]                                    #    now match user's pattern - this is our definitive list of geoTIFFs for this site
       msg(paste0('   Processing ', length(x), ' geoTIFFs...'), lf)
       
-      shapefile <- st_read(file.path(dir, sites$footprint[i]), quiet = TRUE)        #    read boundary shapefile
+      shapefile <- st_read(get_file(file.path(dir, sites$footprint[i]), gd), quiet = TRUE)        #    read boundary shapefile
       
       
       if(!dir.exists(resultbase))                                                   #    prepare result directory
@@ -125,18 +136,22 @@
       count <- count + length(x)
       for(j in x) {                                                                 #    for each target geoTIFF in site,
          msg(paste0('      processing ', j), lf)
-
-         # g <- rast(file.path(dir, j))
-         # if(paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {
-         #    msg(paste0('         !!! Reprojecting ', g), lf)
-         #    g <- project(g, 'epsg:4326')
-         # }
-         # 
-         # resample(g, standard, method = 'bilinear', threads = TRUE) |>
-         #    crop(shapefile) |>
-         #    mask(shapefile) |>
-         #    writeRaster(file.path(rd, basename(j)), overwrite = TRUE)
-       }
+         
+         
+         dirt<<-dir;j<<-j;gd<<-gd
+         
+         
+         g <- rast(get_file(j, gd))
+         if(paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {
+            msg(paste0('         !!! Reprojecting ', g), lf)
+            g <- project(g, 'epsg:4326')
+         }
+         
+         resample(g, standard, method = 'bilinear', threads = TRUE) |>
+            crop(shapefile) |>
+            mask(shapefile) |>
+            writeRaster(file.path(rd, basename(j)), overwrite = TRUE)
+      }
       msg(paste0('Finished with site ', sites$site[i]), lf)
    }
    d <- as.duration(interval(start, Sys.time()))
