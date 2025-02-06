@@ -1,6 +1,7 @@
 'gather_data' <- function(site = NULL, pattern = '.*', 
-                          subdirs = c('RFM processing inputs/Orthomosaics', 'Share/Photogrammetry DEMs', 'Share/Canopy height models'), 
-                          basedir = 'c:/Work/etc/saltmarsh/data', replace = FALSE, resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/') {
+                          subdirs = c('RFM processing inputs/Orthomosaics', '[site] Share/Photogrammetry DEMs', '[site] Share/Canopy height models'), 
+                          basedir = 'c:/Work/etc/saltmarsh/data', replace = FALSE, resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/',
+                          googledrive = TRUE, cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
    
    # Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. 
    # Clip to site boundary, resample and align to standard resolution.
@@ -12,11 +13,17 @@
    #           - to match all Mica files from July, use pattern = 'Jun.*mica'
    #           - to match Mica files for a series of dates, use pattern = '11nov20.*mica|14oct20.*mica'
    #     subdirs        subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
-   #                    nonexistent directories)
+   #                    nonexistent directories). Use '[site]' in subdirectories that include a site name, e.g., '[site] Share/Photogrammetry DEMs'.
    #     basedir        full path to subdirs
    #     replace        if true, deletes the existing stack and replaces it. Use with care!
    #     resultbase     base name of result base directory. 
    #     resultdir      subdir for results. Default is 'stacked/'. The site name will be appended to this.
+   #     googledrive    if TRUE, get source data from currently connected Google Drive (login via browser on first connection); if FALSE, read from local drive
+   #     cachedir       path to local cache directory; required when googledrive = TRUE. The cache directory should be larger than the total amount of data
+   #                    processed--this code isn't doing any quota management. This is not an issue when using a scratch drive on Unity, as the limit is 50 TB.
+   #                    There's no great need to carry over cached data over long periods, as downloading from Google to Unity is very fast.
+   #                    To set up a scratch drive on Unity, see https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/. Be polite and 
+   #                    release the scratch workspace when you're done.
    # 
    # Source: 
    #     geoTIFFs for each site
@@ -46,7 +53,7 @@
    
    
    ### for testing on my laptop    (don't forget to change OTH in sites.txt!)
-   subdirs = c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
+   subdirs = c('[site] Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
    site <- c('oth', 'wes')
    pattern = 'nov.*mica'
    
@@ -94,8 +101,8 @@
       msg(paste0('Site ', sites$site[i]), lf)
       dir <- file.path(basedir, sites$site_name[i], '/')
       x <- NULL
-      for(j in subdirs)                                                             #    for each subdir,
-         x <- c(x, paste0(j, list.files(file.path(dir, j))))                        #       get filenames ending in .tif
+           for(j in sub('[site]', sites$site_name[i], subdirs, fixed = TRUE))                 #    for each subdir (with site name replacement),
+              x <- c(x, paste0(j, list.files(file.path(dir, j))))                        #       get filenames ending in .tif
       x <- x[grep('.tif$', x)]
       standard <- rast(file.path(dir, sites$standard[i]))
       
@@ -119,16 +126,16 @@
       for(j in x) {                                                                 #    for each target geoTIFF in site,
          msg(paste0('      processing ', j), lf)
 
-         g <- rast(file.path(dir, j))
-         if(paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {
-            msg(paste0('         !!! Reprojecting ', g), lf)
-            g <- project(g, 'epsg:4326')
-         }
-
-         resample(g, standard, method = 'bilinear', threads = TRUE) |>
-            crop(shapefile) |>
-            mask(shapefile) |>
-            writeRaster(file.path(rd, basename(j)), overwrite = TRUE)
+         # g <- rast(file.path(dir, j))
+         # if(paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {
+         #    msg(paste0('         !!! Reprojecting ', g), lf)
+         #    g <- project(g, 'epsg:4326')
+         # }
+         # 
+         # resample(g, standard, method = 'bilinear', threads = TRUE) |>
+         #    crop(shapefile) |>
+         #    mask(shapefile) |>
+         #    writeRaster(file.path(rd, basename(j)), overwrite = TRUE)
        }
       msg(paste0('Finished with site ', sites$site[i]), lf)
    }
