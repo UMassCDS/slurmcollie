@@ -1,5 +1,5 @@
 'gather_data' <- function(site = NULL, pattern = '.*', 
-                          subdirs = c('RFM processing inputs/Orthomosaics/', '[site] Share/Photogrammetry DEMs/', '[site] Share/Canopy height models/'), 
+                          subdirs = c('RFM Processing Inputs/Orthomosaics/', '[site] Share/Photogrammetry DEMs/', '[site] Share/Canopy Height Models/'), 
                           #basedir = 'c:/Work/etc/saltmarsh/data', 
                           basedir = 'UAS Data Collection/',
                           replace = FALSE, resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/',
@@ -17,6 +17,7 @@
    #           - to match Mica files for a series of dates, use pattern = '11nov20.*mica|14oct20.*mica'
    #     subdirs        subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
    #                    nonexistent directories). Use '[site]' in subdirectories that include a site name, e.g., '[site] Share/Photogrammetry DEMs'.
+   #                    WARNING: paths on the Google Drive are case-sensitive!
    #     basedir        full path to subdirs
    #     replace        if true, deletes the existing stack and replaces it. Use with care!
    #     resultbase     base name of result base directory. 
@@ -26,7 +27,7 @@
    #                    processed--this code isn't doing any quota management. This is not an issue when using a scratch drive on Unity, as the limit is 50 TB.
    #                    There's no great need to carry over cached data over long periods, as downloading from Google to Unity is very fast.
    #                    To set up a scratch drive on Unity, see https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/. Be polite and 
-   #                    release the scratch workspace when you're done.
+   #                    release the scratch workspace when you're done. See comments in get_file.R for more notes on caching.
    # 
    # Source: 
    #     geoTIFFs for each site
@@ -59,7 +60,8 @@
  #  subdirs = c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
    site <- c('oth', 'wes')
  #  site <- c('wes')
-   pattern = 'nov.*low*.mica'
+#   pattern = 'nov.*low*.mica'
+   pattern = '27Apr2021_OTH_Low_RGB_DEM.tif|24Jun22_WES_Mid_SWIR_Ortho.tif'
 
    
    library(terra)
@@ -110,17 +112,27 @@
    for(i in 1:dim(sites)[1]) {                                                      # for each site,
       msg(paste0('Site ', sites$site[i]), lf)
       dir <- file.path(basedir, sites$site_name[i], '/')
+      
+      
+      
+  ####    s <- c(subdirs, file.path(sites$footprint))        use s instead of subdir, get footprint and standard paths for gd$dir ............ and get the paths right in sites.txt ####
+      
+      
       x <- NULL
       
-    #  sites<<-sites;subdirs<<-subdirs;x;dirt<<-dir;googledrive<<-googledrive;cachedir<<-cachedir;return()
+    ##  sites<<-sites;subdirs<<-subdirs;x;dirt<<-dir;googledrive<<-googledrive;cachedir<<-cachedir;return()
       
       for(j in sub('[site]', sites$site_name[i], subdirs, fixed = TRUE))            #    for each subdir (with site name replacement),
+      {print(file.path(dir, j))
          x <- rbind(x, get_dir(file.path(dir, j), googledrive))                     #       get directory
+        ## dirt<<-dir;j<<-j;googledrive<<-googledrive;return()
+       ##  print(x)
+      }
       x <- x[grep('.tif$', x$name), ]                                               #    only want files ending in .tif
       
       gd <- list(dir = x, googledrive = googledrive, cachedir = cachedir)           #    info for Google Drive
       
-      dirt<<-dir;sites<<-sites;i<<-i;gd<<-gd;return()
+    ##  dirt<<-dir;sites<<-sites;i<<-i;gd<<-gd;return()
       
       
       standard <- rast(get_file(file.path(dir, sites$standard[i]), gd))
@@ -146,7 +158,7 @@
          msg(paste0('      processing ', j), lf)
          
          
-         dirt<<-dir;j<<-j;gd<<-gd
+         ##dirt<<-dir;j<<-j;gd<<-gd
          
          
          g <- rast(get_file(j, gd))
