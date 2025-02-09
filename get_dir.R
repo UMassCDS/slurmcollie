@@ -1,6 +1,8 @@
 'get_dir' <- function(path, googledrive = FALSE) {
    
    # Return directory listing as a data frame from either local drive or Google Drive
+   # A sister function to get_file
+   # 
    # Arguments:
    #     path        directory path (must end with '/' on Google Drive)
    #     googledrive TRUE if reading from Google Drive
