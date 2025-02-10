@@ -20,6 +20,8 @@ All in UAS data collection/***site***/
 	- standard - name of geoTIFF to treat as the standard for grain and alignment. These should be fine-grained files, such as Mica files. *Do not change these without recreating stack from gather.data.R!*
 ## Relevant docs
 - [Flight log](UAS Data Collection\UAS Data Log_Salt Marsh_2018-2024)
+- [R caret library](https://topepo.github.io/caret/index.html)
+- [Python scikit-learn library](https://scikit-learn.org/stable/index.html)
 # Notes
 ## Pooling across sites
 Although we plan to run models for individual sites, we want to try pooling across sites, in the hopes we can come up with a general model for Massachusetts salt marshes (or perhaps by region within Massachusetts). We'll cross-validate by site. An alternative to pooling is a stacking approach: build a separate model for each site and combine results at the end.
@@ -59,12 +61,12 @@ Although we plan to run models for individual sites, we want to try pooling acro
 - a function to delete (or maybe archive) rows that deletes/archives linked data files too
 - May want a split mechanism to launch models vs. actually run them
 # Data prep and modeling overview
-1. Copy geoTIFFs from the Google Drive (or NAS via SFTP) for each site, resample and align, clip, and put separate geoTIFFs in a single folder on Unity for each site (the "stack," though they're separate files). That's what I've done, though want to make it read properly from the Google drive plus a couple more changes.
+1. Copy geoTIFFs from the Google Drive (or NAS via SFTP) for each site, resample and align, clip, and put separate geoTIFFs in a single folder on Unity for each site (the "stack," though they're separate files).
 2. Produce derived rasters such as NDVI in the stack folders. (optional)  
 3. Upsample selected rasters into the stack folders. (optional)
 4. Sample rasters for transects at a site, producing an R data frame (this is the first time we have anything big in memory, and it's not that big). This data frame does NOT contain the entirety of the rasters, just the values at the sample points. Save as an RDS (binary R format that's fast to read).
-5. Stitch sample data frames for multiple sites and save as an RDS. If this gets too big, we'll have to subsample. Only for building models across multiple sites. (optional)
-6. Fit model. Read sample data for site(s). Optionally reclass dependent variable (e.g., to ICS_V4). Fit random forest or AdaBoost model(s), potentially evaluate fit automatically and refit, write fit statistics and model for human evaluation and future prediction.
+5. Stitch sample data frames for multiple sites and save as an RDS. If this gets too big, we'll have to subsample (it probably won't). Only for building models across multiple sites. (optional)
+6. Fit model. Read sample data for site(s). Optionally reclass dependent variable (e.g., to ICS_V4). Splits data into train/test/validation samples (random forest does one split internally with OOB). Fit random forest or AdaBoost model(s), potentially evaluate fit automatically and refit, write fit statistics and model for human evaluation and future prediction. This will be set up to support multi-stage modeling. 
 7. Predict model. For the few models we think have potential, read the model and go back to the "stack" and create a geoTIFF of predicted classes.  
 
 Step 1 is only repeated when you have fresh raster data, for instance as you finish canopy height models. It only needs to be run for the new/changed layers. It'll be relatively slow, much of that getting data off the Google Drive.  
@@ -79,7 +81,7 @@ Step 6 will be run a lot of times, often in a loop. It'll only read the data fil
 
 Step 7 will take longer, as it has to go back to the raster data (but only for variables that end up in the model). I anticipate not running this nearly as many times as Step 6, as most models will obviously suck from the stats and we won't want to look at them.
 # Code 
-1. **find_standards**. Pick raster standards for gather_data. Creates a new sites.txt. May make more sense to just do this by hand for 10 files. They shouldn't change over time.
+1. **find_standards**. Pick raster standards (grain and alignment) for gather_data. Creates a new sites.txt. May make more sense to just do this by hand for only 10 files. They shouldn't change over time.
 2. **gather_data**. Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. Clip to site boundary, resample and align to standard resolution.  
 	*Arguments*:  
 		**site** - one or more site names. Default = all sites  
@@ -127,6 +129,6 @@ Step 7 will take longer, as it has to go back to the raster data (but only for v
 	Source: \*.RDS in dataframes/  
 	Result: result.RDS in dataframes/  
 
-5. **fit_model**. Read training data from RDS (if not already cached), select training points, pull out holdout set, run RF model, return CCR, confusion matrix, var importance, and save fit. This should be able to cycle quickly, allowing automated variable selection if we want. Option *reclass* to reclass dependent variable. 
+5. **fit_model**. Read training data from RDS (if not already cached), select training points, pull out holdout sets (validation for RF, test/validation for boosting), run RF model, return CCR, confusion matrix, var importance, and save fit. This should be able to cycle quickly, allowing automated variable selection if we want. Option *reclass* to reclass dependent variable. This will be set up to easily support multi-stage modeling.
 
 6. **predict_fit**. For models we like, go back to raster stack, reading only variables used in model, predict, and write raster model prediction.
