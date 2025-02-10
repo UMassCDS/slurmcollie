@@ -1,27 +1,25 @@
 Draft salt marsh vegetation modeling approach.
 # Source data
 ## Predictors
-All in UAS data collection\\***site***\\
-- Orthomosaics: RFM processing inputs\\Orthomosaics\\
-- Canopy height model:  ***site***\\Share\\Canopy height models\\
+All in UAS data collection/***site***/
+- Orthomosaics: RFM processing inputs/Orthomosaics/
+- Canopy height model:  ***site***/Share/Canopy height models/
   (Old Town Hill only so far)
-- Ortho-based DEMs: ***site***\\Share\\Photogrammetry DEMs\\
+- Ortho-based DEMs: ***site***/Share/Photogrammetry DEMs/
 - LiDAR-based DTMs: (not available yet)
 ## Field data
-All in UAS data collection\\***site***\\
-- **Transects**: RFM processing inputs\\Ground Truth Data\\ (need to be recreated for all sites but Old Town Hill)
+All in UAS data collection/***site***/
+- **Transects**: RFM processing inputs/Ground Truth Data/ (need to be recreated for all sites but Old Town Hill)
 ## Footprints
-- footprint/\*.shp or site footprint/\*.shp (paths inconsistent)
+- RFM processing inputs/footprint/\*.shp or site footprint/\*.shp (paths inconsistent)
 ## Text parameter files
-- pars\\sites.txt - contains site, site_name, footprint, and standard for each site. 
+- pars/sites.txt - contains site, site_name, footprint, and standard for each site. 
 	- site - 3 letter code
 	- site_name - name used in directory paths on Google Drive
 	- footprint - path to footprint shapefile, including subdir
 	- standard - name of geoTIFF to treat as the standard for grain and alignment. These should be fine-grained files, such as Mica files. *Do not change these without recreating stack from gather.data.R!*
 ## Relevant docs
 - [Flight log](UAS Data Collection\UAS Data Log_Salt Marsh_2018-2024)
-# Results
-TBD
 # Notes
 ## Pooling across sites
 Although we plan to run models for individual sites, we want to try pooling across sites, in the hopes we can come up with a general model for Massachusetts salt marshes (or perhaps by region within Massachusetts). We'll cross-validate by site. An alternative to pooling is a stacking approach: build a separate model for each site and combine results at the end.
@@ -42,8 +40,26 @@ Although we plan to run models for individual sites, we want to try pooling acro
 - One approach is to subsample these points to make them far more sparse. 
 - Another approach is to cut them into blocks (2x2 m, perhaps), retaining all points but using blocks as the units for OOB and holdout data. We won't have enough blocks to treat each block as a sample point. 
 - Another consideration is we want to try upscaling input data to reduce spatial heterogeneity. This would result in fewer (perhaps far fewer) points in each block.
+## Tracking model runs
+- We'll want an approach to track modeling runs. I don't have details worked out, but I'm thinking there will be a master model file (tab-delimited text) with a row for each model that includes the following:
+	- model id
+	- date it was run
+	- site(s)
+	- modeling approach used (random forest, AdaBoost)
+	- x variables included, or maybe link to parameters file
+	- hyperparameters (or link to file)
+	- model fit summary: CCR, kappa, F1, etc.
+	- link to model fit: confusion matrix, variable importance
+	- link to model in RDS file
+	- link to predicted geoTIFF
+	- subjective scoring field - 1 to 5 stars or something
+	- comment field
+- When a model is launched, a row will be created for it
+- When a predicted grid is created, a link to it will be added
+- a function to delete (or maybe archive) rows that deletes/archives linked data files too
+- May want a split mechanism to launch models vs. actually run them
 # Data prep and modeling overview
-1. Copy geoTIFFs from the Google Drive for each site, resample and align, clip, and put separate geoTIFFs in a single folder on Unity for each site (the "stack," though they're separate files). That's what I've done, though want to make it read properly from the Google drive plus a couple more changes.
+1. Copy geoTIFFs from the Google Drive (or NAS via SFTP) for each site, resample and align, clip, and put separate geoTIFFs in a single folder on Unity for each site (the "stack," though they're separate files). That's what I've done, though want to make it read properly from the Google drive plus a couple more changes.
 2. Produce derived rasters such as NDVI in the stack folders. (optional)  
 3. Upsample selected rasters into the stack folders. (optional)
 4. Sample rasters for transects at a site, producing an R data frame (this is the first time we have anything big in memory, and it's not that big). This data frame does NOT contain the entirety of the rasters, just the values at the sample points. Save as an RDS (binary R format that's fast to read).
@@ -63,22 +79,26 @@ Step 6 will be run a lot of times, often in a loop. It'll only read the data fil
 
 Step 7 will take longer, as it has to go back to the raster data (but only for variables that end up in the model). I anticipate not running this nearly as many times as Step 6, as most models will obviously suck from the stats and we won't want to look at them.
 # Code 
-8. **gather_data**. Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. Clip to site boundary, resample and align to standard resolution.  
+1. **find_standards**. Pick raster standards for gather_data. Creates a new sites.txt. May make more sense to just do this by hand for 10 files. They shouldn't change over time.
+2. **gather_data**. Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. Clip to site boundary, resample and align to standard resolution.  
 	*Arguments*:  
 		**site** - one or more site names. Default = all sites  
 		**pattern** -  regex filtering rasters. Default = '.\*' (match all)  
 		**subdirs** - subdirectories to search. Default = c('RFM processing inputs/Orthomosaics/', 'Share/Photogrammetry DEMs/', 'Share/Canopy height models/')  
 		**basedir** - full path to subdirs  
-		**standard** - point to a raster that will be used as the standard for grain and alignment; all rasters will be resampled to match. Default: orthomosiacs/ Mica file with earliest date (regardless of whether it's in the rasters specification).   
+		**resultbase** - base name of result directory
+		**resultdir** - subdir for results. Default is 'stacked/'. The site name will be appended to this.
 		**replace** = FALSE. If true, deletes the existing stack and replaces it. Use with care!  
-		**resultdir** - name of result subdirectory. Default = 'predictors/'  
+		**update** -  if TRUE, only process new files, assumming existing files are good  
+		**googledrive** - if TRUE, get source data from currently connected Google Drive (login via browser on first connection); if FALSE, read from local drive  
+		**cachedir** -  path to local cache directory; required when googledrive = TRUE. The cache directory should be larger than the total amount of data processed--this code isn't doing any quota management. This is not an issue when using a scratch drive on Unity, as the limit is 50 TB. There's no great need to carry over cached data over long periods, as downloading from Google to Unity is very fast. To set up a scratch drive on Unity, see https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/. Be polite and release the scratch workspace when you're done. See comments in get_file.R for more notes on caching.  
 	*Source*: geoTIFFs for each site  
 	*Results*: geoTIFFs, clipped, resampled, and aligned  
-- All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected.
-- Note that adding to an existing stack using a different standard will lead to sorrow. If a stack for the site already exists and replace = FALSE, one of the rasters in the stack will be compared with the standard for alignment, potentially producing an error. **Not currently implemented**; not sure if I'll bother.
-- **May modify it to read from [Google drive](https://googledrive.tidyverse.org/)**, but not sure what the best approach to doing this on Unity is yet. It might make more sense to copy source files from the Google drive first. It'd be slicker but probably slower to read files from GD.
-		
-9. **upscale_predictors**. 
+	*Status*: **DONE!!!**
+- All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected with a warning.
+- Note that adding to an existing stack using a different standard will lead to sorrow. 
+- If we get a big NAS and move data off of the Google Drive, I'll add a **sftp** option to get data from an STFP server connected to the NAS and cache it locally as we do with the Google Drive.
+1. **upscale_predictors**. 
 	Upscale predictor variables. Create predictors at coarser grains (e.g., mean, SD, IQR, maybe 10th and 90th percentile)  
 	*Arguments*:  
 		rasters - regex or vector of target geoTIFFs. Default: all files with "ortho" in the name  
@@ -88,7 +108,7 @@ Step 7 will take longer, as it has to go back to the raster data (but only for v
 	*Results*: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>\_\<scale>.tif  
 	Dunno what functions and scales will make sense (if any). Will play with it.
 	
-10. **derive_predictors**. Derive indices by combining two or more predictor variables. Start with NDVI and NDWI.   
+2. **derive_predictors**. Derive indices by combining two or more predictor variables. Start with NDVI and NDWI.   
 	*Arguments*:  
 		rasters - regex or vector of target geoTIFFs. Default: all files with "ortho" in the name.   
 		functions - list of functions. Default = c('NDVI', 'NWVI')  
@@ -96,17 +116,17 @@ Step 7 will take longer, as it has to go back to the raster data (but only for v
 	*Results*: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>.tif  
 	Need to do this only on files for sensors with near infrared (NDVI) or both near and short-wave infrared (NDWI). **WHICH SENSORS ARE THESE? Do we have sensors with 4 bands, or do we need to combine multiple sensors?** May need an argument to specify bands too.
 	
-11. **sample_predictors**. Read each raster, select all training points, collect in a data frame, and save as RDS (which takes seconds to read). Mild subsampling if necessary. Now we have all of the training data in something we can quickly read and select from.  
+3. **sample_predictors**. Read each raster, select all training points, collect in a data frame, and save as RDS (which takes seconds to read). Mild subsampling if necessary. Now we have all of the training data in something we can quickly read and select from.  
 	Arguments:  
 	Source: processed geoTIFFs from layer stack, transect polys  
 	Result: site_name.RDS in dataframes/  
 	To figure out: how to do a block sampling scheme to reduce spatial autocorrelation
 
-12. **stitch_sites**. Stack data frames from individual sites for all sites or a selected subset.  
+4. **stitch_sites**. Stack data frames from individual sites for all sites or a selected subset.  
 	Arguments: vector of site names, result name  
 	Source: \*.RDS in dataframes/  
 	Result: result.RDS in dataframes/  
 
-13. **fit_model**. Read training data from RDS (if not already cached), select training points, pull out holdout set, run RF model, return CCR, confusion matrix, var importance, and save fit. This should be able to cycle quickly, allowing automated variable selection if we want. Option *reclass* to reclass dependent variable. 
+5. **fit_model**. Read training data from RDS (if not already cached), select training points, pull out holdout set, run RF model, return CCR, confusion matrix, var importance, and save fit. This should be able to cycle quickly, allowing automated variable selection if we want. Option *reclass* to reclass dependent variable. 
 
-14. **predict_fit**. For models we like, go back to raster stack, reading only variables used in model, predict, and write raster model prediction.
+6. **predict_fit**. For models we like, go back to raster stack, reading only variables used in model, predict, and write raster model prediction.

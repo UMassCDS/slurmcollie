@@ -1,6 +1,6 @@
 'gather_data' <- function(site = NULL, pattern = '.*', 
                           subdirs = c('RFM Processing Inputs/Orthomosaics/', '[site] Share/Photogrammetry DEMs/', '[site] Share/Canopy Height Models/'), 
-                          basedir = 'UAS Data Collection/', resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked2/',
+                          basedir = 'UAS Data Collection/', resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/',
                           update = TRUE, replace = FALSE, googledrive = TRUE, 
                           cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
    
@@ -18,7 +18,7 @@
    #                    nonexistent directories). Use '[site]' in subdirectories that include a site name, e.g., '[site] Share/Photogrammetry DEMs'.
    #                    WARNING: paths on the Google Drive are case-sensitive!
    #     basedir        full path to subdirs
-   #     resultbase     base name of result base directory. 
+   #     resultbase     base name of result directory
    #     resultdir      subdir for results. Default is 'stacked/'. The site name will be appended to this.
    #     update         if TRUE, only process new files, assumming existing files are good   
    #     replace        if TRUE, deletes the existing stack and replaces it. Use with care!
