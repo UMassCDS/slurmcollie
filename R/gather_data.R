@@ -1,10 +1,9 @@
 'gather_data' <- function(site = NULL, pattern = '.*', 
                           subdirs = c('RFM Processing Inputs/Orthomosaics/', '[site] Share/Photogrammetry DEMs/', '[site] Share/Canopy Height Models/'), 
-                          #basedir = 'c:/Work/etc/saltmarsh/data', 
-                          basedir = 'UAS Data Collection/',
-                          replace = FALSE, resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/',
-                          googledrive = TRUE, cachedir = 'c:/temp/cache/'){
-                          #cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
+                          basedir = 'UAS Data Collection/', resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked2/',
+                          update = TRUE, replace = FALSE, googledrive = TRUE, 
+                          cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
+   
    
    # Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. 
    # Clip to site boundary, resample and align to standard resolution.
@@ -19,9 +18,10 @@
    #                    nonexistent directories). Use '[site]' in subdirectories that include a site name, e.g., '[site] Share/Photogrammetry DEMs'.
    #                    WARNING: paths on the Google Drive are case-sensitive!
    #     basedir        full path to subdirs
-   #     replace        if true, deletes the existing stack and replaces it. Use with care!
    #     resultbase     base name of result base directory. 
    #     resultdir      subdir for results. Default is 'stacked/'. The site name will be appended to this.
+   #     update         if TRUE, only process new files, assumming existing files are good   
+   #     replace        if TRUE, deletes the existing stack and replaces it. Use with care!
    #     googledrive    if TRUE, get source data from currently connected Google Drive (login via browser on first connection); if FALSE, read from local drive
    #     cachedir       path to local cache directory; required when googledrive = TRUE. The cache directory should be larger than the total amount of data
    #                    processed--this code isn't doing any quota management. This is not an issue when using a scratch drive on Unity, as the limit is 50 TB.
@@ -56,20 +56,22 @@
    # B. Compton, 31 Jan 2025
    
    
+   
    ### for testing on my laptop    (don't forget to change OTH in sites.txt!)
- #  subdirs = c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
+   #basedir <- 'c:/Work/etc/saltmarsh/data'
+   #  subdirs <- c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
+   cachedir <- 'c:/temp/cache/'
    site <- c('oth', 'wes')
- #  site <- c('wes')
-#   pattern = 'nov.*low*.mica'
+   #  site <- c('wes')
+   #   pattern = 'nov.*low*.mica'
    pattern = '27Apr2021_OTH_Low_RGB_DEM.tif|24Jun22_WES_Mid_SWIR_Ortho.tif'
-
+   
    
    library(terra)
    library(sf)
    library(googledrive)                 # will need to add this, probably using cover fns. Or maybe we just copy source data before running?
    library(stringr)
    library(lubridate)
-   
    
    
    lf <- file.path(resultbase, 'gather_data.log')                                   # set up logging
@@ -113,34 +115,35 @@
       msg(paste0('Site ', sites$site[i]), lf)
       dir <- file.path(basedir, sites$site_name[i], '/')
       
-      
-      
-  ####    s <- c(subdirs, file.path(sites$footprint))        use s instead of subdir, get footprint and standard paths for gd$dir ............ and get the paths right in sites.txt ####
-      
+      s <- c(subdirs, dirname(sites$standard[i]))                                   #    add path to standard to subdirs in case it's not there already
+      s <- gsub('/+', '/', paste0(s, '/'))                                          #    clean up slashes
+      s <- unique(s)                                                                #    and drop likely duplicate
       
       x <- NULL
-      
-    ##  sites<<-sites;subdirs<<-subdirs;x;dirt<<-dir;googledrive<<-googledrive;cachedir<<-cachedir;return()
-      
-      for(j in sub('[site]', sites$site_name[i], subdirs, fixed = TRUE))            #    for each subdir (with site name replacement),
-      {print(file.path(dir, j))
+      for(j in sub('[site]', sites$site_name[i], s, fixed = TRUE))                  #    for each subdir (with site name replacement),
          x <- rbind(x, get_dir(file.path(dir, j), googledrive))                     #       get directory
-        ## dirt<<-dir;j<<-j;googledrive<<-googledrive;return()
-       ##  print(x)
-      }
       x <- x[grep('.tif$', x$name), ]                                               #    only want files ending in .tif
+      
+      t <- get_dir(file.path(dir, dirname(sites$footprint[i])), googledrive)        #    Now get directory for footprint shapefile
+      x <- rbind(x, t[grep('.shp$|.shx$|.prj$', t$name),])                          #    only want .shp, .shx, and .prj
       
       gd <- list(dir = x, googledrive = googledrive, cachedir = cachedir)           #    info for Google Drive
       
-    ##  dirt<<-dir;sites<<-sites;i<<-i;gd<<-gd;return()
+      
+      if(update) {                                                                  #    if update, don't mess with files that have already been done    **************************
+         
+      }
       
       
       standard <- rast(get_file(file.path(dir, sites$standard[i]), gd))
+      files <- x$name[grep(tolower(pattern), tolower(x$name))]                                    #    now match user's pattern - this is our definitive list of geoTIFFs for this site
+      msg(paste0('   Processing ', length(files), ' geoTIFFs...'), lf)
       
-      x <- x[grep(tolower(pattern), tolower(x))]                                    #    now match user's pattern - this is our definitive list of geoTIFFs for this site
-      msg(paste0('   Processing ', length(x), ' geoTIFFs...'), lf)
-      
-      shapefile <- st_read(get_file(file.path(dir, sites$footprint[i]), gd), quiet = TRUE)        #    read boundary shapefile
+      if(googledrive) {                                                             #    if googledrive,
+         t <- get_file(file.path(dir, sub('.shp$', '.shx', sites$footprint[i])), gd)#       load two sidecar files for shapefile into cache
+         t <- get_file(file.path(dir, sub('.shp$', '.prj', sites$footprint[i])), gd)
+      }
+      shapefile <- st_read(get_file(file.path(dir, sites$footprint[i]), gd), quiet = TRUE)        #    read footprint shapefile
       
       
       if(!dir.exists(resultbase))                                                   #    prepare result directory
@@ -153,13 +156,9 @@
       if(!dir.exists(rd))
          dir.create(rd)
       
-      count <- count + length(x)
-      for(j in x) {                                                                 #    for each target geoTIFF in site,
+      count <- count + length(files)
+      for(j in files) {                                                             #    for each target geoTIFF in site,
          msg(paste0('      processing ', j), lf)
-         
-         
-         ##dirt<<-dir;j<<-j;gd<<-gd
-         
          
          g <- rast(get_file(j, gd))
          if(paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {

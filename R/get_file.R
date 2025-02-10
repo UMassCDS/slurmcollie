@@ -30,6 +30,8 @@
    
    library(googledrive)
    
+   name <- gsub('/+', '/', name)                                                 # clean up slashes
+   
    if(is.null(gd) || gd$googledrive == FALSE)                                    # if reading from the local drive,
       return(name)                                                               #    just pass through the file path and name
    else {                                                                        # else, it's on the Google Drive, so we'll cache it
@@ -44,8 +46,12 @@
       else {                                                                     # else, gotta get it
          tname <- file.path(dirname(cname), paste0('zzz_', basename(cname)))
          cat('downloading...\n')
-         gname<<-gname;tname<<-tname;gd<<-gd;name<<-name
-         drive_download(gname, path = tname, overwrite = TRUE)                   #    download it with a temporary name (so we don't have failed downloads with good names)
+         tryCatch({
+            drive_download(gname, path = tname, overwrite = TRUE)                   #    download it with a temporary name (so we don't have failed downloads with good names)
+         },
+         error = function(cond)
+            stop(paste0('File ', name, ' not found on Google Drive'))
+         )
          file.rename(tname, cname)                                               #    rename it
          return(cname)
       }
