@@ -1,6 +1,6 @@
 'gather_data' <- function(site = NULL, pattern = '.*', 
                           subdirs = c('RFM Processing Inputs/Orthomosaics/', '[site] Share/Photogrammetry DEMs/', '[site] Share/Canopy Height Models/'), 
-                          basedir = 'UAS Data Collection/', resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/',
+                          basedir = 'UAS Data Collection/', resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked2/',
                           update = TRUE, replace = FALSE, googledrive = TRUE, 
                           cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
    
@@ -66,6 +66,11 @@
    #   pattern = 'nov.*low*.mica'
    pattern = '27Apr2021_OTH_Low_RGB_DEM.tif|24Jun22_WES_Mid_SWIR_Ortho.tif'
    
+   # local drive
+   # basedir <- 'c:/Work/etc/saltmarsh/data'
+   # subdirs <- c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
+   # googledrive <- FALSE
+    
    
    library(terra)
    library(sf)
@@ -122,21 +127,24 @@
       x <- NULL
       for(j in sub('[site]', sites$site_name[i], s, fixed = TRUE))                  #    for each subdir (with site name replacement),
          x <- rbind(x, get_dir(file.path(dir, j), googledrive))                     #       get directory
-      x <- x[grep('.tif$', x$name), ]                                               #    only want files ending in .tif
-      
+      x <- x[grep('.tif$', x$name), , drop = FALSE]                                               #    only want files ending in .tif
+
       t <- get_dir(file.path(dir, dirname(sites$footprint[i])), googledrive)        #    Now get directory for footprint shapefile
       x <- rbind(x, t[grep('.shp$|.shx$|.prj$', t$name),])                          #    only want .shp, .shx, and .prj
       
       gd <- list(dir = x, googledrive = googledrive, cachedir = cachedir)           #    info for Google Drive
+
+      files <- x$name[grep(tolower(pattern), tolower(x$name))]                      #    now match user's pattern - this is our definitive list of geoTIFFs to process for this site
       
-      
-      if(update) {                                                                  #    if update, don't mess with files that have already been done    **************************
-         
-      }
+      if(update) {                                                                  #    if update, don't mess with files that have already been done
+         sdir <- file.path(basedir, sites$site_name[i])
+         rdir <- file.path(resultbase, resultdir, sites$site_name[i])
+     ##    files<<-files;gd<<-gd;sdir<<-sdir;rdir<<-rdir;return()
+         files <- files[!check_files(files, gd, sdir, rdir)]                        #       see which files already exist and are up to date
+         }
       
       
       standard <- rast(get_file(file.path(dir, sites$standard[i]), gd))
-      files <- x$name[grep(tolower(pattern), tolower(x$name))]                                    #    now match user's pattern - this is our definitive list of geoTIFFs for this site
       msg(paste0('   Processing ', length(files), ' geoTIFFs...'), lf)
       
       if(googledrive) {                                                             #    if googledrive,
@@ -172,7 +180,7 @@
             writeRaster(file.path(rd, basename(j)), overwrite = TRUE)
       }
       msg(paste0('Finished with site ', sites$site[i]), lf)
-   }
+      }
    d <- as.duration(interval(start, Sys.time()))
    msg(paste0('Run finished. ', count,' geoTIFFs processed in ', round(d), '; ', round(d / count), ' per file.'), lf)
-}
+   }

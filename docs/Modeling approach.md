@@ -13,11 +13,20 @@ All in UAS data collection/***site***/
 ## Footprints
 - RFM processing inputs/footprint/\*.shp or site footprint/\*.shp (paths inconsistent)
 ## Text parameter files
-- pars/sites.txt - contains site, site_name, footprint, and standard for each site. 
+- pars/**sites.txt** - contains site, site_name, footprint, and standard for each site. 
 	- site - 3 letter code
 	- site_name - name used in directory paths on Google Drive
 	- footprint - path to footprint shapefile, including subdir
-	- standard - name of geoTIFF to treat as the standard for grain and alignment. These should be fine-grained files, such as Mica files. *Do not change these without recreating stack from gather.data.R!*
+	- standard - name of geoTIFF to treat as the standard for grain and alignment. These should be fine-grained (8 cm) rasters, such as Mica files. *Do not change these without recreating stack from gather.data.R!*
+- pars/**classes.txt** - maps raster values to various classification schemes. This is where reclassification for lumping and multi-stage models are stored. Each classification consists of 2 columns:
+	- class - numeric class value. These should be nested or unique across classifications, so we can use the same legend for all vegetation rasters.
+	- class_name - name of the class
+## Reading source data
+Data are currently up on a Google Drive. It's not working well, and IT's suggestion is to get a NAS (Synology 8 bay, 3 20 TB drives = 40 TB RAID 5 for $3687.56; natively supports SFTP without connection to a server!) and set it up in the LSL. 
+gather_data currently has the first two options; if we get a NAS I'll add the third.
+1. reading from a local drive (files already on Unity), googledrive = FALSE
+2. reading from the Google Drive, googledrive = TRUE, cachedir = Unity scratch drive (up to 50 TB, but polite to release it between runs)
+3. reading from SFTP on NAS. Perhaps use [package sftp](https://github.com/stenevang/sftp). 
 ## Relevant docs
 - [Flight log](UAS Data Collection\UAS Data Log_Salt Marsh_2018-2024)
 - [R caret library](https://topepo.github.io/caret/index.html)
@@ -100,7 +109,7 @@ Step 7 will take longer, as it has to go back to the raster data (but only for v
 - All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected with a warning.
 - Note that adding to an existing stack using a different standard will lead to sorrow. 
 - If we get a big NAS and move data off of the Google Drive, I'll add a **sftp** option to get data from an STFP server connected to the NAS and cache it locally as we do with the Google Drive.
-1. **upscale_predictors**. 
+3. **upscale_predictors**. 
 	Upscale predictor variables. Create predictors at coarser grains (e.g., mean, SD, IQR, maybe 10th and 90th percentile)  
 	*Arguments*:  
 		rasters - regex or vector of target geoTIFFs. Default: all files with "ortho" in the name  
@@ -110,7 +119,7 @@ Step 7 will take longer, as it has to go back to the raster data (but only for v
 	*Results*: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>\_\<scale>.tif  
 	Dunno what functions and scales will make sense (if any). Will play with it.
 	
-2. **derive_predictors**. Derive indices by combining two or more predictor variables. Start with NDVI and NDWI.   
+4. **derive_predictors**. Derive indices by combining two or more predictor variables. Start with NDVI and NDWI.   
 	*Arguments*:  
 		rasters - regex or vector of target geoTIFFs. Default: all files with "ortho" in the name.   
 		functions - list of functions. Default = c('NDVI', 'NWVI')  
@@ -118,17 +127,17 @@ Step 7 will take longer, as it has to go back to the raster data (but only for v
 	*Results*: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>.tif  
 	Need to do this only on files for sensors with near infrared (NDVI) or both near and short-wave infrared (NDWI). **WHICH SENSORS ARE THESE? Do we have sensors with 4 bands, or do we need to combine multiple sensors?** May need an argument to specify bands too.
 	
-3. **sample_predictors**. Read each raster, select all training points, collect in a data frame, and save as RDS (which takes seconds to read). Mild subsampling if necessary. Now we have all of the training data in something we can quickly read and select from.  
+5. **sample_predictors**. Read each raster, select all training points, collect in a data frame, and save as RDS (which takes seconds to read). Mild subsampling if necessary. Now we have all of the training data in something we can quickly read and select from.  
 	Arguments:  
 	Source: processed geoTIFFs from layer stack, transect polys  
 	Result: site_name.RDS in dataframes/  
 	To figure out: how to do a block sampling scheme to reduce spatial autocorrelation
 
-4. **stitch_sites**. Stack data frames from individual sites for all sites or a selected subset.  
+6. **stitch_sites**. Stack data frames from individual sites for all sites or a selected subset.  
 	Arguments: vector of site names, result name  
 	Source: \*.RDS in dataframes/  
 	Result: result.RDS in dataframes/  
 
-5. **fit_model**. Read training data from RDS (if not already cached), select training points, pull out holdout sets (validation for RF, test/validation for boosting), run RF model, return CCR, confusion matrix, var importance, and save fit. This should be able to cycle quickly, allowing automated variable selection if we want. Option *reclass* to reclass dependent variable. This will be set up to easily support multi-stage modeling.
+7. **fit_model**. Read training data from RDS (if not already cached), select training points, pull out holdout sets (validation for RF, test/validation for boosting), run RF model, return CCR, confusion matrix, var importance, and save fit. This should be able to cycle quickly, allowing automated variable selection if we want. Option *reclass* to reclass dependent variable. This will be set up to easily support multi-stage modeling.
 
-6. **predict_fit**. For models we like, go back to raster stack, reading only variables used in model, predict, and write raster model prediction.
+8. **predict_fit**. For models we like, go back to raster stack, reading only variables used in model, predict, and write raster model prediction.
