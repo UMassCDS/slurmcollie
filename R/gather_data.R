@@ -1,6 +1,6 @@
 'gather_data' <- function(site = NULL, pattern = '.*', 
                           subdirs = c('RFM Processing Inputs/Orthomosaics/', '[site] Share/Photogrammetry DEMs/', '[site] Share/Canopy Height Models/'), 
-                          basedir = 'UAS Data Collection/', resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked2/',
+                          basedir = 'UAS Data Collection/', resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/',
                           update = TRUE, replace = FALSE, googledrive = TRUE, 
                           cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
    
@@ -62,7 +62,7 @@
    #  subdirs <- c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
    cachedir <- 'c:/temp/cache/'
    site <- c('oth', 'wes')
-   #  site <- c('wes')
+    site <- c('wes')
    #   pattern = 'nov.*low*.mica'
    pattern = '27Apr2021_OTH_Low_RGB_DEM.tif|24Jun22_WES_Mid_SWIR_Ortho.tif'
    
@@ -70,6 +70,7 @@
    # basedir <- 'c:/Work/etc/saltmarsh/data'
    # subdirs <- c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
    # googledrive <- FALSE
+   pattern = ''
     
    
    library(terra)
@@ -113,6 +114,7 @@
    
    msg('', lf)
    msg(paste0('gather_data running for ', dim(sites)[1], ' sites...'), lf)
+   msg(paste0('googledrive = ', googledrive), lf)
    msg(paste0('site = ', paste(site, collapse = ', ')), lf)
    msg(paste0('pattern = ', pattern), lf)
    
@@ -182,5 +184,5 @@
       msg(paste0('Finished with site ', sites$site[i]), lf)
       }
    d <- as.duration(interval(start, Sys.time()))
-   msg(paste0('Run finished. ', count,' geoTIFFs processed in ', round(d), '; ', round(d / count), ' per file.'), lf)
+   msg(paste0('Run finished. ', count,' geoTIFFs processed in ', round(d), ifelse(count == 0, '', paste0('; ', round(d / count), ' per file.'))), lf)
    }
