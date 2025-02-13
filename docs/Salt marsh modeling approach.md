@@ -131,11 +131,11 @@ Derive indices by combining two or more predictor variables. Start with NDVI and
 		**site** - one or more sites, or NULL for all
 		**pattern** - regex matching result names
 		**metrics** - list of functions. Default = c('NDVI', 'NWVI')  
-		**source**: - path to parameters file, default = 'pars\/derive.txt' File has columns:  
+		**source**: - path to parameters file, default = 'pars\/derive.txt' File has columns:
 			- site
 			- source1 - 1st source file
 			- source2 - 2nd source file
-			- result - base name of result file (ndvi or _ndwi appended)
+			- result - base name of result file (ndvi or ndwi appended)
 			- bands? Here if these are consistent; otherwise in function
 	Source: processed geoTIFFs (from layer_stack_kcf) in site-specific stack folders  
 	Results: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>.tif 
