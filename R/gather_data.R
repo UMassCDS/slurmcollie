@@ -1,7 +1,7 @@
 'gather_data' <- function(site = NULL, pattern = '.*', 
                           subdirs = c('RFM Processing Inputs/Orthomosaics/', '[site] Share/Photogrammetry DEMs/', '[site] Share/Canopy Height Models/'), 
                           basedir = 'UAS Data Collection/', resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/',
-                          update = TRUE, replace = FALSE, googledrive = TRUE, 
+                          update = TRUE, replace = FALSE, sourcedrive = 'google', 
                           cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
    
    
@@ -22,12 +22,17 @@
    #     resultdir      subdir for results. Default is 'stacked/'. The site name will be appended to this.
    #     update         if TRUE, only process new files, assumming existing files are good   
    #     replace        if TRUE, deletes the existing stack and replaces it. Use with care!
-   #     googledrive    if TRUE, get source data from currently connected Google Drive (login via browser on first connection); if FALSE, read from local drive
-   #     cachedir       path to local cache directory; required when googledrive = TRUE. The cache directory should be larger than the total amount of data
-   #                    processed--this code isn't doing any quota management. This is not an issue when using a scratch drive on Unity, as the limit is 50 TB.
-   #                    There's no great need to carry over cached data over long periods, as downloading from Google to Unity is very fast.
+   #     sourcedrive    one of 'local', 'google', 'sftp'
+   #           - 'local' - read source from local drive  
+   #           - 'google' - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set cachedir option.  
+   #           - 'sftp' - get source data from sftp site. Must set sftp and cachedir options.     
+   #     cachedir       path to local cache directory; required when sourcedrive = 'google' or 'sftp'. The cache directory should be larger than the total amount of
+   #                    data processed--this code isn't doing any quota management. This is not an issue when using a scratch drive on Unity, as the limit is 50 TB.
+   #                    There's no great need to carry over cached data over long periods, as downloading from Google or SFTP to Unity is very fast.
    #                    To set up a scratch drive on Unity, see https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/. Be polite and 
    #                    release the scratch workspace when you're done. See comments in get_file.R for more notes on caching.
+   #     sftp           SFTP credentials, either 'username:password' or '*filename' with username:password. Make sure to include credential files in .gitignore and 
+   #                    .Rbuildignore so it doesn't end up out in the world!  
    # 
    # Source: 
    #     geoTIFFs for each site
@@ -46,6 +51,9 @@
    # 
    # Note that adding to an existing stack using a different standard will lead to sorrow. BEST PRACTICE: don't change the standards
    # in standards.txt; if you must change them, run with replace = TRUE.
+   # 
+   # Note that initial runs with Google Drive in a session open the browser for authentication or wait for input from the console, so 
+   # don't run blindly when using the Google Drive
    # 
    # Example runs:
    #    Complete for all sites:
@@ -69,13 +77,14 @@
    # local drive
    # basedir <- 'c:/Work/etc/saltmarsh/data'
    # subdirs <- c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')
-   # googledrive <- FALSE
+   # sourcedrive <- 'local'
    pattern = ''
     
    
    library(terra)
    library(sf)
-   library(googledrive)                 # will need to add this, probably using cover fns. Or maybe we just copy source data before running?
+   library(googledrive)       # suggests
+   library(sftp)              # suggests
    library(stringr)
    library(lubridate)
    
@@ -106,7 +115,7 @@
    if(any(t <- is.na(sites$standard) | sites$standard == ''))                       # check for missing standards
       stop(paste0('Missing standards for sites ', paste(sites$site[t], collapse = ', ')))
    
-   if(googledrive & !dir.exists(cachedir))                                          #    make sure cache directory exists
+   if((sourcedrive %in% c('google', 'sftp')) & !dir.exists(cachedir))               #    make sure cache directory exists if needed
       dir.create(cachedir)
    
    if(replace)
@@ -114,7 +123,7 @@
    
    msg('', lf)
    msg(paste0('gather_data running for ', dim(sites)[1], ' sites...'), lf)
-   msg(paste0('googledrive = ', googledrive), lf)
+   msg(paste0('sourcedrive = ', sourcedrive), lf)
    msg(paste0('site = ', paste(site, collapse = ', ')), lf)
    msg(paste0('pattern = ', pattern), lf)
    
@@ -128,13 +137,13 @@
       
       x <- NULL
       for(j in sub('[site]', sites$site_name[i], s, fixed = TRUE))                  #    for each subdir (with site name replacement),
-         x <- rbind(x, get_dir(file.path(dir, j), googledrive))                     #       get directory
+         x <- rbind(x, get_dir(file.path(dir, j), sourcedrive))                     #       get directory
       x <- x[grep('.tif$', x$name), , drop = FALSE]                                               #    only want files ending in .tif
 
-      t <- get_dir(file.path(dir, dirname(sites$footprint[i])), googledrive)        #    Now get directory for footprint shapefile
+      t <- get_dir(file.path(dir, dirname(sites$footprint[i])), sourcedrive)        #    Now get directory for footprint shapefile
       x <- rbind(x, t[grep('.shp$|.shx$|.prj$', t$name),])                          #    only want .shp, .shx, and .prj
       
-      gd <- list(dir = x, googledrive = googledrive, cachedir = cachedir)           #    info for Google Drive
+      gd <- list(dir = x, sourcedrive = sourcedrive, cachedir = cachedir)           #    info for Google Drive           *******************************************************************
 
       files <- x$name[grep(tolower(pattern), tolower(x$name))]                      #    now match user's pattern - this is our definitive list of geoTIFFs to process for this site
       
@@ -149,7 +158,7 @@
       standard <- rast(get_file(file.path(dir, sites$standard[i]), gd))
       msg(paste0('   Processing ', length(files), ' geoTIFFs...'), lf)
       
-      if(googledrive) {                                                             #    if googledrive,
+      if(sourcedrive %in% c('google', 'sftp')) {                                    #    if reading from Google Drive or SFTP,
          t <- get_file(file.path(dir, sub('.shp$', '.shx', sites$footprint[i])), gd)#       load two sidecar files for shapefile into cache
          t <- get_file(file.path(dir, sub('.shp$', '.prj', sites$footprint[i])), gd)
       }
