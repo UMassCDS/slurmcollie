@@ -96,7 +96,7 @@ Pick raster standards (grain and alignment) for gather_data. Creates a new sites
 	*Status*: done, but need to work with Google Drive and SFTP. Might drop this.
 ## gather_data
 Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. Clip to site boundary, resample and align to standard resolution.  
-#### Arguments
+### Arguments
 **site** - one or more site names. Default = all sites  
 **pattern** -  regex filtering rasters. Default = '.\*' (match all)  
 **subdirs** - subdirectories to search. Default = c('RFM processing inputs/Orthomosaics/', 'Share/Photogrammetry DEMs/', 'Share/Canopy height models/')  
@@ -111,29 +111,29 @@ Collect raster data from various source locations (orthophotos, DEMs, canopy hei
 	- 'sftp' - get source data from sftp site. Must set sftp option  and cachedir option.  
 **cachedir** -  path to local cache directory; required when sourcedrive = 'google' or 'sftp'. The cache directory should be larger than the total amount of data processed--this code isn't doing any quota management. This is not an issue when using a scratch drive on Unity, as the limit is 50 TB. There's no great need to carry over cached data over long periods, as downloading from Google to Unity is very fast. To set up a scratch drive on Unity, see https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/. Be polite and release the scratch workspace when you're done. See comments in get_file.R for more notes on caching.  
 **sftp** - SFTP credentials, either 'username:password' or '\*filename' with username:password. Make sure to include credential files in .gitignore and .Rbuildignore so it doesn't end up out in the world!  
-#### Source
+### Source
 geoTIFFs for each site  
-#### Results
+### Results
 geoTIFFs, clipped, resampled, and aligned  
-#### Status
+### Status
 **need to implement sftp**
-#### Notes
+### Notes
 - All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected with a warning. Alignment for reprojected files should be checked, as I've found one that was misaligned.
 - Note that adding to an existing stack using a different standard will lead to sorrow. If you change a site's raster standard, **delete the stack** or use **replace = TRUE** on a run for all files at the site.
 ## upscale_data 
 Upscale predictor variables. Create predictors at coarser grains (e.g., mean, SD, IQR, maybe 10th and 90th percentile)  
-#### Arguments
+### Arguments
 **site** - one or more sites, or NULL for all
 **pattern** - regex matching source files. Default: all files with "ortho" in the name  
 **functions** - list of functions. Default = c('mean', 'sd', 'iqr', 'p10', 'p90')  
 **scales** - number of cells for focal functions. Must be odd. Default = c(3, 5, 7, 9, 11)  
-#### Source
+### Source
 Processed geoTIFFs in site-specific stack folders  
-#### Results
+### Results
 additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>\_\<scale>.tif   
 ## derive_data
 Derive indices by combining two or more predictor variables. Start with NDVI and NDWI.   
-#### Arguments
+### Arguments
 **site** - one or more sites, or NULL for all
 **pattern** - regex matching result names
 **metrics** - list of functions. Default = c('NDVI', 'NWVI')  
@@ -143,28 +143,28 @@ Derive indices by combining two or more predictor variables. Start with NDVI and
 - source2 - 2nd source file
 - result - base name of result file (ndvi or ndwi appended)
 - bands? Here if these are consistent; otherwise in function
-#### Source
+### Source
 processed geoTIFFs (from layer_stack_kcf) in site-specific stack folders  
-#### Results
+### Results
 additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>.tif 
-#### Notes
+### Notes
 - Need to do this only on files for sensors with near infrared (NDVI) or both near and short-wave infrared (NDWI). **WHICH SENSORS ARE THESE? Do we have sensors with 4 bands, or do we need to combine multiple sensors?** May need an argument to specify bands too. See - [Flight log](https://docs.google.com/spreadsheets/d/1y-2HHg88itLQekMAlTrHAq7HzCulU56lfH7j_USbK5Y/edit?gid=0#gid=0).
 ## sample_data
 Read each raster, select all training points, collect in a data frame, and save as RDS (which takes seconds to read). Mild subsampling if necessary. Now we have all of the training data in something we can quickly read and select from.  
-#### Arguments
-#### Source
+### Arguments
+### Source
 processed geoTIFFs from layer stack, transect polys  
-#### Results
+### Results
 site_name.RDS in dataframes/  
-#### Notes
+### Notes
 - To figure out: how to do a block sampling scheme to reduce spatial autocorrelation
 ## stitch_sites
 Stack data frames from individual sites for all sites or a selected subset.  
-#### Arguments
+### Arguments
 vector of site names, result name  
-#### Source
+### Source
 \*.RDS in dataframes/  
-#### Results
+### Results
 result.RDS in dataframes/  
 ## fit_model
 Read training data from RDS (if not already cached), select training points, pull out holdout sets (validation for RF, test/validation for boosting), run RF model, return CCR, confusion matrix, var importance, and save fit. This should be able to cycle quickly, allowing automated variable selection if we want. Option *reclass* to reclass dependent variable. This will be set up to easily support multi-stage modeling.
