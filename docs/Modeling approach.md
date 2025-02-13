@@ -17,18 +17,15 @@ All in UAS data collection/***site***/
 	- site - 3 letter code
 	- site_name - name used in directory paths on Google Drive
 	- footprint - path to footprint shapefile, including subdir
-	- standard - name of geoTIFF to treat as the standard for grain and alignment. These should be fine-grained (8 cm) rasters, such as Mica files. *Do not change these without recreating stack from gather.data.R!*
+	- standard - name of geoTIFF to treat as the standard for grain and alignment. These should be fine-grained (8 cm) rasters, such as Mica files. *Do not change these without recreating stack with gather.data.R!*
 - pars/**classes.txt** - maps raster values to various classification schemes. This is where reclassification for lumping and multi-stage models are stored. Each classification consists of 2 columns:
-	- class - numeric class value. These should be nested or unique across classifications, so we can use the same legend for all vegetation rasters.
-	- class_name - name of the class
+	- \<class> - numeric class value. These should be nested or unique across classifications, so we can use the same legend for all vegetation rasters.
+	- \<class>_name - name of the class
+- pars\/*derive.txt* - lists source and result files for derived metrics (NDVI, NDWI). Exact details not pinned down yet. See **derive_data** for details.
 ## Reading source data
-Data are currently up on a Google Drive. It's not working well, and IT's suggestion is to get a NAS (Synology 8 bay, 3 20 TB drives = 40 TB RAID 5 for $3687.56; natively supports SFTP without connection to a server!) and set it up in the LSL. 
-gather_data currently has the first two options; if we get a NAS I'll add the third.
-1. reading from a local drive (files already on Unity), googledrive = FALSE
-2. reading from the Google Drive, googledrive = TRUE, cachedir = Unity scratch drive (up to 50 TB, but polite to release it between runs)
-3. reading from SFTP on NAS. Perhaps use [package sftp](https://github.com/stenevang/sftp). 
+Data are currently up on a Google Drive. It's not working well, and IT's suggestion is to get a NAS (Synology 8 bay, 3 20 TB drives = 40 TB RAID 5 for $3687.56; natively supports SFTP without connection to a server!) and set it up in the LSL. gather_data can read from local drive, Google Drive, or SFTP, so we'll be ready for switchover from Google Drive to a NAS.
 ## Relevant docs
-- [Flight log](UAS Data Collection\UAS Data Log_Salt Marsh_2018-2024)
+- [Flight log](https://docs.google.com/spreadsheets/d/1y-2HHg88itLQekMAlTrHAq7HzCulU56lfH7j_USbK5Y/edit?gid=0#gid=0)
 - [R caret library](https://topepo.github.io/caret/index.html)
 - [Python scikit-learn library](https://scikit-learn.org/stable/index.html)
 # Notes
@@ -45,6 +42,10 @@ Although we plan to run models for individual sites, we want to try pooling acro
 	5. Border Marsh
 	6. Other Vegetation or Bare Ground
 - Scott is highly interested in distinguishing among the three Transitional Marsh classes--that would be super-useful.
+- We want to try multi-stage classification, e.g., veg/water/bare ground on 1st pass, then finer veg types on second pass. 
+- pars\/classes.txt defines various classification schemes. We'll reclassify on the fly on fit_model and predict_fit.
+## Renaming predictors
+In order to combine across sites, we'll need to treat comparable predictors together, e.g., rename  02Aug19_OTH_Low_Mica_Ortho and 26Jul19_WES_Low_Mica_Ortho to midsummer_Low_Mica_Ortho. Rather than rename geoTIFFs, I'm inclined to come up with a mapping file to index these on the fly. Ryan has a good sense of how to lump these. I need to come up with a scheme. We'll have a parameter file, lump_fields.txt or something that defines these, and a function that can be called by fit_model and predict_fit.
 ## Sampling strategy
 - Transect polys are 2 m wide, varying lengths
 - Previous runs used all 8 cm pixels within polys (transects are 25 pixels wide). We believe the resulting spatial autocorrelation contaminated the OOB estimates, and expect it would also contaminate true holdouts if they were simply randomly-selected points.
@@ -90,8 +91,11 @@ Step 6 will be run a lot of times, often in a loop. It'll only read the data fil
 
 Step 7 will take longer, as it has to go back to the raster data (but only for variables that end up in the model). I anticipate not running this nearly as many times as Step 6, as most models will obviously suck from the stats and we won't want to look at them.
 # Code 
-1. **find_standards**. Pick raster standards (grain and alignment) for gather_data. Creates a new sites.txt. May make more sense to just do this by hand for only 10 files. They shouldn't change over time.
-2. **gather_data**. Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. Clip to site boundary, resample and align to standard resolution.  
+## find_standards
+Pick raster standards (grain and alignment) for gather_data. Creates a new sites.txt. May make more sense to just do this by hand for only 10 files. They shouldn't change over time.
+	*Status*: done, but need to work with Google Drive and SFTP. Might drop this.
+## gather_data
+Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. Clip to site boundary, resample and align to standard resolution.  
 	*Arguments*:  
 		**site** - one or more site names. Default = all sites  
 		**pattern** -  regex filtering rasters. Default = '.\*' (match all)  
@@ -100,44 +104,54 @@ Step 7 will take longer, as it has to go back to the raster data (but only for v
 		**resultbase** - base name of result directory
 		**resultdir** - subdir for results. Default is 'stacked/'. The site name will be appended to this.
 		**replace** = FALSE. If true, deletes the existing stack and replaces it. Use with care!  
-		**update** -  if TRUE, only process new files, assumming existing files are good  
-		**googledrive** - if TRUE, get source data from currently connected Google Drive (login via browser on first connection); if FALSE, read from local drive  
-		**cachedir** -  path to local cache directory; required when googledrive = TRUE. The cache directory should be larger than the total amount of data processed--this code isn't doing any quota management. This is not an issue when using a scratch drive on Unity, as the limit is 50 TB. There's no great need to carry over cached data over long periods, as downloading from Google to Unity is very fast. To set up a scratch drive on Unity, see https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/. Be polite and release the scratch workspace when you're done. See comments in get_file.R for more notes on caching.  
+		**update** -  if TRUE, only process new files, assuming existing files are good. Default = TRUE.  
+		**sourcedrive** - one of 'local', 'google', 'sftp'
+			- 'local' - read source from local drive  
+			- 'google' - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set cachedir option.  
+			- 'sftp' - get source data from sftp site. Must set sftp option  and cachedir option.  
+		**cachedir** -  path to local cache directory; required when sourcedrive = 'google' or 'sftp'. The cache directory should be larger than the total amount of data processed--this code isn't doing any quota management. This is not an issue when using a scratch drive on Unity, as the limit is 50 TB. There's no great need to carry over cached data over long periods, as downloading from Google to Unity is very fast. To set up a scratch drive on Unity, see https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/. Be polite and release the scratch workspace when you're done. See comments in get_file.R for more notes on caching.  
+		**sftp** - SFTP credentials, either 'username:password' or '\*filename' with username:password. Make sure to include credential files in .gitignore and .Rbuildignore so it doesn't end up out in the world!  
 	*Source*: geoTIFFs for each site  
 	*Results*: geoTIFFs, clipped, resampled, and aligned  
-	*Status*: **DONE!!!**
-- All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected with a warning.
-- Note that adding to an existing stack using a different standard will lead to sorrow. 
-- If we get a big NAS and move data off of the Google Drive, I'll add a **sftp** option to get data from an STFP server connected to the NAS and cache it locally as we do with the Google Drive.
-3. **upscale_predictors**. 
-	Upscale predictor variables. Create predictors at coarser grains (e.g., mean, SD, IQR, maybe 10th and 90th percentile)  
+	*Status*: **need to implement sftp**
+- All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected with a warning. Alignment for reprojected files should be checked, as I've found one that was misaligned.
+- Note that adding to an existing stack using a different standard will lead to sorrow. If you change a site's raster standard, **delete the stack** or use **replace = TRUE** on a run for all files at the site.
+## upscale_data 
+Upscale predictor variables. Create predictors at coarser grains (e.g., mean, SD, IQR, maybe 10th and 90th percentile)  
 	*Arguments*:  
-		rasters - regex or vector of target geoTIFFs. Default: all files with "ortho" in the name  
-		functions - list of functions. Default = c('mean', 'sd', 'iqr', 'p10', 'p90')  
-		scales - number of cells for focal functions. Must be odd. Default = c(3, 5, 7, 9, 11)  
-	*Source*: processed geoTIFFs (from layer_stack_kcf) in site-specific stack folders  
-	*Results*: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>\_\<scale>.tif  
-	Dunno what functions and scales will make sense (if any). Will play with it.
-	
-4. **derive_predictors**. Derive indices by combining two or more predictor variables. Start with NDVI and NDWI.   
+		**site** - one or more sites, or NULL for all
+		**pattern** - regex matching source files. Default: all files with "ortho" in the name  
+		**functions** - list of functions. Default = c('mean', 'sd', 'iqr', 'p10', 'p90')  
+		**scales** - number of cells for focal functions. Must be odd. Default = c(3, 5, 7, 9, 11)  
+	*Source*: processed geoTIFFs in site-specific stack folders  
+	*Results*: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>\_\<scale>.tif   
+## derive_data
+Derive indices by combining two or more predictor variables. Start with NDVI and NDWI.   
 	*Arguments*:  
-		rasters - regex or vector of target geoTIFFs. Default: all files with "ortho" in the name.   
-		functions - list of functions. Default = c('NDVI', 'NWVI')  
-	*Source*: processed geoTIFFs (from layer_stack_kcf) in site-specific stack folders  
-	*Results*: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>.tif  
-	Need to do this only on files for sensors with near infrared (NDVI) or both near and short-wave infrared (NDWI). **WHICH SENSORS ARE THESE? Do we have sensors with 4 bands, or do we need to combine multiple sensors?** May need an argument to specify bands too.
-	
-5. **sample_predictors**. Read each raster, select all training points, collect in a data frame, and save as RDS (which takes seconds to read). Mild subsampling if necessary. Now we have all of the training data in something we can quickly read and select from.  
+		**site** - one or more sites, or NULL for all
+		**pattern** - regex matching result names
+		**metrics** - list of functions. Default = c('NDVI', 'NWVI')  
+		**source**: - path to parameters file, default = 'pars\/derive.txt' File has columns:  
+			- site
+			- source1 - 1st source file
+			- source2 - 2nd source file
+			- result - base name of result file (ndvi or _ndwi appended)
+			- bands? Here if these are consistent; otherwise in function
+	Source: processed geoTIFFs (from layer_stack_kcf) in site-specific stack folders  
+	Results: additional geoTIFFs in the same folder. Name will be \<source name>\_\<function>.tif 
+- Need to do this only on files for sensors with near infrared (NDVI) or both near and short-wave infrared (NDWI). **WHICH SENSORS ARE THESE? Do we have sensors with 4 bands, or do we need to combine multiple sensors?** May need an argument to specify bands too. See - [Flight log](https://docs.google.com/spreadsheets/d/1y-2HHg88itLQekMAlTrHAq7HzCulU56lfH7j_USbK5Y/edit?gid=0#gid=0).
+## sample_data
+Read each raster, select all training points, collect in a data frame, and save as RDS (which takes seconds to read). Mild subsampling if necessary. Now we have all of the training data in something we can quickly read and select from.  
 	Arguments:  
 	Source: processed geoTIFFs from layer stack, transect polys  
 	Result: site_name.RDS in dataframes/  
-	To figure out: how to do a block sampling scheme to reduce spatial autocorrelation
-
-6. **stitch_sites**. Stack data frames from individual sites for all sites or a selected subset.  
+- To figure out: how to do a block sampling scheme to reduce spatial autocorrelation
+## stitch_sites
+Stack data frames from individual sites for all sites or a selected subset.  
 	Arguments: vector of site names, result name  
 	Source: \*.RDS in dataframes/  
 	Result: result.RDS in dataframes/  
-
-7. **fit_model**. Read training data from RDS (if not already cached), select training points, pull out holdout sets (validation for RF, test/validation for boosting), run RF model, return CCR, confusion matrix, var importance, and save fit. This should be able to cycle quickly, allowing automated variable selection if we want. Option *reclass* to reclass dependent variable. This will be set up to easily support multi-stage modeling.
-
-8. **predict_fit**. For models we like, go back to raster stack, reading only variables used in model, predict, and write raster model prediction.
+## fit_model
+Read training data from RDS (if not already cached), select training points, pull out holdout sets (validation for RF, test/validation for boosting), run RF model, return CCR, confusion matrix, var importance, and save fit. This should be able to cycle quickly, allowing automated variable selection if we want. Option *reclass* to reclass dependent variable. This will be set up to easily support multi-stage modeling.
+## predict_fit
+For models we like, go back to raster stack, reading only variables used in model, predict, and write raster model prediction.
