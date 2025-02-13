@@ -31,8 +31,8 @@
    #                    There's no great need to carry over cached data over long periods, as downloading from Google or SFTP to Unity is very fast.
    #                    To set up a scratch drive on Unity, see https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/. Be polite and 
    #                    release the scratch workspace when you're done. See comments in get_file.R for more notes on caching.
-   #     sftp           SFTP credentials, either 'username:password' or '*filename' with username:password. Make sure to include credential files in .gitignore and 
-   #                    .Rbuildignore so it doesn't end up out in the world!  
+   #     sftp           list of url = address of site, credentials = either 'username:password' or '\*filename' with username:password. Make sure to include credential
+   #                    files in .gitignore and .Rbuildignore so it doesn't end up out in the world!  
    # 
    # Source: 
    #     geoTIFFs for each site
@@ -84,7 +84,7 @@
    library(terra)
    library(sf)
    library(googledrive)       # suggests
-   library(sftp)              # suggests
+   library(RCurl)              # suggests
    library(stringr)
    library(lubridate)
    
