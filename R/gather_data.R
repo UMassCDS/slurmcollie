@@ -108,9 +108,12 @@
       site <- allsites$site
    else
       sites <- allsites[match(tolower(site), tolower(allsites$site)), ]
+   
+   if(!sourcedrive %in% c('local', 'google', 'sftp'))                               # make source sourcedrive is good
+      stop('sourcedrive must be one of local, google, or sftp')
    if(any(is.na(sites$site_name)))                                                  # check for missing sites
       stop(paste0('Bad site names: ', paste(site[is.na(sites$site_name)], collapse = ', ')))
-   if(any(t <- is.na(sites$footprint) | sites$footprint == ''))                       # check for missing standards
+   if(any(t <- is.na(sites$footprint) | sites$footprint == ''))                     # check for missing standards
       stop(paste0('Missing footprints for sites ', paste(sites$footprint[t], collapse = ', ')))
    if(any(t <- is.na(sites$standard) | sites$standard == ''))                       # check for missing standards
       stop(paste0('Missing standards for sites ', paste(sites$site[t], collapse = ', ')))

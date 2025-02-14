@@ -28,32 +28,40 @@
    
    
    
-   name <- gsub('/+', '/', name)                                                 # clean up slashes
+   name <- gsub('/+', '/', name)                                                    # clean up slashes
    
-   sdate <- switch(gd$sourcedrive,
-                   'local' = name,                                                               # if the file is on the local drive, simply return the path and name
-                   'google' = {                                                                  # if it's on the Google Drive, deal with caching
-                      gname <- gd$dir[gd$dir$name == basename(name), ]                           #    name and id on Google Drive
-                      cname <- file.path(gd$cachedir, basename(name))                            #    name in cache
-                      if(file.exists(cname)) {                                                   #    if the file exists in the cache,
-                         gdate <- drive_reveal(gd$dir[1,], what = 'modified_time')$modified_time #       get last modified date on Google Drive
-                         cdate <- file.mtime(cname)                                              #       and in cache
-                         if(cdate >= gdate)                                                      #       if the cached version is up-to-date,
-                            return(cname)		                                                    #          we already have it, so return cached name
-                      }
-                      else {                                                                     #    else, gotta get it
-                         tname <- file.path(dirname(cname), paste0('zzz_', basename(cname)))
-                         cat('downloading...\n')
-                         tryCatch({
-                            drive_download(gname, path = tname, overwrite = TRUE)                #       download it with a temporary name (so we don't have failed downloads with good names)
-                         },
-                         error = function(cond)
-                            stop(paste0('File ', name, ' not found on Google Drive'))
-                         )
-                         file.rename(tname, cname)                                               #       rename it
-                         return(cname)
-                      }
-                   },
-                   'sftp' = '*************** get file from SFTP **************'                  # if it's on an SFTP site, deal with caching    **** maybe share with Google Drive here ****
-   )
+   
+   if(gd$sourcedrive == 'local')                                                    # if the file is on the local drive, simply return the path and name
+      return(name)
+   else {                                                                           # else, it's on the Google Drive or SFTP, so we'll deal with caching
+      cname <- file.path(gd$cachedir, basename(name))                               #    name in cache
+      if(file.exists(cname)) {                                                      #    if the file exists in the cache,
+         if(gd$sourcedrive == 'google') {                                           #       if it's on the Google Drive,
+            gname <- gd$dir[gd$dir$name == basename(name), ]                        #          name and id on Google Drive
+            gdate <- drive_reveal(gd$dir[1,], what = 'modified_time')$modified_time #          get last modified date 
+         }
+         else {                                                                     #       else, it's on SFTP
+            gname  # ***********************************************
+            gdate
+         }
+         cdate <- file.mtime(cname)                                                 #       last modified date in cache
+         if(cdate >= gdate)                                                         #       if the cached version is up-to-date,
+            return(cname)		                                                      #          we already have it, so return cached name
+         
+      }                                                                             #    elseish, it doesn't exist or is outdated in the cache, so gotta get it
+      tname <- file.path(dirname(cname), paste0('zzz_', basename(cname)))           #    we'll use a temporary name so we don't end up with failed downloads with good names
+      cat('downloading...\n')
+      tryCatch({
+         if(sourcedrive == 'google')                                                #    if it's on the Google Drive, get it from there
+            drive_download(gname, path = tname, overwrite = TRUE)    
+         else                                                                       #    else, get it from SFTP
+            sftp.download.here   # ***********************************************
+      },
+      error = function(cond)
+         stop(paste0('File ', name, ' not found on remote drive'))
+      )
+      file.rename(tname, cname)                                                     #    rename from temporary to the final name
+      return(cname)
+   }
+
 }
