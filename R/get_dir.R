@@ -1,18 +1,20 @@
-'get_dir' <- function(path, sourcedrive = 'local', sftp) {
+'get_dir' <- function(path, sourcedrive = 'local', logfile, sftp) {
    
    # Return directory listing as a data frame from the local drive, Google Drive, or SFTP site
    # A sister function to get_file
    # 
    # Arguments:
-   #     path        directory path (must end with '/' on Google Drive)
-   #     sourcedrive one of 'local', 'google', or 'sftp'
-   #     sftp        list of url = address of site, user = credentials (optional)
+   #     path           directory path (must end with '/' on Google Drive)
+   #     sourcedrive    one of 'local', 'google', or 'sftp'
+   #     logfile        log file, for reporting missing directories (which don't throw an error)
+   #     sftp           list of url = address of site, user = credentials (optional)
    #
    # Result:
    #     data frame with name (filenames), and id (Google Drive id, only if sourcedrive = 'google')
    #        when sourcedrive = 'local', name is full path to local files
    #        when sourcedrive = 'google', name is just the base name
    #        when sourcedrive = 'sftp', name is the full path to files on the SFTP site
+   #     When directories aren't found, the name is added to the log and NULL is returned
    #        
    # Notes: 
    #     - paths for Google Drive are case-sensitive
@@ -34,14 +36,33 @@
    
    path <- gsub('/+', '/', paste0(path, '/'))         # clean up for Google Drive (dir must end in a slash; no doubled slashes)
    
-   switch(sourcedrive,                                                              # case sourcedrive,  
-          'local' = data.frame(name = paste0(path, '/', list.files(path))),         #    local directory
-          'google' = drive_walk_path(path),                                         #    Google Drive directory
-          'sftp' = {
-             url <- gsub('/+', '/', paste0(file.path(sftp$url, path), '/'))         #    SFTP directory with file dates  
-             d <- strsplit(getURL(url, userpwd = sftp$user), '\n')[[1]]        
-             'grab_date' <- function(x) mdy_hm(substr(sub('\\s*\\d*\\s*', '', x), 1, 18))   #    pull the date out of the directory listing
-             'grab_name' <- function(x) substring(sub('\\s*\\d*\\s*', '', x), 20)
-             data.frame(name = unlist(lapply(d, FUN = grab_name)), date = as_datetime(unlist(lapply(d, FUN = grab_date)) + 60))  #    add one minute to truncated dates
-          })
+   z <- switch(sourcedrive,                                                               # case sourcedrive,  
+               'local' = {
+                  t <- list.files(path)
+                  if(length(t) == 1 && t == '')
+                     NULL
+                  else
+                     data.frame(name = paste0(path, '/', t))                              #    local directory
+               },         
+               'google' = drive_walk_path(path),                                          #    Google Drive directory
+               'sftp' = {
+                  url <- gsub('/+', '/', paste0(file.path(sftp$url, path), '/'))          #    SFTP directory with file dates 
+                  url <- gsub(' ', '%20', url)                                            #    and replace goddamn spaces with %20
+                  d <- tryCatch(getURL(url, userpwd = sftp$user),
+                                error = function(cond)
+                                   NULL)
+                  if(!is.null(d)) {
+                     d <- strsplit(d, '\n')[[1]]
+                     'grab_date' <- function(x) mdy_hm(substr(sub('\\s*\\d*\\s*', '', x), 1, 18))           #    pull the date out of the directory listing
+                     'grab_name' <- function(x) paste0(path, substring(sub('\\s*\\d*\\s*', '', x), 20))     #    path and filename
+                     data.frame(name = unlist(lapply(d, FUN = grab_name)), date = as_datetime(unlist(lapply(d, FUN = grab_date)) + 60))  #    add one minute to truncated dates
+                  }
+               })
+   
+   if(is.null(z)) {
+      msg(paste0('*** Missing directory: ', path), logfile)
+      z <- NULL
+   }
+   
+   z
 }
