@@ -35,7 +35,6 @@
    #                    There's no great need to carry over cached data over long periods, as downloading from Google or SFTP to Unity is very fast.
    #                    To set up a scratch drive on Unity, see https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/. Be polite and 
    #                    release the scratch workspace when you're done. See comments in get_file.R for more notes on caching.
-   
    # 
    # Source: 
    #     geoTIFFs for each site
@@ -158,14 +157,18 @@
       if(check)                                                                     #    if check = TRUE, don't download or process anything
          next
       
-      standard <- rast(get_file(file.path(dir, sites$standard[i]), gd))
+      standard <- rast(get_file(file.path(dir, sites$standard[i]), 
+                                gd, logfile = lf))
       msg(paste0('   Processing ', length(files), ' geoTIFFs...'), lf)
       
       if(sourcedrive %in% c('google', 'sftp')) {                                    #    if reading from Google Drive or SFTP,
-         t <- get_file(file.path(dir, sub('.shp$', '.shx', sites$footprint[i])), gd)#       load two sidecar files for shapefile into cache
-         t <- get_file(file.path(dir, sub('.shp$', '.prj', sites$footprint[i])), gd)
+         t <- get_file(file.path(dir, sub('.shp$', '.shx', sites$footprint[i])), 
+                       gd, logfile = lf)                                            #       load two sidecar files for shapefile into cache
+         t <- get_file(file.path(dir, sub('.shp$', '.prj', sites$footprint[i])), 
+                       gd, logfile = lf)
       }
-      shapefile <- st_read(get_file(file.path(dir, sites$footprint[i]), gd), quiet = TRUE)        #    read footprint shapefile
+      shapefile <- st_read(get_file(file.path(dir, sites$footprint[i]), 
+                                    gd, logfile = TRUE), quiet = TRUE)              #    read footprint shapefile
       
       
       if(!dir.exists(resultbase))                                                   #    prepare result directory
@@ -182,7 +185,7 @@
       for(j in files) {                                                             #    for each target geoTIFF in site,
          msg(paste0('      processing ', j), lf)
          
-         g <- rast(get_file(j, gd))
+         g <- rast(get_file(j, gd, logfile = lf))
          if(paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {
             msg(paste0('         !!! Reprojecting ', g), lf)
             g <- project(g, 'epsg:4326')

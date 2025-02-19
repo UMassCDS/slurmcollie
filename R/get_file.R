@@ -1,4 +1,4 @@
-'get_file' <- function(name, gd) {
+'get_file' <- function(name, gd, logfile) {
    
    # Return a file name from the local drive, Google Drive, or SFTP. If reading from the Google Drive 
    # or SFTP, the file is cached on the scratch drive (gd$cache), and reused as long as it isn't
@@ -9,7 +9,9 @@
    #     gd          Source Drive info, named list of 
    #                    dir            Google directory info, from get_dir
    #                    sourcedrive    which source drive ('local', 'google', or 'sftp')
+   #                    sftp           list(url, user)
    #                    cachedir       local cache directory
+   #    logfile      log file, for reporting missing directories (which don't throw an error)
    # Results:
    #     path to file on local drive
    # 
@@ -23,6 +25,8 @@
    #       have < 1 TB of data. Again, IF REPURPOSING, beware!
    #     - we protect against crashed or interrupted downloads by downloading to a temporary file that 
    #       is renamed after completion.
+   #     - when reading from SFTP, the entire file must be able to fit in memory. There should be plenty
+   #       of room for the files in the salt marsh project.
    # 
    # B. Compton, 6 Feb 2025
    
@@ -37,25 +41,27 @@
       cname <- file.path(gd$cachedir, basename(name))                               #    name in cache
       if(file.exists(cname)) {                                                      #    if the file exists in the cache,
          if(gd$sourcedrive == 'google') {                                           #       if it's on the Google Drive,
-            gname <- gd$dir[gd$dir$name == basename(name), ]                        #          name and id on Google Drive
-            gdate <- drive_reveal(gd$dir[1,], what = 'modified_time')$modified_time #          get last modified date 
+            sname <- gd$dir[gd$dir$name == basename(name), ]                        #          name and id on Google Drive
+            sdate <- drive_reveal(gd$dir[1,], what = 'modified_time')$modified_time #          get last modified date 
          }
          else {                                                                     #       else, it's on SFTP
-            gname  # ***********************************************
-            gdate
+            sdate <- gd$dir$date[gd$dir$name == name]                               #          last modified date on the server
          }
          cdate <- file.mtime(cname)                                                 #       last modified date in cache
-         if(cdate >= gdate)                                                         #       if the cached version is up-to-date,
+         if(cdate >= sdate)                                                         #       if the cached version is up-to-date,
             return(cname)		                                                      #          we already have it, so return cached name
          
       }                                                                             #    elseish, it doesn't exist or is outdated in the cache, so gotta get it
       tname <- file.path(dirname(cname), paste0('zzz_', basename(cname)))           #    we'll use a temporary name so we don't end up with failed downloads with good names
-      cat('downloading...\n')
+      msg('   downloading...', logfile)
       tryCatch({
          if(sourcedrive == 'google')                                                #    if it's on the Google Drive, get it from there
-            drive_download(gname, path = tname, overwrite = TRUE)    
-         else                                                                       #    else, get it from SFTP
-            sftp.download.here   # ***********************************************
+            drive_download(sname, path = tname, overwrite = TRUE)    
+         else {                                                                     #    else, get it from SFTP
+            f <- gsub(' ', '%20', file.path(gd$sftp$url, name))                     #       clean up spaces in the name
+            x <- getBinaryURL(f, userpwd = gd$sftp$user)                            #       load it into memory
+            writeBin(x, tname)                                                      #       and write it to a temporary file
+         }
       },
       error = function(cond)
          stop(paste0('File ', name, ' not found on remote drive'))
@@ -63,5 +69,5 @@
       file.rename(tname, cname)                                                     #    rename from temporary to the final name
       return(cname)
    }
-
+   
 }
