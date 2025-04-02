@@ -1,34 +1,42 @@
+#' Find raster standard for each site that doesn't already have one. It will be the oldest Mica file for each site.
+#' 
+#' Requires `<pars>sites.txt`, table of site abbreviation, site name, footprint shapefile, raster standard.
+#' 
+#' Result is written to `resultbase/sites.txt`, new version of sites file. ** Copy this to pars/sites.txt after running **.
+#' 
+#' Selected standards must be in EPSG:4326. A warning will be returned for files in other projections; you'll have to reproject
+#' the source file or pick a standard manually for these sites.
+#' 
+#' I might abandon this and require picking standards by hand. There aren't many sites, so it's not a particular burden, and
+#' human eyes might be helpful at this step.
+#' 
+#' @param subdirs subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
+#' nonexistent directories)
+#' @param basedir full path to subdirs
+#' @param resultbase base name of result base directory
+#' @importFrom terra rast crs 
+#' @importFrom sf st_read
+#' @importFrom googledrive drive_get drive_ls
+#' @importFrom utils read.table write.table
+#' @importFrom stringr str_length str_split
+#' @importFrom lubridate dmy
+#' @keywords internal
+
+
 'find_standards' <- function(subdirs = c('RFM processing inputs/Orthomosaics', 'Share/Photogrammetry DEMs', 'Share/Canopy height models'), 
                              basedir = 'c:/Work/etc/saltmarsh/data', resultbase = 'c:/Work/etc/saltmarsh/data') {
    
-   # Find raster standard for each site that doesn't already have one. It will be the oldest Mica file for each site.
-   # Arguments:
-   #     subdirs        subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
-   #                    nonexistent directories)
-   #     basedir        full path to subdirs
-   #     resultbase     base name of result base directory
-   # 
-   # Source: 
-   #     geoTIFFs for each site
-   #     pars/sites.txt    table of site abbreviation, site name, footprint shapefile, raster standard
-   #
-   # Results: 
-   #     resultbase/sites.txt    new version of sites file. *** Copy this to pars/sites.txt after running ***
-   # 
-   # Selected standards must be in EPSG:4326. A warning will be returned for files in other projections; you'll have to reproject
-   # the source file or pick a standard manually for these sites.
-   # 
-   # B. Compton, 4 Feb 2025
    
    
    
-   subdirs = c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')      ##### for testing on my laptop
+   
+   subdirs <- c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/')      ##### for testing on my laptop
+
    
    
-   library(terra)
    
    
-   sites <- read.table('pars/sites.txt', sep = '\t', header = TRUE)                 # read sites file
+   sites <- read.table(pars('sites.txt'), sep = '\t', header = TRUE)                # read sites file
    
    for(i in 1:dim(sites)[1]) {                                                      # for each site,
       dir <- file.path(basedir, sites$site_name[i], '/')
