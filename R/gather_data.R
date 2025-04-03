@@ -33,7 +33,7 @@
 #'    Complete for all sites:
 #'       `gather_data()`
 #'    Run for 2 sites, low tide only:
-#'       `gather_data(sites = c('oth', 'wes'), pattern = '_low_')`
+#'       `gather_data(site = c('oth', 'wes'), pattern = '_low_')`
 #'    See end of this function for more example calls
 #' 
 #' @param site one or more site names, using 3 letter abbreviation. Default = all sites
