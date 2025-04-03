@@ -1,92 +1,81 @@
+#' Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site
+#' 
+#' Clip to site boundary, resample and align to standard resolution.
+#' 
+#' Source data: 
+#'   - geoTIFFs for each site
+#'   - pars/sites.txt    table of site abbreviation, site name, footprint shapefile, raster standard
+#'
+#' Results: 
+#'     geoTIFFs, clipped, resampled, and aligned   *** Make sure you've closed ArcGIS/QGIS projects that point to these before running! ***
+#'     gather_data.log, in resultbase
+#' 
+#' All source data are expected to be in `EPSG:4326`. Non-conforming rasters will be reprojected.
+#' 
+#' `sites.txt` must include the name of the footprint shapefile for each site.
+#' 
+#' `sites.txt` must include a standard geoTIFF for each site, to be used as the standard for grain and alignment; all rasters will be 
+#' resampled to match. Standards MUST be in the standard projection, `EPSG:4326`. Use find_standards() to pick good candidates.
+#' 
+#' Note that adding to an existing stack using a different standard will lead to sorrow. BEST PRACTICE: don't change the standards
+#' in `standards.txt`; if you must change them, rerun with replace = TRUE to replace results using the old standard.
+#' 
+#' Note that initial runs with Google Drive in a session open the browser for authentication or wait for input from the console, so 
+#' don't run blindly when using the Google Drive
+#' 
+#' Remember that some SFTP servers require connection via VPN
+#' 
+#' ********************* Hanging issues for SFTP: 
+#'                       - SFTP implementations behave differently so I'll have to revise once the NAS is up and running.
+#'                       - Windows dates are a mess for DST. Hopefully Linux won't be.
+#' 
+#' Example runs:
+#'    Complete for all sites:
+#'       `gather_data()`
+#'    Run for 2 sites, low tide only:
+#'       `gather_data(sites = c('oth', 'wes'), pattern = '_low_')`
+#'    See end of this function for more example calls
+#' 
+#' @param site one or more site names, using 3 letter abbreviation. Default = all sites
+#' @param pattern regex filtering rasters, case-insensitive. Default = '' (match all). Note: only files ending in .tif are included in any case.
+#' Examples: 
+#'   - to match all Mica orthophotos, use `pattern = 'mica_orth'``
+#'   - to match all Mica files from July, use `pattern = 'Jun.*mica'`
+#'   - to match Mica files for a series of dates, use pattern = `'11nov20.*mica|14oct20.*mica'`
+#' @param subdirs subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
+#'   nonexistent directories). Use `'\[site]'` in subdirectories that include a site name, e.g., `'\[site] Share/Photogrammetry DEMs'`.
+#' WARNING: paths on the Google Drive are case-sensitive!
+#' @param basedir full path to subdirs
+#' @param resultbase base name of result directory
+#' @param resultdir subdir for results. Default is 'stacked/'. The site name will be appended to this.
+#' @param update if TRUE, only process new files, assumming existing files are good 
+#' @param replace if TRUE, deletes the existing stack and replaces it. Use with care!
+#' @param check if TRUE, just check to see that source directories and files exist, but don't cache or process anything
+#' @param sourcedrive one of 'local', 'google', 'sftp'
+#'   - `'local'` - read source from local drive 
+#'   - `'google'` - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set cachedir option. 
+#'   - `'sftp'` - get source data from sftp site. Must set sftp and cachedir options. 
+#' @param sftp list(url = address of site, user = credentials). Credentials are either 'username:password' or '\*filename' with username:password. Make sure 
+#'   to include credential files in .gitignore and .Rbuildignore so it doesn't end up out in the world! 
+#' @param cachedir path to local cache directory; required when sourcedrive = 'google' or 'sftp'. The cache directory should be larger than the total amount of
+#'   data processed--this code isn't doing any quota management. This is not an issue when using a scratch drive on Unity, as the limit is 50 TB.
+#'   There's no great need to carry over cached data over long periods, as downloading from Google or SFTP to Unity is very fast.
+#'   To set up a scratch drive on Unity, see https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/. Be polite and 
+#'   release the scratch workspace when you're done. See comments in get_file.R for more notes on caching.
+#' 
+#' @importFrom terra project writeRaster mask crop resample
+#' @importFrom sf st_read 
+#' @importFrom utils read.table
+#' @importFrom lubridate as.duration interval
+#' @export
+
+
 'gather_data' <- function(site = NULL, pattern = '', 
                           subdirs = c('RFM Processing Inputs/Orthomosaics/', '[site] Share/Photogrammetry DEMs/', '[site] Share/Canopy Height Models/'), 
                           basedir = 'UAS Data Collection/', resultbase = 'c:/Work/etc/saltmarsh/data/', resultdir = 'stacked/',
                           update = TRUE, replace = FALSE, check = FALSE,
                           sourcedrive = 'google', sftp = NULL,
                           cachedir = '/scratch3/workspace/bcompton_umass_edu-cache') {
-   
-   
-   # Collect raster data from various source locations (orthophotos, DEMs, canopy height models) for each site. 
-   # Clip to site boundary, resample and align to standard resolution.
-   # Arguments:
-   #     site           one or more site names, using 3 letter abbreviation. Default = all sites
-   #     pattern        regex filtering rasters, case-insensitive. Default = '' (match all). Note: only files ending in .tif are included in any case.
-   #        Examples: 
-   #           - to match all Mica orthophotos, use pattern = 'mica_orth'
-   #           - to match all Mica files from July, use pattern = 'Jun.*mica'
-   #           - to match Mica files for a series of dates, use pattern = '11nov20.*mica|14oct20.*mica'
-   #     subdirs        subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
-   #                    nonexistent directories). Use '[site]' in subdirectories that include a site name, e.g., '[site] Share/Photogrammetry DEMs'.
-   #                    WARNING: paths on the Google Drive are case-sensitive!
-   #     basedir        full path to subdirs
-   #     resultbase     base name of result directory
-   #     resultdir      subdir for results. Default is 'stacked/'. The site name will be appended to this.
-   #     update         if TRUE, only process new files, assumming existing files are good   
-   #     replace        if TRUE, deletes the existing stack and replaces it. Use with care!
-   #     check          if TRUE, just check to see that source directories and files exist, but don't cache or process anything
-   #     sourcedrive    one of 'local', 'google', 'sftp'
-   #           - 'local' - read source from local drive  
-   #           - 'google' - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set cachedir option.  
-   #           - 'sftp' - get source data from sftp site. Must set sftp and cachedir options.     
-   #     sftp           list(url = address of site, user = credentials). Credentials are either 'username:password' or '\*filename' with username:password. Make sure 
-   #                    to include credential files in .gitignore and .Rbuildignore so it doesn't end up out in the world!  
-   #     cachedir       path to local cache directory; required when sourcedrive = 'google' or 'sftp'. The cache directory should be larger than the total amount of
-   #                    data processed--this code isn't doing any quota management. This is not an issue when using a scratch drive on Unity, as the limit is 50 TB.
-   #                    There's no great need to carry over cached data over long periods, as downloading from Google or SFTP to Unity is very fast.
-   #                    To set up a scratch drive on Unity, see https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/. Be polite and 
-   #                    release the scratch workspace when you're done. See comments in get_file.R for more notes on caching.
-   # 
-   # Source: 
-   #     geoTIFFs for each site
-   #     pars/sites.txt    table of site abbreviation, site name, footprint shapefile, raster standard
-   #
-   # Results: 
-   #     geoTIFFs, clipped, resampled, and aligned   *** Make sure you've closed ArcGIS/QGIS projects that point to these before running! ***
-   #     gather_data.log, in resultbase
-   # 
-   # All source data are expected to be in EPSG:4326. Non-conforming rasters will be reprojected.
-   # 
-   # sites.txt must include the name of the footprint shapefile for each site.
-   # 
-   # sites.txt must include a standard geoTIFF for each site, to be used as the standard for grain and alignment; all rasters will be 
-   # resampled to match. Standards MUST be in the standard projection, EPSG:4326. Use find_standards() to pick good candidates.
-   # 
-   # Note that adding to an existing stack using a different standard will lead to sorrow. BEST PRACTICE: don't change the standards
-   # in standards.txt; if you must change them, run with replace = TRUE.
-   # 
-   # Note that initial runs with Google Drive in a session open the browser for authentication or wait for input from the console, so 
-   # don't run blindly when using the Google Drive
-   # 
-   # Remember that some SFTP servers require connection via VPN
-   # 
-   # ********************* Hanging issues for SFTP: 
-   #                       - SFTP implementations behave differently so I'll have to revise once the NAS is up and running.
-   #                       - Windows dates are a mess for DST. Hopefully Linux won't be.
-   # 
-   # Example runs:
-   #    Complete for all sites:
-   #       gather_data()
-   #    Run for 2 sites, low tide only:
-   #       gather_data(sites = c('oth', 'wes'), pattern = '_low_')
-   #    See end of this function for more example calls
-   # 
-   # B. Compton, 31 Jan 2025
-   
-   
-   
-   library(terra)
-   library(sf)
-   library(googledrive)        # suggests (only used when sourcedrive = 'google')
-   library(RCurl)              # suggests (only used when sourcedrive = 'sftp')
-   library(stringr)
-   library(lubridate)
-   
-   
-   source('R/get_dir.R')         # I'll make this into a package and pull this crap out
-   source('R/get_file.R')
-   source('R/check_files.R')
-   source('R/drive_walk_path.R')
-   source('R/msg.R')
    
    
    lf <- file.path(resultbase, 'gather_data.log')                                   # set up logging
@@ -152,8 +141,8 @@
          ##    files<<-files;gd<<-gd;sdir<<-sdir;rdir<<-rdir;return()
          files <- files[!check_files(files, gd, sdir, rdir)]                        #       see which files already exist and are up to date
       }
-   
-         
+      
+      
       if(check)                                                                     #    if check = TRUE, don't download or process anything
          next
       
@@ -215,7 +204,7 @@
       # from landeco SFTP to my laptop. Set pw to password before calling.
       gather_data(site = c('oth', 'wes'), sourcedrive = 'sftp', 
                   sftp = list(url = 'sftp://landeco.umass.edu/D/temp/salt_marsh_test', user = paste0('campus\\landeco:', pw)), cachedir = 'c:/temp/cache/')
-
+      
       
       # To narrow down inputs
       # pattern = 'nov.*low*.mica'

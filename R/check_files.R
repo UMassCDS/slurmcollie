@@ -1,20 +1,20 @@
-'check_files' <- function(files, gd, sourcedir, resultdir) {
+   #' Check that each source file exists on the result directory and is up to date
+   #' 
+   #' @param files Vector of files to check
+   #' @param gd Source Drive info (optional), named list of 
+   #'    - dir            Google directory info, from get_dir
+   #'    - sourcedrive    which source drive ('local', 'google', or 'sftp')
+   #'    - sftp           list(url, user)
+   #' @param sourcedir Origin directory of files
+   #' @param resultdir Target directory of files - see if origin files are here and up to date
+   #' @returns A vector corresponding to files, TRUE for those that are up to date
+   #' @importFrom googledrive drive_reveal
+   #' @export
    
-   # Check that each source file exists on the result directory and is up to date
-   # Arguments:
-   #     files       list of files to check
-   #     gd          Source Drive info (optional), named list of 
-   #                    dir            Google directory info, from get_dir
-   #                    sourcedrive    which source drive ('local', 'google', or 'sftp')
-   #                    sftp           list(url, user)
-   #     sourcedir   origin directory of files
-   #     resultdir   target directory of files - see if origin files are here and up to date
-   # Result:
-   #     a vector corresponding to files, TRUE for those that are up to date
-   # B. Compton, 10 Feb 2025
-   
-   
-   
+      
+      'check_files' <- function(files, gd, sourcedir, resultdir) {
+         
+      
    z <- rep(FALSE, length(files))
    
    for(i in 1:length(files))                                                              # for each file,

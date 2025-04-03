@@ -1,10 +1,15 @@
-'msg' <- function(message, logfile) {                                            
+#' Apppend message to the log file and also write it to the display
+#' 
+#' Displays message to the console, writing it to the log with a timestamp
+#' if a logfile is provided.
+#'
+#' @param message text of message
+#' @param logfile path and name of log file
+#' @importFrom lubridate stamp now
+#' @keywords internal
    
-   # Apppend message to the log file and also write it to the display
-   # Arguments:
-   #     message     test of message
-   #     logfile     path and name of log file
-   # B. Compton, 18 Feb 2025
+
+'msg' <- function(message, logfile) {       
    
    
    if(is.null(logfile)) {
