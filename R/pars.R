@@ -6,6 +6,7 @@
 #' @returns Path and name of parameter file
 #' @keywords internal
 
+# This will be rewritten using new approach
 
 pars <- function(file) {
    
