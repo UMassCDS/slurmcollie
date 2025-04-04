@@ -100,6 +100,6 @@ Example runs:
 Complete for all sites:
 \code{gather_data()}
 Run for 2 sites, low tide only:
-\code{gather_data(sites = c('oth', 'wes'), pattern = '_low_')}
+\code{gather_data(site = c('oth', 'wes'), pattern = '_low_')}
 See end of this function for more example calls
 }

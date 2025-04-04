@@ -14,7 +14,8 @@ Imports:
     RCurl,
     stringr,
     lubridate,
-    googledrive
+    googledrive,
+    yaml
 Encoding: UTF-8
 Language: en-US
 LazyData: trued

@@ -65,7 +65,6 @@
 #' 
 #' @importFrom terra project writeRaster mask crop resample
 #' @importFrom sf st_read 
-#' @importFrom utils read.table
 #' @importFrom lubridate as.duration interval
 #' @export
 
@@ -81,7 +80,7 @@
    lf <- file.path(resultbase, 'gather_data.log')                                   # set up logging
    start <- Sys.time()
    count <- 0
-   allsites <- read.table('pars/sites.txt', sep = '\t', header = TRUE)              # site names from abbreviations to paths
+   allsites <- read_pars_table('sites')                                             # site names from abbreviations to paths
    if(is.null(site))
       site <- allsites$site
    else

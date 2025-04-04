@@ -1,0 +1,19 @@
+#' Read a parameter table
+#' 
+#' Given a parameter name the corresponds to tab-delimited file, read and return the file
+#' 
+#' @param name Parameter name
+#' @returns Data frame of the parameter file
+#' @keywords internal
+
+
+read_pars_table <- function(name) {
+   
+   
+   if(!name %in% names(the))
+      stop(paste0('Parameter ', name, ' not in ', file.path(the$parsdir, the$parsfile)))
+   f <- file.path(the$parsdir, the[[name]])
+   if(!file.exists(f))
+      stop(paste0('Parameter file ', f, ' not found'))
+   read.table(f, sep = '\t', header = TRUE)
+}

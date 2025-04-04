@@ -17,7 +17,6 @@
 #' @importFrom terra rast crs 
 #' @importFrom sf st_read
 #' @importFrom googledrive drive_get drive_ls
-#' @importFrom utils read.table write.table
 #' @importFrom stringr str_length str_split
 #' @importFrom lubridate dmy
 #' @keywords internal
@@ -36,7 +35,7 @@
    
    
    
-   sites <- read.table(pars('sites.txt'), sep = '\t', header = TRUE)                # read sites file
+   sites <- pars_table('sites')                                                     # read sites file
    
    for(i in 1:dim(sites)[1]) {                                                      # for each site,
       dir <- file.path(basedir, sites$site_name[i], '/')
@@ -60,6 +59,6 @@
    }
    
    
-   write.table(sites, f <- file.path(resultbase, 'sites.txt'), sep = '\t', row.names = FALSE, quote = FALSE)
-   cat('New sites file written to ', f, '\n', sep = '')
+   write_pars_table(sites, 'sites')
+   msg('New sites file written')
 }
