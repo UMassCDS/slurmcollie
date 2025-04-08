@@ -41,10 +41,11 @@
    if(gd$sourcedrive == 'local')                                                    # if the file is on the local drive, simply return the path and name
       return(name)
    else {                                                                           # else, it's on the Google Drive or SFTP, so we'll deal with caching
+      sname <- gd$dir[gd$dir$name == basename(name), ]                              #    name and id on Google Drive
       cname <- file.path(gd$cachedir, basename(name))                               #    name in cache
+      
       if(file.exists(cname)) {                                                      #    if the file exists in the cache,
          if(gd$sourcedrive == 'google') {                                           #       if it's on the Google Drive,
-            sname <- gd$dir[gd$dir$name == basename(name), ]                        #          name and id on Google Drive
             sdate <- drive_reveal(gd$dir[1,], what = 'modified_time')$modified_time #          get last modified date 
          }
          else {                                                                     #       else, it's on SFTP
