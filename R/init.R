@@ -49,5 +49,7 @@ init <- function() {
    for(i in 1:length(x)) 
       the[[names(x)[i]]] <- x[[i]]
    
+   packageStartupMessage('User parameters initialized\n')
+   
    
 }

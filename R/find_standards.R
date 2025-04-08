@@ -35,7 +35,7 @@
    
    
    
-   sites <- pars_table('sites')                                                     # read sites file
+   sites <- read_pars_table('sites')                                                # read sites file
    
    for(i in 1:dim(sites)[1]) {                                                      # for each site,
       dir <- file.path(basedir, sites$site_name[i], '/')

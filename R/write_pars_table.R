@@ -4,6 +4,7 @@
 #' 
 #' @param data Data frame to write
 #' @param name Parameter name
+#' @importFrom utils write.table
 #' @keywords internal
 
 
