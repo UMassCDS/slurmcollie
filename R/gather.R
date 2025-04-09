@@ -76,6 +76,7 @@
 #' @importFrom terra project writeRaster mask crop resample
 #' @importFrom sf st_read 
 #' @importFrom lubridate as.duration interval
+#' @importFrom pkgcond suppress_warnings
 #' @export
 
 
@@ -157,9 +158,14 @@
       if(check)                                                                     #    if check = TRUE, don't download or process anything
          next
       
+      dumb_warning <- 'Sum of Photometric type-related color channels'              #    we don't want to hear about this!
+      # standard <- pkgcond::suppress_warnings(rast(get_file(file.path(dir, sites$standard[i]), 
+      #                           gd, logfile = lf)), 
+      #                           pattern = dumb_warning, class = 'warning')
       standard <- rast(get_file(file.path(dir, sites$standard[i]), 
-                                gd, logfile = lf))
-      msg(paste0('   Processing ', length(files), ' geoTIFFs...'), lf)
+                                                           gd, logfile = lf))
+      
+            msg(paste0('   Processing ', length(files), ' geoTIFFs...'), lf)
       
       if(the$gather$sourcedrive %in% c('google', 'sftp')) {                         #    if reading from Google Drive or SFTP,
          t <- get_file(file.path(dir, sub('.shp$', '.shx', sites$footprint[i])), 
