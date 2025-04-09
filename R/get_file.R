@@ -17,7 +17,6 @@
 #' - when reading from SFTP, the entire file must be able to fit in memory. There should be plenty
 #'   of room for the files in the salt marsh project.
 #'       
-#'       
 #' @param name File path and name
 #' @param gd Source drive info, named list of 
 #' - dir - Google directory info, from get_dir
@@ -27,6 +26,7 @@
 #' @param logfile Log file, for reporting missing directories (which don't throw an error)
 #' @returns path to file on local drive
 #' @importFrom googledrive drive_download drive_reveal 
+#' @importFrom lubridate with_tz
 #' @importFrom RCurl getBinaryURL
 #' @keywords internal
 
@@ -49,9 +49,9 @@
             sdate <- drive_reveal(gd$dir[1,], what = 'modified_time')$modified_time #          get last modified date 
          }
          else {                                                                     #       else, it's on SFTP
-            sdate <- gd$dir$date[gd$dir$name == name]                               #          last modified date on the server
+            sdate <- gd$dir$date[gd$dir$name == name]                               #          last modified date on the server   ************** make sure this is in UTC when updating ****************
          }
-         cdate <- file.mtime(cname)                                                 #       last modified date in cache
+         cdate <- lubridate::with_tz(file.mtime(cname), tzone = 'UTC')              #       last modified date in cache
          if(cdate >= sdate)                                                         #       if the cached version is up-to-date,
             return(cname)		                                                      #          we already have it, so return cached name
          
