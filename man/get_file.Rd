@@ -11,10 +11,10 @@ get_file(name, gd, logfile)
 
 \item{gd}{Source drive info, named list of
 \itemize{
-\item dir - Google directory info, from get_dir
-\item sourcedrive - which source drive ('local', 'google', or 'sftp')
-\item sftp - list(url, user)
-\item cachedir - local cache directory
+\item \code{dir} - Google directory info, from \link{get_dir}
+\item \code{sourcedrive} - which source drive (\code{local}, \code{google}, or \code{sftp})
+\item \code{sftp} - list(url, user)
+\item \code{cachedir} - local cache directory
 }}
 
 \item{logfile}{Log file, for reporting missing directories (which don't throw an error)}
@@ -24,7 +24,7 @@ path to file on local drive
 }
 \description{
 If reading from the Google Drive or SFTP, the file is cached on the scratch drive
-(gd$cache), and reused as long as it isn't outdated. Get gd$dir with sister function get_dir.
+(\code{gd$cache}), and reused as long as it isn't outdated. Get \code{gd$dir} with sister function \link{get_dir}.
 }
 \details{
 Notes:

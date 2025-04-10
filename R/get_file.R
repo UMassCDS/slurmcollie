@@ -1,7 +1,7 @@
 #' Return a file name from the local drive, Google Drive, or SFTP
 #' 
 #' If reading from the Google Drive or SFTP, the file is cached on the scratch drive 
-#' (gd$cache), and reused as long as it isn't outdated. Get gd$dir with sister function get_dir.
+#' (`gd$cache`), and reused as long as it isn't outdated. Get `gd$dir` with sister function [get_dir].
 #'
 #' Notes:
 #' 
@@ -19,10 +19,10 @@
 #'       
 #' @param name File path and name
 #' @param gd Source drive info, named list of 
-#' - dir - Google directory info, from get_dir
-#' - sourcedrive - which source drive ('local', 'google', or 'sftp')
-#' - sftp - list(url, user)
-#' - cachedir - local cache directory
+#' - `dir` - Google directory info, from [get_dir]
+#' - `sourcedrive` - which source drive (`local`, `google`, or `sftp`)
+#' - `sftp` - list(url, user)
+#' - `cachedir` - local cache directory
 #' @param logfile Log file, for reporting missing directories (which don't throw an error)
 #' @returns path to file on local drive
 #' @importFrom googledrive drive_download drive_reveal 

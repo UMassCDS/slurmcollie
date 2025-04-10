@@ -2,7 +2,7 @@
 % Please edit documentation in R/msg.R
 \name{msg}
 \alias{msg}
-\title{Apppend message to the log file and also write it to the display}
+\title{Append message to the log file and also write it to the display}
 \usage{
 msg(message, logfile)
 }
@@ -13,6 +13,6 @@ msg(message, logfile)
 }
 \description{
 Displays message to the console, writing it to the log with a timestamp
-if a logfile is provided.
+if a log file is provided.
 }
 \keyword{internal}

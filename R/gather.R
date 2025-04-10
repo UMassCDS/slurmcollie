@@ -3,25 +3,25 @@
 #' Clip to site boundary, resample and align to standard resolution. Data will be copied from various source 
 #' locations (orthophotos, DEMs, canopy height models).
 #' 
-#' Additional parameters, set in pars.yml (see [init()]):
+#' Additional parameters, set in `pars.yml` (see [init()]):
 #' 
 #' - `subdirs` subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
 #'   nonexistent directories). Use `\<site>` in subdirectories that include a site name, e.g., `\<site> Share/Photogrammetry DEMs`.
 #'   WARNING: paths on the Google Drive are case-sensitive!
-#' - `basedir` full path to subdirs
+#' - `basedir` full path to parameter and data directories
 #' - `resultbase` base name of result directory
-#' - `resultdir` subdir for results. Default is `stacked/`. The site name will be appended to this.
+#' - `resultdir` subdirectory for results. Default is `stacked/`. The site name will be appended to this.
 #' - `sftp` list(url = address of site, user = credentials). Credentials are either `username:password` or `*filename` with username:password. Make sure 
-#'   to include credential files in .gitignore and .Rbuildignore so it doesn't end up out in the world! 
-#' - `cachedir` path to local cache directory; required when sourcedrive = `google` or `sftp`. The cache directory should be larger than the total amount of
+#'   to include credential files in `.gitignore` and `.Rbuildignore` so it doesn't end up out in the world! 
+#' - `cachedir` path to local cache directory; required when `sourcedrive = google` or `sftp`. The cache directory should be larger than the total amount of
 #'   data processed--this code isn't doing any quota management. This is not an issue when using a 
 #'   \href{https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/}{scratch drive on Unity}, as the limit is 50 TB.
 #'   There's no great need to carry over cached data over long periods, as downloading from Google or SFTP to Unity is very fast.
 #'   Be polite and release the scratch workspace when you're done. See comments in [get_file()] for more notes on caching.
-#' - `sourcedrive` one of 'local', 'google', 'sftp'
+#' - `sourcedrive` one of `local`, `google`, `sftp`
 #'   - `local` - read source from local drive 
-#'   - `google` - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set cachedir option. 
-#'   - `sftp` - get source data from sftp site. Must set sftp and cachedir options. 
+#'   - `google` - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set `cachedir` option. 
+#'   - `sftp` - get source data from SFTP site. Must set `sftp` and `cachedir` options. 
 #' 
 #' Source data: 
 #'   - geoTIFFs for each site
@@ -30,7 +30,7 @@
 #' Results: 
 #' 
 #'   - geoTIFFs, clipped, resampled, and aligned   *** Make sure you've closed ArcGIS/QGIS projects that point to these before running! ***
-#'   - gather_data.log, in resultbase
+#'   - gather_data.log, in xxxxxx
 #' 
 #' All source data are expected to be in `EPSG:4326`. Non-conforming rasters will be reprojected.
 #' 
@@ -70,7 +70,7 @@
 #'   - to match all Mica orthophotos, use `mica_orth`
 #'   - to match all Mica files from July, use `Jun.*mica`
 #'   - to match Mica files for a series of dates, use `11nov20.*mica|14oct20.*mica`
-#' @param update if TRUE, only process new files, assumming existing files are good 
+#' @param update if TRUE, only process new files, assuming existing files are good 
 #' @param replace if TRUE, deletes the existing stack and replaces it. Use with care!
 #' @param check if TRUE, just check to see that source directories and files exist, but don't cache or process anything
 #' @importFrom terra project writeRaster mask crop resample

@@ -2,10 +2,10 @@
 #'
 #' A sister function to get_file
 #' 
-#' Returns data frame with name (filenames), and id (Google Drive id, only if sourcedrive = 'google')
-#' - when sourcedrive = 'local', name is full path to local files
-#' - when sourcedrive = 'google', name is just the base name
-#' - when sourcedrive = 'sftp', name is the full path to files on the SFTP site
+#' Returns data frame with name (filenames), and id (Google Drive id, only if `sourcedrive = `google`)
+#' - when `sourcedrive = local` name is full path to local files
+#' - when `sourcedrive = google`, name is just the base name
+#' - when `sourcedrive = sftp`, name is the full path to files on the SFTP site
 #' - When directories aren't found, the name is added to the log and NULL is returned
 #'        
 #' Notes: 
@@ -23,7 +23,7 @@
 #'      servers on both sides so hopefully this'll clear up.
 #'      
 #' @param path directory path (must end with '/' on Google Drive)
-#' @param sourcedrive one of 'local', 'google', or 'sftp'
+#` @param sourcedrive one of `local`, `google`, or `sftp`
 #' @param logfile log file, for reporting missing directories (which don't throw an error)
 #' @param sftp list of url = address of site, user = credentials (optional)
 #' @importFrom RCurl getURL 

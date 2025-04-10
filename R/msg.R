@@ -1,7 +1,7 @@
-#' Apppend message to the log file and also write it to the display
+#' Append message to the log file and also write it to the display
 #' 
 #' Displays message to the console, writing it to the log with a timestamp
-#' if a logfile is provided.
+#' if a log file is provided.
 #'
 #' @param message text of message
 #' @param logfile path and name of log file

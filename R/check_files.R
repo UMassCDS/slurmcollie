@@ -2,9 +2,9 @@
    #' 
    #' @param files Vector of files to check
    #' @param gd Source Drive info (optional), named list of 
-   #'    - dir            Google directory info, from get_dir
-   #'    - sourcedrive    which source drive ('local', 'google', or 'sftp')
-   #'    - sftp           list(url, user)
+   #'    - `dir`            Google directory info, from [get_dir]
+   #'    - `sourcedrive`    which source drive (`local`, `google`, or `sftp`)
+   #'    - `sftp`           `list(url, user)`
    #' @param sourcedir Origin directory of files
    #' @param resultdir Target directory of files - see if origin files are here and up to date
    #' @returns A vector corresponding to files, TRUE for those that are up to date

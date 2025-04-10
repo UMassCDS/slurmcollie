@@ -5,7 +5,7 @@
 \alias{the}
 \title{Script to set up environment for parameters}
 \format{
-An object of class \code{environment} of length 5.
+An object of class \code{environment} of length 16.
 }
 \usage{
 the

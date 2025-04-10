@@ -9,8 +9,6 @@ get_dir(path, sourcedrive = "local", logfile, sftp)
 \arguments{
 \item{path}{directory path (must end with '/' on Google Drive)}
 
-\item{sourcedrive}{one of 'local', 'google', or 'sftp'}
-
 \item{logfile}{log file, for reporting missing directories (which don't throw an error)}
 
 \item{sftp}{list of url = address of site, user = credentials (optional)}
@@ -19,11 +17,11 @@ get_dir(path, sourcedrive = "local", logfile, sftp)
 A sister function to get_file
 }
 \details{
-Returns data frame with name (filenames), and id (Google Drive id, only if sourcedrive = 'google')
+Returns data frame with name (filenames), and id (Google Drive id, only if \verb{sourcedrive = }google`)
 \itemize{
-\item when sourcedrive = 'local', name is full path to local files
-\item when sourcedrive = 'google', name is just the base name
-\item when sourcedrive = 'sftp', name is the full path to files on the SFTP site
+\item when \code{sourcedrive = local} name is full path to local files
+\item when \code{sourcedrive = google}, name is just the base name
+\item when \code{sourcedrive = sftp}, name is the full path to files on the SFTP site
 \item When directories aren't found, the name is added to the log and NULL is returned
 }
 

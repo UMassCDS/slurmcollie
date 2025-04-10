@@ -23,7 +23,7 @@ Examples:
 \item to match Mica files for a series of dates, use \verb{11nov20.*mica|14oct20.*mica}
 }}
 
-\item{update}{if TRUE, only process new files, assumming existing files are good}
+\item{update}{if TRUE, only process new files, assuming existing files are good}
 
 \item{replace}{if TRUE, deletes the existing stack and replaces it. Use with care!}
 
@@ -34,26 +34,26 @@ Clip to site boundary, resample and align to standard resolution. Data will be c
 locations (orthophotos, DEMs, canopy height models).
 }
 \details{
-Additional parameters, set in pars.yml (see \code{\link[=init]{init()}}):
+Additional parameters, set in \code{pars.yml} (see \code{\link[=init]{init()}}):
 \itemize{
 \item \code{subdirs} subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
 nonexistent directories). Use \verb{\\<site>} in subdirectories that include a site name, e.g., \verb{\\<site> Share/Photogrammetry DEMs}.
 WARNING: paths on the Google Drive are case-sensitive!
-\item \code{basedir} full path to subdirs
+\item \code{basedir} full path to parameter and data directories
 \item \code{resultbase} base name of result directory
-\item \code{resultdir} subdir for results. Default is \verb{stacked/}. The site name will be appended to this.
+\item \code{resultdir} subdirectory for results. Default is \verb{stacked/}. The site name will be appended to this.
 \item \code{sftp} list(url = address of site, user = credentials). Credentials are either \code{username:password} or \verb{*filename} with username:password. Make sure
-to include credential files in .gitignore and .Rbuildignore so it doesn't end up out in the world!
-\item \code{cachedir} path to local cache directory; required when sourcedrive = \code{google} or \code{sftp}. The cache directory should be larger than the total amount of
+to include credential files in \code{.gitignore} and \code{.Rbuildignore} so it doesn't end up out in the world!
+\item \code{cachedir} path to local cache directory; required when \code{sourcedrive = google} or \code{sftp}. The cache directory should be larger than the total amount of
 data processed--this code isn't doing any quota management. This is not an issue when using a
 \href{https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/}{scratch drive on Unity}, as the limit is 50 TB.
 There's no great need to carry over cached data over long periods, as downloading from Google or SFTP to Unity is very fast.
 Be polite and release the scratch workspace when you're done. See comments in \code{\link[=get_file]{get_file()}} for more notes on caching.
-\item \code{sourcedrive} one of 'local', 'google', 'sftp'
+\item \code{sourcedrive} one of \code{local}, \code{google}, \code{sftp}
 \itemize{
 \item \code{local} - read source from local drive
-\item \code{google} - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set cachedir option.
-\item \code{sftp} - get source data from sftp site. Must set sftp and cachedir options.
+\item \code{google} - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set \code{cachedir} option.
+\item \code{sftp} - get source data from SFTP site. Must set \code{sftp} and \code{cachedir} options.
 }
 }
 
@@ -66,7 +66,7 @@ Source data:
 Results:
 \itemize{
 \item geoTIFFs, clipped, resampled, and aligned   *** Make sure you've closed ArcGIS/QGIS projects that point to these before running! ***
-\item gather_data.log, in resultbase
+\item gather_data.log, in xxxxxx
 }
 
 All source data are expected to be in \code{EPSG:4326}. Non-conforming rasters will be reprojected.

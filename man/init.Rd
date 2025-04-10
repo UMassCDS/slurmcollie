@@ -13,20 +13,26 @@ Reads user-set parameters for package saltmarsh.
 User parameters are set in two distinct locations:
 \enumerate{
 \item The initialization file, in the user's home directory, \verb{~/saltmarsh.yml}.
-This file should contain two lines:
+This file should contain four lines:
 
-\verb{parsdir: c:/Work/etc/saltmarsh/pars}
+\verb{basedir: c:/Work/etc/saltmarsh} \cr
+\code{parsdir: pars} \cr
+\code{parsfile: pars.yml} \cr
+\verb{scratchdir: c:/Work/etc/saltmarsh/data/scratch}
 
-\code{parsfile: pars.yml}
+a. \code{basedir} points to the base directory
 
-a. `parsdir`` points to the parameter directory
+b. \code{parsdir} is the parameters subdirectory. It should be \code{pars} unless you have
+a good reason to change it.
 
-b. \code{parsfile} points to the main parameter file
-\item Everything else, in \code{parsdir}. The primary parameter file is \code{pars.yml}, which
-points to other paramters (such as sites.txt).
+c. \code{parsfile} points to the main parameter file. It should be \code{pars.yml}.
+
+d. \code{scratchdir} points to the scratch drive, where the \code{cache} directory will be located.
+\item Everything else, in \verb{<basedir>/<parsdir>}. The primary parameter file is
+\code{pars.yml}, which points to other parameters (such as \code{sites.txt}).
 }
 
-This approach splits the user- and platform-dependent parameters (saltmarsh.yml)
+This approach splits the user- and platform-dependent parameters (\code{saltmarsh.yml})
 from parameters that are likely to be shared among users and platforms (those in
 \code{parsdir}). It allows multiple users on a shared machine (such as Unity cluster)
 to set user-specific parameters if need be, while sharing other parameters.
@@ -34,4 +40,20 @@ to set user-specific parameters if need be, while sharing other parameters.
 This function reads the user parameters and sets a local environment \code{the} with
 all parameters. It is automatically run upon loading the package, and may be
 rerun by the user if parameter files are changed.
+
+You can change standard directory names (\code{data}, \code{models}, \code{source}, \code{flights}, \code{field}, \code{samples},
+\code{predicted}, and \code{cache}) by setting each within a \verb{dirs:} block in \code{pars.yml}.
+Directories default to standard names, which is usually what you want.
+
+To change parameters on the fly, you can set the components of \code{the}. If you change any elements of
+\code{dirs}, you'll have to run \code{\link[=set_dirs]{set_dirs()}} afterwards. Note
+that parameters changed on the fly will only persist until the next call to \code{init()},
+which can be called on demand but also happens automatically when the package is loaded.
+
+For example:
+
+\code{the$sites <- 'newsites'}  \cr
+\code{the$dirs$cache <- 'newcache'} \cr
+\code{the$dirs$samples <- 'samples99'} \cr
+\code{set_dirs()}
 }

@@ -11,9 +11,9 @@ check_files(files, gd, sourcedir, resultdir)
 
 \item{gd}{Source Drive info (optional), named list of
 \itemize{
-\item dir            Google directory info, from get_dir
-\item sourcedrive    which source drive ('local', 'google', or 'sftp')
-\item sftp           list(url, user)
+\item \code{dir}            Google directory info, from \link{get_dir}
+\item \code{sourcedrive}    which source drive (\code{local}, \code{google}, or \code{sftp})
+\item \code{sftp}           \code{list(url, user)}
 }}
 
 \item{sourcedir}{Origin directory of files}
