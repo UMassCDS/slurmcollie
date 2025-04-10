@@ -15,17 +15,26 @@
 #'    a. `basedir` points to the base directory
 #'    
 #'    b. `parsdir` is the parameters subdirectory. It should be `pars` unless you have 
-#'       a good reason to change it.
+#'        a good reason to change it.
 #' 
 #'    c. `parsfile` points to the main parameter file. It should be `pars.yml`.
 #'    
-#'    d. `scratchdir` points to the scratch drive, where the `cache` directory will be located.
+#'    d. `scratchdir` points to the scratch drive, where the `cache` directory will be located. 
+#'        See notes on caching, below.
 #' 
 #' 2. Everything else, in `<basedir>/<parsdir>`. The primary parameter file is 
 #' `pars.yml`, which points to other parameters (such as `sites.txt`).
 #' 
+#' These parameters include:
+#' 
+#' - `sites` the name of the sites file, `sites.txt` by default
+#' - `classes` the name of the classes file, `classes.txt` by default
+#' - `dirs` alternative names for various subdirectories. The directories will keep
+#'    the standard structure--you can change names here but not paths.
+#' - `gather` a block of parameters for [gather()]
+#' 
 #' This approach splits the user- and platform-dependent parameters (`saltmarsh.yml`)
-#' from parameters that are likely to be shared among users and platforms (those in
+#' from parameters that are likely to be shared among users and across platforms (those in
 #' `parsdir`). It allows multiple users on a shared machine (such as Unity cluster)
 #' to set user-specific parameters if need be, while sharing other parameters.
 #' 
@@ -48,6 +57,14 @@
 #' `the$dirs$cache <- 'newcache'` \cr
 #' `the$dirs$samples <- 'samples99'` \cr
 #' `set_dirs()`
+#' 
+#' **Notes on caching.** A cache directory is required when `sourcedrive = google` or `sftp`. The cache 
+#'   directory should be larger than the total amount of data processed--this code isn't doing any quota 
+#'   management. This is not an issue when using a 
+#'   \href{https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/}{scratch drive on Unity},
+#'   as the limit is 50 TB. There's no great need to carry over cached data over long periods, as downloading 
+#'   from Google or SFTP to Unity is very fast. Be polite and release the scratch workspace when you're done. 
+#'   See comments in [get_file()] for more notes on caching.
 #' 
 #' @export
 

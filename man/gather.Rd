@@ -34,21 +34,13 @@ Clip to site boundary, resample and align to standard resolution. Data will be c
 locations (orthophotos, DEMs, canopy height models).
 }
 \details{
-Additional parameters, set in \code{pars.yml} (see \code{\link[=init]{init()}}):
+Additional parameters, set in the \code{gather} block in \code{pars.yml} (see \code{\link[=init]{init()}}):
 \itemize{
 \item \code{subdirs} subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
 nonexistent directories). Use \verb{\\<site>} in subdirectories that include a site name, e.g., \verb{\\<site> Share/Photogrammetry DEMs}.
 WARNING: paths on the Google Drive are case-sensitive!
-\item \code{basedir} full path to parameter and data directories
-\item \code{resultbase} base name of result directory
-\item \code{resultdir} subdirectory for results. Default is \verb{stacked/}. The site name will be appended to this.
 \item \code{sftp} list(url = address of site, user = credentials). Credentials are either \code{username:password} or \verb{*filename} with username:password. Make sure
 to include credential files in \code{.gitignore} and \code{.Rbuildignore} so it doesn't end up out in the world!
-\item \code{cachedir} path to local cache directory; required when \code{sourcedrive = google} or \code{sftp}. The cache directory should be larger than the total amount of
-data processed--this code isn't doing any quota management. This is not an issue when using a
-\href{https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/}{scratch drive on Unity}, as the limit is 50 TB.
-There's no great need to carry over cached data over long periods, as downloading from Google or SFTP to Unity is very fast.
-Be polite and release the scratch workspace when you're done. See comments in \code{\link[=get_file]{get_file()}} for more notes on caching.
 \item \code{sourcedrive} one of \code{local}, \code{google}, \code{sftp}
 \itemize{
 \item \code{local} - read source from local drive
@@ -60,12 +52,12 @@ Be polite and release the scratch workspace when you're done. See comments in \c
 Source data:
 \itemize{
 \item geoTIFFs for each site
-\item pars/sites.txt    table of site abbreviation, site name, footprint shapefile, raster standard
+\item \code{sites} file, table of site abbreviation, site name, footprint shapefile, raster standard
 }
 
 Results:
 \itemize{
-\item geoTIFFs, clipped, resampled, and aligned   *** Make sure you've closed ArcGIS/QGIS projects that point to these before running! ***
+\item geoTIFFs, clipped, resampled, and aligned. \emph{\strong{Make sure you've closed ArcGIS/QGIS projects that point to these before running!}}
 \item gather_data.log, in xxxxxx
 }
 
@@ -74,7 +66,7 @@ All source data are expected to be in \code{EPSG:4326}. Non-conforming rasters w
 \code{sites.txt} must include the name of the footprint shapefile for each site.
 
 \code{sites.txt} must include a standard geoTIFF for each site, to be used as the standard for grain and alignment; all rasters will be
-resampled to match. Standards MUST be in the standard projection, \code{EPSG:4326}. Use find_standards() to pick good candidates.
+resampled to match. Standards MUST be in the standard projection, \code{EPSG:4326}. Best to use a Mica orthophoto, with 8 cm resolution.
 
 Note that adding to an existing stack using a different standard will lead to sorrow. \strong{BEST PRACTICE}: don't change the standards
 in \code{standards.txt}; if you must change them, rerun with replace = TRUE to replace results that were created using the old standard.
@@ -84,7 +76,7 @@ don't run blindly when using the Google Drive
 
 Remember that some SFTP servers require connection via VPN
 
-********************* Hanging issues for SFTP:
+\emph{\strong{Hanging issues for SFTP}}
 \itemize{
 \item SFTP implementations behave differently so I'll have to revise once the NAS is up and running.
 \item Windows dates are a mess for DST. Hopefully Linux won't be.
@@ -101,6 +93,4 @@ Run for 2 sites, low tide only:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{  `gather_data(site = c('oth', 'wes'), pattern = '_low_')`
 }\if{html}{\out{</div>}}
-
-See end of this function for more example calls
 }

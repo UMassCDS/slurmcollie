@@ -28,12 +28,22 @@ a good reason to change it.
 c. \code{parsfile} points to the main parameter file. It should be \code{pars.yml}.
 
 d. \code{scratchdir} points to the scratch drive, where the \code{cache} directory will be located.
+See notes on caching, below.
 \item Everything else, in \verb{<basedir>/<parsdir>}. The primary parameter file is
 \code{pars.yml}, which points to other parameters (such as \code{sites.txt}).
 }
 
+These parameters include:
+\itemize{
+\item \code{sites} the name of the sites file, \code{sites.txt} by default
+\item \code{classes} the name of the classes file, \code{classes.txt} by default
+\item \code{dirs} alternative names for various subdirectories. The directories will keep
+the standard structure--you can change names here but not paths.
+\item \code{gather} a block of parameters for \code{\link[=gather]{gather()}}
+}
+
 This approach splits the user- and platform-dependent parameters (\code{saltmarsh.yml})
-from parameters that are likely to be shared among users and platforms (those in
+from parameters that are likely to be shared among users and across platforms (those in
 \code{parsdir}). It allows multiple users on a shared machine (such as Unity cluster)
 to set user-specific parameters if need be, while sharing other parameters.
 
@@ -56,4 +66,12 @@ For example:
 \code{the$dirs$cache <- 'newcache'} \cr
 \code{the$dirs$samples <- 'samples99'} \cr
 \code{set_dirs()}
+
+\strong{Notes on caching.} A cache directory is required when \code{sourcedrive = google} or \code{sftp}. The cache
+directory should be larger than the total amount of data processed--this code isn't doing any quota
+management. This is not an issue when using a
+\href{https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/}{scratch drive on Unity},
+as the limit is 50 TB. There's no great need to carry over cached data over long periods, as downloading
+from Google or SFTP to Unity is very fast. Be polite and release the scratch workspace when you're done.
+See comments in \code{\link[=get_file]{get_file()}} for more notes on caching.
 }

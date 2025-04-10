@@ -33,7 +33,7 @@ for input from the console, so don't run blindly when using the Google Drive
 \item SFTP directory info is crazy. Apparently the format is highly platform-dependent. The targeted
 use for this is running on Unity / fetching files from SFTP on the NAS that we don't have yet,
 so I'll have to revisit this to tailor it to the specific platforms.
-\item When testing this on my laptop / fetching files via SFTP from the Landeco cluster, I found two date issues:
+\item When testing this on my laptop / fetching files via SFTP from the Landscape Ecology cluster, I found two date issues:
 \enumerate{
 \item Seconds are truncated. I'm adding one minute so date checks won't fail. It seems safe to assume source
 files won't be updated within a minute of downloading them.

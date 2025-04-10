@@ -3,21 +3,13 @@
 #' Clip to site boundary, resample and align to standard resolution. Data will be copied from various source 
 #' locations (orthophotos, DEMs, canopy height models).
 #' 
-#' Additional parameters, set in `pars.yml` (see [init()]):
+#' Additional parameters, set in the `gather` block in `pars.yml` (see [init()]):
 #' 
 #' - `subdirs` subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
 #'   nonexistent directories). Use `\<site>` in subdirectories that include a site name, e.g., `\<site> Share/Photogrammetry DEMs`.
 #'   WARNING: paths on the Google Drive are case-sensitive!
-#' - `basedir` full path to parameter and data directories
-#' - `resultbase` base name of result directory
-#' - `resultdir` subdirectory for results. Default is `stacked/`. The site name will be appended to this.
 #' - `sftp` list(url = address of site, user = credentials). Credentials are either `username:password` or `*filename` with username:password. Make sure 
 #'   to include credential files in `.gitignore` and `.Rbuildignore` so it doesn't end up out in the world! 
-#' - `cachedir` path to local cache directory; required when `sourcedrive = google` or `sftp`. The cache directory should be larger than the total amount of
-#'   data processed--this code isn't doing any quota management. This is not an issue when using a 
-#'   \href{https://docs.unity.rc.umass.edu/documentation/managing-files/hpc-workspace/}{scratch drive on Unity}, as the limit is 50 TB.
-#'   There's no great need to carry over cached data over long periods, as downloading from Google or SFTP to Unity is very fast.
-#'   Be polite and release the scratch workspace when you're done. See comments in [get_file()] for more notes on caching.
 #' - `sourcedrive` one of `local`, `google`, `sftp`
 #'   - `local` - read source from local drive 
 #'   - `google` - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set `cachedir` option. 
@@ -25,11 +17,10 @@
 #' 
 #' Source data: 
 #'   - geoTIFFs for each site
-#'   - pars/sites.txt    table of site abbreviation, site name, footprint shapefile, raster standard
+#'   - `sites` file, table of site abbreviation, site name, footprint shapefile, raster standard
 #'
 #' Results: 
-#' 
-#'   - geoTIFFs, clipped, resampled, and aligned   *** Make sure you've closed ArcGIS/QGIS projects that point to these before running! ***
+#'   - geoTIFFs, clipped, resampled, and aligned. ***Make sure you've closed ArcGIS/QGIS projects that point to these before running!***
 #'   - gather_data.log, in xxxxxx
 #' 
 #' All source data are expected to be in `EPSG:4326`. Non-conforming rasters will be reprojected.
@@ -37,7 +28,7 @@
 #' `sites.txt` must include the name of the footprint shapefile for each site.
 #' 
 #' `sites.txt` must include a standard geoTIFF for each site, to be used as the standard for grain and alignment; all rasters will be 
-#' resampled to match. Standards MUST be in the standard projection, `EPSG:4326`. Use find_standards() to pick good candidates.
+#' resampled to match. Standards MUST be in the standard projection, `EPSG:4326`. Best to use a Mica orthophoto, with 8 cm resolution.
 #' 
 #' Note that adding to an existing stack using a different standard will lead to sorrow. **BEST PRACTICE**: don't change the standards
 #' in `standards.txt`; if you must change them, rerun with replace = TRUE to replace results that were created using the old standard.
@@ -47,7 +38,7 @@
 #' 
 #' Remember that some SFTP servers require connection via VPN
 #' 
-#' ********************* Hanging issues for SFTP: 
+#' ***Hanging issues for SFTP***
 #' 
 #'   - SFTP implementations behave differently so I'll have to revise once the NAS is up and running.
 #'   - Windows dates are a mess for DST. Hopefully Linux won't be.
@@ -61,8 +52,6 @@
 #'    Run for 2 sites, low tide only:
 #' 
 #'       `gather_data(site = c('oth', 'wes'), pattern = '_low_')`
-#' 
-#'    See end of this function for more example calls
 #' 
 #' @param site one or more site names, using 3 letter abbreviation. Default = all sites
 #' @param pattern regex filtering rasters, case-insensitive. Default = "" (match all). Note: only files ending in `.tif` are included in any case.
@@ -81,7 +70,7 @@
 
 
 'gather' <- function(site = NULL, pattern = '', 
-                          update = TRUE, replace = FALSE, check = FALSE) {
+                     update = TRUE, replace = FALSE, check = FALSE) {
    
    
    
@@ -106,8 +95,8 @@
       stop(paste0('Missing standards for sites ', paste(sites$site[t], collapse = ', ')))
    
    if((the$gather$sourcedrive %in% c('google', 'sftp')) & 
-   !dir.exists(the$gather$cachedir))                                                #    make sure cache directory exists if needed
-      dir.create(the$gather$cachedir)
+      !dir.exists(the$cachedir))                                                       #    make sure cache directory exists if needed
+      dir.create(the$cachedir)
    
    if(replace)
       msg('\n!!! BEWARE: replace = TRUE will delete all existing contents in result directories !!!\n\n')
@@ -129,7 +118,7 @@
       s <- unique(s)                                                                #    and drop likely duplicate
       
       x <- NULL
-      for(j in sub('<site>', sites$site_name[i], s, fixed = TRUE))                  #    for each subdir (with site name replacement),
+      for(j in resolve_dir(s, sites$site_name[i]))                                  #    for each subdir (with site name replacement),
          x <- rbind(x, get_dir(file.path(dir, j), 
                                the$gather$sourcedrive,
                                sftp = the$gather$sftp, logfile = lf))               #       get directory
@@ -140,7 +129,7 @@
       x <- rbind(x, t[grep('.shp$|.shx$|.prj$', t$name),])                          #    only want .shp, .shx, and .prj
       
       gd <- list(dir = x, sourcedrive = the$gather$sourcedrive, 
-      cachedir = the$gather$cachedir, sftp = the$gather$sftp)                       #    info for Google Drive or SFTP
+                 cachedir = the$cachedir, sftp = the$gather$sftp)                   #    info for Google Drive or SFTP
       
       files <- x$name[grep(tolower(pattern), tolower(x$name))]                      #    now match user's pattern - this is our definitive list of geoTIFFs to process for this site
       
@@ -149,7 +138,7 @@
       
       if(update) {                                                                  #    if update, don't mess with files that have already been done
          sdir <- file.path(the$gather$basedir, sites$site_name[i])
-         rdir <- file.path(the$gather$resultbase, the$gather$resultdir, sites$site_name[i])
+         rdir <- resolve_dir(the$flightsdir, sites$site_name[i])
          ##    files<<-files;gd<<-gd;sdir<<-sdir;rdir<<-rdir;return()
          files <- files[!check_files(files, gd, sdir, rdir)]                        #       see which files already exist and are up to date
       }
@@ -160,8 +149,8 @@
       
       dumb_warning <- 'Sum of Photometric type-related color channels'              #    we don't want to hear about this!
       pkgcond::suppress_warnings(standard <- rast(get_file(file.path(dir, sites$standard[i]), 
-                                gd, logfile = lf)), 
-                                pattern = dumb_warning, class = 'warning')
+                                                           gd, logfile = lf)), 
+                                 pattern = dumb_warning, class = 'warning')
       msg(paste0('   Processing ', length(files), ' geoTIFFs...'), lf)
       
       if(the$gather$sourcedrive %in% c('google', 'sftp')) {                         #    if reading from Google Drive or SFTP,

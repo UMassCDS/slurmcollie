@@ -15,7 +15,7 @@
 #' - SFTP directory info is crazy. Apparently the format is highly platform-dependent. The targeted
 #'   use for this is running on Unity / fetching files from SFTP on the NAS that we don't have yet,
 #'   so I'll have to revisit this to tailor it to the specific platforms.
-#' - When testing this on my laptop / fetching files via SFTP from the Landeco cluster, I found two date issues:
+#' - When testing this on my laptop / fetching files via SFTP from the Landscape Ecology cluster, I found two date issues:
 #'   1. Seconds are truncated. I'm adding one minute so date checks won't fail. It seems safe to assume source
 #'      files won't be updated within a minute of downloading them.
 #'   2. Strangely, summer dates are reported differently by xplorer2 and DOS/Command Prompt (1:12 pm) vs. Win 
