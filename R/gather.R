@@ -167,7 +167,7 @@
                        gd, logfile = lf)
       }
       shapefile <- st_read(get_file(file.path(dir, sites$footprint[i]), 
-                                    gd, logfile = TRUE), quiet = TRUE)              #    read footprint shapefile
+                                    gd, logfile = lf), quiet = TRUE)                #    read footprint shapefile
       
       
       rd <- resolve_dir(the$flightsdir, sites$site_name[i])                         #    prepare result directory
