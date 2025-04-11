@@ -12,7 +12,6 @@ Imports:
     terra,
     sf,
     RCurl,
-    stringr,
     lubridate,
     googledrive,
     yaml,

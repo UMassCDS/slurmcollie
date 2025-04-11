@@ -36,17 +36,18 @@ locations (orthophotos, DEMs, canopy height models).
 \details{
 Additional parameters, set in the \code{gather} block in \code{pars.yml} (see \code{\link[=init]{init()}}):
 \itemize{
-\item \code{subdirs} subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
-nonexistent directories). Use \verb{\\<site>} in subdirectories that include a site name, e.g., \verb{\\<site> Share/Photogrammetry DEMs}.
-WARNING: paths on the Google Drive are case-sensitive!
-\item \code{sftp} list(url = address of site, user = credentials). Credentials are either \code{username:password} or \verb{*filename} with username:password. Make sure
-to include credential files in \code{.gitignore} and \code{.Rbuildignore} so it doesn't end up out in the world!
 \item \code{sourcedrive} one of \code{local}, \code{google}, \code{sftp}
 \itemize{
 \item \code{local} - read source from local drive
 \item \code{google} - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set \code{cachedir} option.
 \item \code{sftp} - get source data from SFTP site. Must set \code{sftp} and \code{cachedir} options.
 }
+\item \code{sourcedir} directory with source rasters, generally on Google Drive or SFTP site
+\item \code{subdirs} subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
+nonexistent directories). Use \verb{\\<site>} in subdirectories that include a site name, e.g., \verb{\\<site> Share/Photogrammetry DEMs}.
+WARNING: paths on the Google Drive are case-sensitive!
+\item \code{sftp} \verb{list(url = <address of site>, user = <credentials>)}. Credentials are either \code{username:password} or \verb{*filename} with \code{username:password}. Make sure
+to include credential files in \code{.gitignore} and \code{.Rbuildignore} so it doesn't end up out in the world!
 }
 
 Source data:
@@ -57,8 +58,8 @@ Source data:
 
 Results:
 \itemize{
-\item geoTIFFs, clipped, resampled, and aligned. \emph{\strong{Make sure you've closed ArcGIS/QGIS projects that point to these before running!}}
-\item gather_data.log, in xxxxxx
+\item flights/geoTIFFs, clipped, resampled, and aligned. \emph{\strong{Make sure you've closed ArcGIS/QGIS projects that point to these before running!}}
+\item models/gather_data.log
 }
 
 All source data are expected to be in \code{EPSG:4326}. Non-conforming rasters will be reprojected.

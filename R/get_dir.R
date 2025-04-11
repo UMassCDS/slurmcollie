@@ -23,7 +23,7 @@
 #'      servers on both sides so hopefully this'll clear up.
 #'      
 #' @param path directory path (must end with '/' on Google Drive)
-#` @param sourcedrive one of `local`, `google`, or `sftp`
+#' @param sourcedrive one of `local`, `google`, or `sftp`
 #' @param logfile log file, for reporting missing directories (which don't throw an error)
 #' @param sftp list of url = address of site, user = credentials (optional)
 #' @importFrom RCurl getURL 

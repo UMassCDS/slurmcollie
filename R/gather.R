@@ -5,23 +5,24 @@
 #' 
 #' Additional parameters, set in the `gather` block in `pars.yml` (see [init()]):
 #' 
-#' - `subdirs` subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
-#'   nonexistent directories). Use `\<site>` in subdirectories that include a site name, e.g., `\<site> Share/Photogrammetry DEMs`.
-#'   WARNING: paths on the Google Drive are case-sensitive!
-#' - `sftp` list(url = address of site, user = credentials). Credentials are either `username:password` or `*filename` with username:password. Make sure 
-#'   to include credential files in `.gitignore` and `.Rbuildignore` so it doesn't end up out in the world! 
 #' - `sourcedrive` one of `local`, `google`, `sftp`
 #'   - `local` - read source from local drive 
 #'   - `google` - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set `cachedir` option. 
 #'   - `sftp` - get source data from SFTP site. Must set `sftp` and `cachedir` options. 
+#' - `sourcedir` directory with source rasters, generally on Google Drive or SFTP site
+#' - `subdirs` subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
+#'   nonexistent directories). Use `\<site>` in subdirectories that include a site name, e.g., `\<site> Share/Photogrammetry DEMs`.
+#'   WARNING: paths on the Google Drive are case-sensitive!
+#' - `sftp` `list(url = <address of site>, user = <credentials>)`. Credentials are either `username:password` or `*filename` with `username:password`. Make sure 
+#'   to include credential files in `.gitignore` and `.Rbuildignore` so it doesn't end up out in the world! 
 #' 
 #' Source data: 
 #'   - geoTIFFs for each site
 #'   - `sites` file, table of site abbreviation, site name, footprint shapefile, raster standard
 #'
 #' Results: 
-#'   - geoTIFFs, clipped, resampled, and aligned. ***Make sure you've closed ArcGIS/QGIS projects that point to these before running!***
-#'   - gather_data.log, in xxxxxx
+#'   - flights/geoTIFFs, clipped, resampled, and aligned. ***Make sure you've closed ArcGIS/QGIS projects that point to these before running!***
+#'   - models/gather_data.log
 #' 
 #' All source data are expected to be in `EPSG:4326`. Non-conforming rasters will be reprojected.
 #' 
@@ -62,7 +63,7 @@
 #' @param update if TRUE, only process new files, assuming existing files are good 
 #' @param replace if TRUE, deletes the existing stack and replaces it. Use with care!
 #' @param check if TRUE, just check to see that source directories and files exist, but don't cache or process anything
-#' @importFrom terra project writeRaster mask crop resample
+#' @importFrom terra project rast crs writeRaster mask crop resample
 #' @importFrom sf st_read 
 #' @importFrom lubridate as.duration interval
 #' @importFrom pkgcond suppress_warnings
@@ -73,10 +74,7 @@
                      update = TRUE, replace = FALSE, check = FALSE) {
    
    
-   
-   
-   
-   lf <- file.path(the$gather$resultbase, 'gather_data.log')                        # set up logging
+   lf <- file.path(the$models, 'gather.log')                                        # set up logging
    start <- Sys.time()
    count <- 0
    allsites <- read_pars_table('sites')                                             # site names from abbreviations to paths
@@ -95,8 +93,8 @@
       stop(paste0('Missing standards for sites ', paste(sites$site[t], collapse = ', ')))
    
    if((the$gather$sourcedrive %in% c('google', 'sftp')) & 
-      !dir.exists(the$cachedir))                                                       #    make sure cache directory exists if needed
-      dir.create(the$cachedir)
+      !dir.exists(the$cachedir))                                                    #    make sure cache directory exists if needed
+      dir.create(the$cachedir, recursive = TRUE)
    
    if(replace)
       msg('\n!!! BEWARE: replace = TRUE will delete all existing contents in result directories !!!\n\n')
@@ -111,7 +109,7 @@
    
    for(i in 1:dim(sites)[1]) {                                                      # for each site,
       msg(paste0('Site ', sites$site[i]), lf)
-      dir <- file.path(the$gather$basedir, sites$site_name[i], '/')
+      dir <- file.path(the$gather$sourcedir, sites$site_name[i], '/')
       
       s <- c(the$gather$subdirs, dirname(sites$standard[i]))                        #    add path to standard to subdirs in case it's not there already
       s <- gsub('/+', '/', paste0(s, '/'))                                          #    clean up slashes
@@ -137,7 +135,7 @@
          next
       
       if(update) {                                                                  #    if update, don't mess with files that have already been done
-         sdir <- file.path(the$gather$basedir, sites$site_name[i])
+         sdir <- file.path(the$gather$sourcedir, sites$site_name[i])
          rdir <- resolve_dir(the$flightsdir, sites$site_name[i])
          ##    files<<-files;gd<<-gd;sdir<<-sdir;rdir<<-rdir;return()
          files <- files[!check_files(files, gd, sdir, rdir)]                        #       see which files already exist and are up to date
@@ -163,15 +161,12 @@
                                     gd, logfile = TRUE), quiet = TRUE)              #    read footprint shapefile
       
       
-      if(!dir.exists(the$gather$resultbase))                                        #    prepare result directory
-         dir.create(the$gather$resultbase)
-      if(!dir.exists(f <- file.path(the$gather$resultbase, the$gather$resultdir)))
-         dir.create(f)
-      rd <- file.path(f, sites$site_name[i], '/')                   
-      if(replace) 
+      rd <- resolve_dir(the$flightsdir, sites$site_name[i])                         #    prepare result directory
+      if(replace & dir.exists(rd))
          unlink(rd, recursive = TRUE)
       if(!dir.exists(rd))
-         dir.create(rd)
+         dir.create(rd, recursive = TRUE)
+      
       
       count <- count + length(files)
       for(j in files) {                                                             #    for each target geoTIFF in site,
@@ -186,7 +181,7 @@
          resample(g, standard, method = 'bilinear', threads = TRUE) |>
             crop(shapefile) |>
             mask(shapefile) |>
-            writeRaster(file.path(rd, basename(j)), overwrite = TRUE)
+            writeRaster(file.path(rd, basename(j)), overwrite = TRUE)               #       resample, crop, mask, and write to result directory
       }
       msg(paste0('Finished with site ', sites$site[i]), lf)
    }
@@ -197,11 +192,11 @@
    
    if(FALSE) {                      # Calls for testing
       # local on my laptop
-      gather_data(site = c('oth', 'wes'), basedir = 'c:/Work/etc/saltmarsh/data', resultbase = 'c:/Work/etc/saltmarsh/data/',
+      gather_data(site = c('oth', 'wes'), sourcedir = 'c:/Work/etc/saltmarsh/data',
                   sourcedrive = 'local', subdirs = c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/'))
       
       # from Google Drive to my laptop
-      gather_data(site = c('oth', 'wes'), basedir = 'UAS Data Collection/', resultbase = 'c:/Work/etc/saltmarsh/data/',
+      gather_data(site = c('oth', 'wes'), sourcedir = 'UAS Data Collection/', 
                   sourcedrive = 'google', cachedir = 'c:/temp/cache/')
       
       # from landeco SFTP to my laptop. Set pw to password before calling.

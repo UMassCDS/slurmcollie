@@ -12,7 +12,7 @@ set_dirs <- function() {
    for(i in c('models', 'data', 'source', 'flights', 'field', 'samples', 'predicted', 'cache'))          # set directory name defaults
       the$dirs[[paste0(i, 'dir')]] <- ifelse(is.null(the$dirs[[i]]), i, the$dirs[[i]])
    
-   the$modelsdir <- file.path(the$parsdir, the$dirs$model)                                               # pars/models
+   the$modelsdir <- file.path(the$basedir, the$dirs$model)                                               # models
    the$datadir <- file.path(the$basedir, the$dirs$data, '<site>')                                        # data/<site>/
    the$sourcedir <- file.path(the$datadir, the$dirs$source)                                              # data/<site>/source/
    the$flightsdir <- file.path(the$sourcedir, the$dirs$flights)                                          # data/<site>/source/flights/

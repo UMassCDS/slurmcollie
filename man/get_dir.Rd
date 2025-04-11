@@ -9,6 +9,8 @@ get_dir(path, sourcedrive = "local", logfile, sftp)
 \arguments{
 \item{path}{directory path (must end with '/' on Google Drive)}
 
+\item{sourcedrive}{one of \code{local}, \code{google}, or \code{sftp}}
+
 \item{logfile}{log file, for reporting missing directories (which don't throw an error)}
 
 \item{sftp}{list of url = address of site, user = credentials (optional)}
