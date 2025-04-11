@@ -12,10 +12,13 @@
 'msg' <- function(message, logfile) {       
    
    
-   if(is.null(logfile)) {
+   if(!is.null(logfile)) {
       timestamp <- stamp('[17 Feb 2025, 3:22:18 pm]  ', quiet = TRUE)
-      if(!file.exists(logfile))
+      if(!file.exists(logfile)) {
+         if(!dir.exists(d <- dirname(logfile)))
+            dir.create(d, recursive = TRUE)
          cat(paste0(timestamp(now()), message), sep = '\n', file = logfile)
+      }
       else
          cat(paste0(timestamp(now()), message), sep = '\n', file = logfile, append = TRUE)
    }

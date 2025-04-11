@@ -87,11 +87,16 @@ Example runs:
 
 Complete for all sites:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{  `gather_data()`
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  `gather()`
+}\if{html}{\out{</div>}}
+
+Run for one site, June only:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  `gather(site = 'oth', pattern = 'Jun')`
 }\if{html}{\out{</div>}}
 
 Run for 2 sites, low tide only:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{  `gather_data(site = c('oth', 'wes'), pattern = '_low_')`
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  `gather(site = c('oth', 'wes'), pattern = '_low_')`
 }\if{html}{\out{</div>}}
 }

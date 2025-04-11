@@ -48,11 +48,15 @@
 #' 
 #'    Complete for all sites:
 #' 
-#'       `gather_data()`
+#'       `gather()`
+#'       
+#'    Run for one site, June only:
+#'    
+#'       `gather(site = 'oth', pattern = 'Jun')`
 #' 
 #'    Run for 2 sites, low tide only:
 #' 
-#'       `gather_data(site = c('oth', 'wes'), pattern = '_low_')`
+#'       `gather(site = c('oth', 'wes'), pattern = '_low_')`
 #' 
 #' @param site one or more site names, using 3 letter abbreviation. Default = all sites
 #' @param pattern regex filtering rasters, case-insensitive. Default = "" (match all). Note: only files ending in `.tif` are included in any case.
@@ -74,7 +78,7 @@
                      update = TRUE, replace = FALSE, check = FALSE) {
    
    
-   lf <- file.path(the$models, 'gather.log')                                        # set up logging
+   lf <- file.path(the$modelsdir, 'gather.log')                                        # set up logging
    start <- Sys.time()
    count <- 0
    allsites <- read_pars_table('sites')                                             # site names from abbreviations to paths
@@ -102,10 +106,12 @@
    msg('', lf)
    msg('-----', lf)
    msg('', lf)
-   msg(paste0('gather_data running for ', dim(sites)[1], ' sites...'), lf)
+   msg(paste0('gather running for ', dim(sites)[1], ' sites...'), lf)
    msg(paste0('sourcedrive = ', the$gather$sourcedrive), lf)
    msg(paste0('site = ', paste(site, collapse = ', ')), lf)
    msg(paste0('pattern = ', pattern), lf)
+   if(check)
+      msg('check = TRUE, so printing but not processing files', lf)
    
    for(i in 1:dim(sites)[1]) {                                                      # for each site,
       msg(paste0('Site ', sites$site[i]), lf)
@@ -142,8 +148,10 @@
       }
       
       
-      if(check)                                                                     #    if check = TRUE, don't download or process anything
-         next
+      if(check) {                                                                   #    if check = TRUE, don't download or process anything
+         msg(paste0('   ', files), lf)                                              #       but do print the source file names
+           next
+      }
       
       dumb_warning <- 'Sum of Photometric type-related color channels'              #    we don't want to hear about this!
       pkgcond::suppress_warnings(standard <- rast(get_file(file.path(dir, sites$standard[i]), 
