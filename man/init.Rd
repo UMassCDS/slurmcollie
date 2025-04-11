@@ -51,7 +51,7 @@ This function reads the user parameters and sets a local environment \code{the} 
 all parameters. It is automatically run upon loading the package, and may be
 rerun by the user if parameter files are changed.
 
-You can change standard directory names (\code{data}, \code{models}, \code{source}, \code{flights}, \code{field}, \code{samples},
+You can change standard directory names (\code{data}, \code{models}, \code{gis}, \code{flights}, \code{field}, \code{samples},
 \code{predicted}, and \code{cache}) by setting each within a \verb{dirs:} block in \code{pars.yml}.
 Directories default to standard names, which is usually what you want.
 

@@ -13,12 +13,13 @@
 #' - `subdirs` subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
 #'   nonexistent directories). Use `\<site>` in subdirectories that include a site name, e.g., `\<site> Share/Photogrammetry DEMs`.
 #'   WARNING: paths on the Google Drive are case-sensitive!
+#' - `transects` directory with field transect shapefile
 #' - `sftp` `list(url = <address of site>, user = <credentials>)`. Credentials are either `username:password` or `*filename` with `username:password`. Make sure 
 #'   to include credential files in `.gitignore` and `.Rbuildignore` so it doesn't end up out in the world! 
 #' 
 #' Source data: 
 #'   - geoTIFFs for each site
-#'   - `sites` file, table of site abbreviation, site name, footprint shapefile, raster standard
+#'   - `sites` file, table of site abbreviation, site name, footprint shapefile, raster standard, and transect shapefile.
 #'
 #' Results: 
 #'   - flights/geoTIFFs, clipped, resampled, and aligned. ***Make sure you've closed ArcGIS/QGIS projects that point to these before running!***
@@ -26,10 +27,10 @@
 #' 
 #' All source data are expected to be in `EPSG:4326`. Non-conforming rasters will be reprojected.
 #' 
-#' `sites.txt` must include the name of the footprint shapefile for each site.
-#' 
-#' `sites.txt` must include a standard geoTIFF for each site, to be used as the standard for grain and alignment; all rasters will be 
-#' resampled to match. Standards MUST be in the standard projection, `EPSG:4326`. Best to use a Mica orthophoto, with 8 cm resolution.
+#' `sites.txt` must include the name of the footprint shapefile for each site, a field trasect shapefile, and a standard geoTIFF 
+#' for each site. The footprint is used for clipping and must be present. The transect contains ground truth data, and must be present
+#' if `field = TRUE`. The stanard must be present. It is used as the standard for grain and alignment; all rasters will be resampled 
+#' to match. Standards MUST be in the standard projection, `EPSG:4326`. Best to use a Mica orthophoto, with 8 cm resolution.
 #' 
 #' Note that adding to an existing stack using a different standard will lead to sorrow. **BEST PRACTICE**: don't change the standards
 #' in `standards.txt`; if you must change them, rerun with replace = TRUE to replace results that were created using the old standard.
@@ -67,7 +68,8 @@
 #' @param update if TRUE, only process new files, assuming existing files are good 
 #' @param replace if TRUE, deletes the existing stack and replaces it. Use with care!
 #' @param check if TRUE, just check to see that source directories and files exist, but don't cache or process anything
-#' @importFrom terra project rast crs writeRaster mask crop resample
+#' @param field if TRUE, download and process the field transects
+#' @importFrom terra project rast crs writeRaster mask crop resample rasterize vect
 #' @importFrom sf st_read 
 #' @importFrom lubridate as.duration interval
 #' @importFrom pkgcond suppress_warnings
@@ -75,10 +77,10 @@
 
 
 'gather' <- function(site = NULL, pattern = '', 
-                     update = TRUE, replace = FALSE, check = FALSE) {
+                     update = TRUE, replace = FALSE, check = FALSE, field = FALSE) {
    
    
-   lf <- file.path(the$modelsdir, 'gather.log')                                        # set up logging
+   lf <- file.path(the$modelsdir, 'gather.log')                                     # set up logging
    start <- Sys.time()
    count <- 0
    allsites <- read_pars_table('sites')                                             # site names from abbreviations to paths
@@ -136,7 +138,7 @@
                  cachedir = the$cachedir, sftp = the$gather$sftp)                   #    info for Google Drive or SFTP
       
       files <- x$name[grep(tolower(pattern), tolower(x$name))]                      #    now match user's pattern - this is our definitive list of geoTIFFs to process for this site
-      files <- files[grep('^bad_', files, invert = TRUE)]                           #    BUT drop files that begin with 'bad_', as they're c
+      files <- files[grep('^bad_', files, invert = TRUE)]                           #    BUT drop files that begin with 'bad_', as they're corrupted
       
       if(length(files) == 0)
          next
@@ -160,14 +162,36 @@
                                  pattern = dumb_warning, class = 'warning')
       msg(paste0('   Processing ', length(files), ' geoTIFFs...'), lf)
       
-      if(the$gather$sourcedrive %in% c('google', 'sftp')) {                         #    if reading from Google Drive or SFTP,
+      
+      if(the$gather$sourcedrive %in% c('google', 'sftp')) {                         #    Read footprint: if reading from Google Drive or SFTP,
          t <- get_file(file.path(dir, sub('.shp$', '.shx', sites$footprint[i])), 
                        gd, logfile = lf)                                            #       load two sidecar files for shapefile into cache
          t <- get_file(file.path(dir, sub('.shp$', '.prj', sites$footprint[i])), 
                        gd, logfile = lf)
       }
-      shapefile <- st_read(get_file(file.path(dir, sites$footprint[i]), 
+      footprint <- st_read(get_file(file.path(dir, sites$footprint[i]), 
                                     gd, logfile = lf), quiet = TRUE)                #    read footprint shapefile
+      
+      
+      
+      if(field) {                                                                   #    if reading field transect shapefile,
+         msg('      Processing field transect shapefile', lf)
+         tp <- file.path(the$gather$sourcedir, sites$site_name[i], the$gather$transects)
+         if(the$gather$sourcedrive %in% c('google', 'sftp')) {                      #       if reading from Google Drive or SFTP,
+            t <- get_file(file.path(tp, sub('.shp$', '.shx', sites$transects[i])), 
+                          gd, logfile = lf)                                         #          load two sidecar files for shapefile into cache
+            t <- get_file(file.path(tp, sub('.shp$', '.prj', sites$transects[i])), 
+                          gd, logfile = lf)
+         }
+
+         transects <- st_read(get_file(file.path(tp, sites$transects[i]), 
+                                       gd, logfile = lf), quiet = TRUE)             #       read transects shapefile
+         
+         field <- rasterize(vect(transects), standard, field = 'Raw.Subcla')        #       convert it to raster and write it to field/
+         field <- as.numeric(field$Raw.Subcla)
+         writeRaster(field, file.path(the$fielddir, 'transects.tif'), overwrite = TRUE)
+      }
+      
       
       
       rd <- resolve_dir(the$flightsdir, sites$site_name[i])                         #    prepare result directory
@@ -197,8 +221,8 @@
          }
          
          resample(g, standard, method = 'bilinear', threads = TRUE) |>
-            crop(shapefile) |>
-            mask(shapefile) |>
+            crop(footprint) |>
+            mask(footprint) |>
             writeRaster(file.path(rd, basename(j)), overwrite = TRUE)               #       resample, crop, mask, and write to result directory
       }
       msg(paste0('Finished with site ', sites$site[i]), lf)
@@ -208,14 +232,15 @@
    
    
    
-   if(FALSE) {                      # Calls for testing   THIS IS OUTDATED
+   
+   if(FALSE) {                      # Calls for testing   *** THIS IS OUTDATED ***   Need to come up with a test set
       # local on my laptop
       gather_data(site = c('oth', 'wes'), sourcedir = 'c:/Work/etc/saltmarsh/data',
                   sourcedrive = 'local', subdirs = c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/'))
       
       # from Google Drive to my laptop
       gather_data(site = c('oth', 'wes'), sourcedir = 'UAS Data Collection/', 
-                  sourcedrive = 'google', cachedir = 'c:/temp/cache/')
+                  sourcedrive = 'google')
       
       # from landeco SFTP to my laptop. Set pw to password before calling.
       gather_data(site = c('oth', 'wes'), sourcedrive = 'sftp', 
