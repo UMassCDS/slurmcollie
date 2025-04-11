@@ -136,6 +136,7 @@
                  cachedir = the$cachedir, sftp = the$gather$sftp)                   #    info for Google Drive or SFTP
       
       files <- x$name[grep(tolower(pattern), tolower(x$name))]                      #    now match user's pattern - this is our definitive list of geoTIFFs to process for this site
+      files <- files[grep('^bad_', files, invert = TRUE)]                           #    BUT drop files that begin with 'bad_', as they're c
       
       if(length(files) == 0)
          next
@@ -150,7 +151,7 @@
       
       if(check) {                                                                   #    if check = TRUE, don't download or process anything
          msg(paste0('   ', files), lf)                                              #       but do print the source file names
-           next
+         next
       }
       
       dumb_warning <- 'Sum of Photometric type-related color channels'              #    we don't want to hear about this!
@@ -180,7 +181,16 @@
       for(j in files) {                                                             #    for each target geoTIFF in site,
          msg(paste0('      processing ', j), lf)
          
-         g <- rast(get_file(j, gd, logfile = lf))
+         if(tryCatch({                                                              #    read the raster, skipping bad ones
+            suppressWarnings(g <- rast(get_file(j, gd, logfile = lf)))
+            FALSE
+         }, 
+         error = function(cond) {
+            msg(paste0('      ** Skipping possibly corrupted raster ', j), lf)
+            TRUE
+         }))
+            next
+         
          if(paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {
             msg(paste0('         !!! Reprojecting ', g), lf)
             g <- project(g, 'epsg:4326')
@@ -198,7 +208,7 @@
    
    
    
-   if(FALSE) {                      # Calls for testing
+   if(FALSE) {                      # Calls for testing   THIS IS OUTDATED
       # local on my laptop
       gather_data(site = c('oth', 'wes'), sourcedir = 'c:/Work/etc/saltmarsh/data',
                   sourcedrive = 'local', subdirs = c('Orthomosaics/', 'Photogrammetry DEMs/', 'Canopy height models/'))
