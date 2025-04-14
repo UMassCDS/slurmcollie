@@ -30,7 +30,8 @@ Examples:
 
 \item{check}{if TRUE, just check to see that source directories and files exist, but don't cache or process anything}
 
-\item{field}{if TRUE, download and process the field transects}
+\item{field}{if TRUE, download and process the field transects if they don't already exist. The shapefile is downloaded
+for reference, and a raster corresponding to \code{standard} is created.}
 }
 \description{
 Clip to site boundary, resample and align to standard resolution. Data will be copied from various source
@@ -47,7 +48,7 @@ Additional parameters, set in the \code{gather} block in \code{pars.yml} (see \c
 }
 \item \code{sourcedir} directory with source rasters, generally on Google Drive or SFTP site
 \item \code{subdirs} subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
-nonexistent directories). Use \verb{\\<site>} in subdirectories that include a site name, e.g., \verb{\\<site> Share/Photogrammetry DEMs}.
+nonexistent directories). Use \verb{<site>} in subdirectories that include a site name, e.g., \verb{<site> Share/Photogrammetry DEMs}.
 WARNING: paths on the Google Drive are case-sensitive!
 \item \code{transects} directory with field transect shapefile
 \item \code{sftp} \verb{list(url = <address of site>, user = <credentials>)}. Credentials are either \code{username:password} or \verb{*filename} with \code{username:password}. Make sure
@@ -68,9 +69,9 @@ Results:
 
 All source data are expected to be in \code{EPSG:4326}. Non-conforming rasters will be reprojected.
 
-\code{sites.txt} must include the name of the footprint shapefile for each site, a field trasect shapefile, and a standard geoTIFF
+\code{sites.txt} must include the name of the footprint shapefile for each site, a field transect shapefile, and a standard geoTIFF
 for each site. The footprint is used for clipping and must be present. The transect contains ground truth data, and must be present
-if \code{field = TRUE}. The stanard must be present. It is used as the standard for grain and alignment; all rasters will be resampled
+if \code{field = TRUE}. The standard must be present. It is used as the standard for grain and alignment; all rasters will be resampled
 to match. Standards MUST be in the standard projection, \code{EPSG:4326}. Best to use a Mica orthophoto, with 8 cm resolution.
 
 Note that adding to an existing stack using a different standard will lead to sorrow. \strong{BEST PRACTICE}: don't change the standards

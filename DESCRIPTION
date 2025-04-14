@@ -15,7 +15,8 @@ Imports:
     lubridate,
     googledrive,
     yaml,
-    pkgcond
+    pkgcond,
+    tools
 Encoding: UTF-8
 Language: en-US
 LazyData: trued
