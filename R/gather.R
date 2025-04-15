@@ -258,7 +258,7 @@
             g <- project(g, 'epsg:4326')
          }
          else
-            terra::crs(g) <- 'EPSG:4326'                                                   #    prevent warnings when CRS is but isn't EPSG:4326 (e.g., 20Jun22_OTH_High_SWIR_Ortho.tif)
+            terra::crs(g) <- 'EPSG:4326'                                            #    prevent warnings when CRS is but isn't EPSG:4326 (e.g., 20Jun22_OTH_High_SWIR_Ortho.tif)
          
          resample(g, standard, method = 'bilinear', threads = TRUE) |>
             crop(footprint) |>
