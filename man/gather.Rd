@@ -14,9 +14,9 @@ gather(
 )
 }
 \arguments{
-\item{site}{one or more site names, using 3 letter abbreviation. Default = all sites}
+\item{site}{One or more site names, using 3 letter abbreviation. Default = all sites.}
 
-\item{pattern}{regex filtering rasters, case-insensitive. Default = "" (match all). Note: only
+\item{pattern}{Regex filtering rasters, case-insensitive. Default = "" (match all). Note: only
 files ending in \code{.tif} are included in any case.
 Examples:
 \itemize{
@@ -25,13 +25,13 @@ Examples:
 \item to match Mica files for a series of dates, use \verb{11nov20.*mica|14oct20.*mica}
 }}
 
-\item{update}{if TRUE, only process new files, assuming existing files are good}
+\item{update}{If TRUE, only process new files, assuming existing files are good}
 
-\item{replace}{if TRUE, deletes the existing stack and replaces it. Use with care!}
+\item{replace}{If TRUE, deletes the existing stack and replaces it. Use with care!}
 
-\item{check}{if TRUE, just check to see that source directories and files exist, but don't cache or process anything}
+\item{check}{If TRUE, just check to see that source directories and files exist, but don't cache or process anything}
 
-\item{field}{if TRUE, download and process the field transects if they don't already exist. The shapefile is downloaded
+\item{field}{If TRUE, download and process the field transects if they don't already exist. The shapefile is downloaded
 for reference, and a raster corresponding to \code{standard} is created.}
 }
 \description{

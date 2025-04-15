@@ -70,17 +70,17 @@
 #' 
 #'       `gather(site = c('oth', 'wes'), pattern = '_low_')`
 #' 
-#' @param site one or more site names, using 3 letter abbreviation. Default = all sites
-#' @param pattern regex filtering rasters, case-insensitive. Default = "" (match all). Note: only 
+#' @param site One or more site names, using 3 letter abbreviation. Default = all sites.
+#' @param pattern Regex filtering rasters, case-insensitive. Default = "" (match all). Note: only 
 #'        files ending in `.tif` are included in any case.
 #' Examples: 
 #'   - to match all Mica orthophotos, use `mica_orth`
 #'   - to match all Mica files from July, use `Jun.*mica`
 #'   - to match Mica files for a series of dates, use `11nov20.*mica|14oct20.*mica`
-#' @param update if TRUE, only process new files, assuming existing files are good 
-#' @param replace if TRUE, deletes the existing stack and replaces it. Use with care!
-#' @param check if TRUE, just check to see that source directories and files exist, but don't cache or process anything
-#' @param field if TRUE, download and process the field transects if they don't already exist. The shapefile is downloaded
+#' @param update If TRUE, only process new files, assuming existing files are good 
+#' @param replace If TRUE, deletes the existing stack and replaces it. Use with care!
+#' @param check If TRUE, just check to see that source directories and files exist, but don't cache or process anything
+#' @param field If TRUE, download and process the field transects if they don't already exist. The shapefile is downloaded
 #'    for reference, and a raster corresponding to `standard` is created.
 #' @importFrom terra project rast crs writeRaster mask crop resample rasterize vect
 #' @importFrom sf st_read 
