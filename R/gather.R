@@ -1,42 +1,51 @@
 #' Collect raster data for each site
 #' 
 #' Clip to site boundary, resample and align to standard resolution. Data will be copied from various source 
-#' locations (orthophotos, DEMs, canopy height models).
+#' locations (orthophotos, DEMs, canopy height models). Robust to crashes and interruptions: cached 
+#' datasets that are fully downloaded will be used over re-downloading, and processed rasters won't be 
+#' re-processed unless `update = TRUE` or `replace = TRUE`.
 #' 
 #' Additional parameters, set in the `gather` block in `pars.yml` (see [init()]):
 #' 
 #' - `sourcedrive` one of `local`, `google`, `sftp`
 #'   - `local` - read source from local drive 
-#'   - `google` - get source data from currently connected Google Drive (login via browser on first connection) and cache it locally. Must set `cachedir` option. 
+#'   - `google` - get source data from currently connected Google Drive (login via browser on first connection) 
+#'     and cache it locally. Must set `cachedir` option. 
 #'   - `sftp` - get source data from SFTP site. Must set `sftp` and `cachedir` options. 
 #' - `sourcedir` directory with source rasters, generally on Google Drive or SFTP site
-#' - `subdirs` subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay to include empty or
-#'   nonexistent directories). Use `<site>` in subdirectories that include a site name, e.g., `<site> Share/Photogrammetry DEMs`.
-#'   WARNING: paths on the Google Drive are case-sensitive!
+#' - `subdirs` subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay 
+#'   to include empty or nonexistent directories). Use `<site>` in subdirectories that include a site name, e.g., 
+#'   `<site> Share/Photogrammetry DEMs`. WARNING: paths on the Google Drive are case-sensitive!
 #' - `transects` directory with field transect shapefile
-#' - `sftp` `list(url = <address of site>, user = <credentials>)`. Credentials are either `username:password` or `*filename` with `username:password`. Make sure 
+#' - `sftp` `list(url = <address of site>, user = <credentials>)`. Credentials are either `username:password` or 
+#'   `*filename` with `username:password`. Make sure 
 #'   to include credential files in `.gitignore` and `.Rbuildignore` so it doesn't end up out in the world! 
 #' 
 #' Source data: 
 #'   - geoTIFFs for each site
-#'   - `sites` file, table of site abbreviation, site name, footprint shapefile, raster standard, and transect shapefile.
+#'   - `sites` file, table of site abbreviation, site name, footprint shapefile, raster standard, and transect 
+#'     shapefile.
 #'
 #' Results: 
-#'   - flights/geoTIFFs, clipped, resampled, and aligned. ***Make sure you've closed ArcGIS/QGIS projects that point to these before running!***
+#'   - flights/geoTIFFs, clipped, resampled, and aligned. ***Make sure you've closed ArcGIS/QGIS projects that 
+#'   point to these before running!***
 #'   - models/gather_data.log
 #' 
 #' All source data are expected to be in `EPSG:4326`. Non-conforming rasters will be reprojected.
 #' 
-#' `sites.txt` must include the name of the footprint shapefile for each site, a field transect shapefile, and a standard geoTIFF 
-#' for each site. The footprint is used for clipping and must be present. The transect contains ground truth data, and must be present
-#' if `field = TRUE`. The standard must be present. It is used as the standard for grain and alignment; all rasters will be resampled 
-#' to match. Standards MUST be in the standard projection, `EPSG:4326`. Best to use a Mica orthophoto, with 8 cm resolution.
+#' `sites.txt` must include the name of the footprint shapefile for each site, a field transect
+#' shapefile, and a standard geoTIFF for each site. The footprint is used for clipping and must be
+#' present. The transect contains ground truth data, and must be present if `field = TRUE`. The
+#' standard must be present. It is used as the standard for grain and alignment; all rasters will be
+#' resampled to match. Standards MUST be in the standard projection, `EPSG:4326`. Best to use a Mica
+#' orthophoto, with 8 cm resolution.
 #' 
-#' Note that adding to an existing stack using a different standard will lead to sorrow. **BEST PRACTICE**: don't change the standards
-#' in `standards.txt`; if you must change them, rerun with replace = TRUE to replace results that were created using the old standard.
-#' 
-#' Note that initial runs with Google Drive in a session open the browser for authentication or wait for input from the console, so 
-#' don't run blindly when using the Google Drive
+#' Note that adding to an existing stack using a different standard will lead to sorrow. **BEST
+#' PRACTICE**: don't change the standards in `standards.txt`; if you must change them, rerun with
+#' replace = TRUE to replace results that were created using the old standard.
+#'
+#' Note that initial runs with Google Drive in a session open the browser for authentication or wait
+#' for input from the console, so don't run blindly when using the Google Drive
 #' 
 #' Remember that some SFTP servers require connection via VPN
 #' 
@@ -44,6 +53,8 @@
 #' 
 #'   - SFTP implementations behave differently so I'll have to revise once the NAS is up and running.
 #'   - Windows dates are a mess for DST. Hopefully Linux won't be.
+#'   
+#' **When running on Unity**, request at least 32 GB. It'll stall out using the default 8 GB.
 #' 
 #' Example runs:
 #' 
@@ -60,7 +71,8 @@
 #'       `gather(site = c('oth', 'wes'), pattern = '_low_')`
 #' 
 #' @param site one or more site names, using 3 letter abbreviation. Default = all sites
-#' @param pattern regex filtering rasters, case-insensitive. Default = "" (match all). Note: only files ending in `.tif` are included in any case.
+#' @param pattern regex filtering rasters, case-insensitive. Default = "" (match all). Note: only 
+#'        files ending in `.tif` are included in any case.
 #' Examples: 
 #'   - to match all Mica orthophotos, use `mica_orth`
 #'   - to match all Mica files from July, use `Jun.*mica`
@@ -131,7 +143,6 @@
          x <- rbind(x, get_dir(file.path(dir, j), 
                                the$gather$sourcedrive,
                                sftp = the$gather$sftp, logfile = lf))               #       get directory
-      x <- x[grep('.tif$', x$name), , drop = FALSE]                                 #    only want files ending in .tif
       
       t <- get_dir(file.path(dir, dirname(sites$footprint[i])), 
                    the$gather$sourcedrive, sftp = the$gather$sftp, logfile = lf)    #    Now get directory for footprint shapefile
@@ -150,8 +161,10 @@
       gd <- list(dir = x, sourcedrive = the$gather$sourcedrive, 
                  cachedir = the$cachedir, sftp = the$gather$sftp)                   #    info for Google Drive or SFTP
       
-      files <- x$name[grep(tolower(pattern), tolower(x$name))]                      #    now match user's pattern - this is our definitive list of geoTIFFs to process for this site
-      files <- files[grep('^bad_', files, invert = TRUE)]                           #    BUT drop files that begin with 'bad_', as they're corrupted
+      
+      files <- x$name[grep('.tif$', tolower(x$name))]                               #    only want files ending in .tif
+      files <- files[grep(tolower(pattern), tolower(files))]                        #    match user's pattern - this is our definitive list of geoTIFFs to process for this site
+      files <- files[grep('^bad_', tolower(files), invert = TRUE)]                  #    BUT drop files that begin with 'bad_', as they're corrupted
       
       if(length(files) == 0)
          next
@@ -253,7 +266,7 @@
       msg(paste0('Finished with site ', sites$site[i]), lf)
    }
    d <- as.duration(interval(start, Sys.time()))
-   msg(paste0('Run finished. ', count$tiff,' geoTIFFs and ', count$transect, ' transect shapefiles processed in ', round(d), ifelse(count$tiff == 0, '', paste0('; ', round(d / count), ' per geoTIFF.'))), lf)
+   msg(paste0('Run finished. ', count$tiff,' geoTIFFs and ', count$transect, ' transect shapefiles processed in ', round(d), ifelse(count$tiff == 0, '', paste0('; ', round(d / count$tiff), ' per geoTIFF.'))), lf)
    
    
    

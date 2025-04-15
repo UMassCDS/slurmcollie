@@ -26,7 +26,7 @@
 #' @param logfile Log file, for reporting missing directories (which don't throw an error)
 #' @returns path to file on local drive
 #' @importFrom googledrive drive_download drive_reveal 
-#' @importFrom lubridate with_tz
+#' @importFrom lubridate with_tz dseconds as.duration
 #' @importFrom RCurl getBinaryURL
 #' @keywords internal
 
@@ -57,7 +57,8 @@
          
       }                                                                             #    elseish, it doesn't exist or is outdated in the cache, so gotta get it
       tname <- file.path(dirname(cname), paste0('zzz_', basename(cname)))           #    we'll use a temporary name so we don't end up with failed downloads with good names
-      msg('   downloading...', logfile)
+      msg('         downloading...', logfile)
+      start <- Sys.time() 
       tryCatch({
          if(gd$sourcedrive == 'google')                                             #    if it's on the Google Drive, get it from there
             drive_download(sname, path = tname, overwrite = TRUE)    
@@ -70,6 +71,11 @@
       error = function(cond)
          stop(paste0('File ', name, ' not found on remote drive'))
       )
+      
+      s <- (file.size(tname) * 8 / 1e6) / 
+         as.numeric(dseconds(as.duration(Sys.time() - start)))                      #    Download speed in Mbps
+      msg(paste0('         download speed: ', 
+                 prettyNum(round(s, 2), big.mark = ','), ' Mbps'), logfile)
       file.rename(tname, cname)                                                     #    rename from temporary to the final name
       return(cname)
    }
