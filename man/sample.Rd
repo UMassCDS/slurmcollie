@@ -7,10 +7,12 @@
 sample(
   site,
   pattern = "",
-  strategy = "all",
-  distance = 1,
+  n = NULL,
+  p = NULL,
+  distance = NULL,
   classes = NULL,
   balance = TRUE,
+  balance_excl = c(7, 33),
   result = NULL,
   transects = NULL,
   xy = FALSE
@@ -22,21 +24,21 @@ sample(
 \item{pattern}{Regex filtering rasters of predictor variables, case-insensitive.
 Default = "" (match all). Note: only files ending in \code{.tif} are included in any case.}
 
-\item{strategy}{Sampling strategy. One of
-\enumerate{
-\item all - sample all points with field data. Use this when assessing spatial
-autocorrelation, or if don't believe it's a thing.
-\item distance - sample points with an average spacing of \code{distance} m. Sampling is
-done by cells, so there's no guarantee points will be separated by this much.
-}}
+\item{n}{Number of total samples to return.}
 
-\item{distance}{Average spacing (m) between points.}
+\item{p}{Proportion of total samples to return. Use p = 1 to sample all.}
+
+\item{distance}{Sample points with an average spacing of \code{distance} m. Sampling is
+done in cells, so there's no guarantee points will be separated by this much.}
 
 \item{classes}{Class or vector of classes in transects to sample. Default is all
 classes.}
 
 \item{balance}{If TRUE, balance number of samples for each class. Points will be randomly
 selected to match the sparsest class.}
+
+\item{balance_excl}{Vector of classes to exclude when determining sample size when
+balancing. Include classes with low samples we don't care much about.}
 
 \item{result}{Name of result file. If not specified, file will be constructed from
 site, number of X vars, strategy, and distance.}
@@ -45,6 +47,10 @@ site, number of X vars, strategy, and distance.}
 
 \item{xy}{If TRUE, also get the X and Y coordinates of each sample point.}
 }
+\value{
+Sampled data table (invisibly)
+}
 \description{
-Sample Y and X variables for a site
+There are three mutually available sampling strategies (n, p, and distance). You
+must choose exactly one.
 }

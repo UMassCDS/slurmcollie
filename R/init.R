@@ -42,8 +42,8 @@
 #' all parameters. It is automatically run upon loading the package, and may be 
 #' rerun by the user if parameter files are changed.
 #' 
-#' You can change standard directory names (`data`, `models`, `gis`, `flights`, `field`, `samples`, 
-#' `predicted`, and `cache`) by setting each within a `dirs:` block in `pars.yml`.
+#' You can change standard directory names (`data`, `models`, `gis`, `flights`, `field`, 
+#' `shapefiles`, `samples`, `predicted`, and `cache`) by setting each within a `dirs:` block in `pars.yml`.
 #' Directories default to standard names, which is usually what you want.
 #' 
 #' To change parameters on the fly, you can set the components of `the`. If you change any elements of 
@@ -91,7 +91,6 @@ init <- function() {
    x <- yaml::read_yaml(file.path(the$parsdir, the$parsfile))
    for(i in 1:length(x)) 
       the[[names(x)[i]]] <- x[[i]]
-   
    
    set_dirs()                                                                                            # and create all full paths
    

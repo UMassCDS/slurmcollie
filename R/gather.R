@@ -148,7 +148,7 @@
       
       t <- get_dir(file.path(dir, dirname(sites$footprint[i])), 
                    the$gather$sourcedrive, sftp = the$gather$sftp, logfile = lf)    #    Now get directory for footprint shapefile
-      x <- rbind(x, t[grep('.shp$|.shx$|.prj$', t$name),])                          #    only want .shp, .shx, and .prj
+      x <- rbind(x, t[grep('.shp$|.shx$|.prj$|.dbf$', t$name),])                    #    only want .shp, .shx, and .prj
       
       
       if(field) {                                                                   #    if we're processing field transects,
@@ -169,21 +169,23 @@
       files <- files[grep('^bad_', tolower(files), invert = TRUE)]                  #    BUT drop files that begin with 'bad_', as they're corrupted
       files <- files[!files %in% the$gather$exclude]                                #    also drop files listed in exclude
       
-      if(length(files) == 0)
-         next
       
-      if(update) {                                                                  #    if update, don't mess with files that have already been done
-         sdir <- file.path(the$gather$sourcedir, sites$site_name[i])
-         rdir <- resolve_dir(the$flightsdir, sites$site_name[i])
-         ##    files<<-files;gd<<-gd;sdir<<-sdir;rdir<<-rdir;return()
-         files <- files[!check_files(files, gd, sdir, rdir)]                        #       see which files already exist and are up to date
+      if(length(files) != 0) {                                                      #    if there are some geoTIFFs to process,
+         
+         if(update) {                                                               #       if update, don't mess with files that have already been done
+            sdir <- file.path(the$gather$sourcedir, sites$site_name[i])
+            rdir <- resolve_dir(the$flightsdir, sites$site_name[i])
+            ##    files<<-files;gd<<-gd;sdir<<-sdir;rdir<<-rdir;return()
+            files <- files[!check_files(files, gd, sdir, rdir)]                     #          see which files already exist and are up to date
+         }
+         
+         
+         if(check) {                                                                #       if check = TRUE, don't download or process anything
+            msg(paste0('   ', files), lf)                                           #          but do print the source file names
+            next
+         }
       }
       
-      
-      if(check) {                                                                   #    if check = TRUE, don't download or process anything
-         msg(paste0('   ', files), lf)                                              #       but do print the source file names
-         next
-      }
       
       dumb_warning <- 'Sum of Photometric type-related color channels'              #    we don't want to hear about this!
       pkgcond::suppress_warnings(standard <- rast(get_file(file.path(dir, sites$standard[i]), 
@@ -193,42 +195,50 @@
       
       
       
-      get_sidecars <- function(path, file, gd, logfile, dbftoo = FALSE) {           #    helper function: cache shapefile sidecar files
-         for(ext in c('.shx', '.prj', '.dbf'[dbftoo]))
+      get_sidecars <- function(path, file, gd, logfile) {                           #    helper function: cache shapefile sidecar files
+         for(ext in c('.shx', '.prj', '.dbf'))
             t <- get_file(file.path(path, sub('.shp$', ext, file)), gd, logfile) 
       }
       
-      if(the$gather$sourcedrive %in% c('google', 'sftp'))                           #    Read footprint: if reading from Google Drive or SFTP,
+      if(the$gather$sourcedrive %in% c('google', 'sftp'))                           #----Read footprint: if reading from Google Drive or SFTP,
          get_sidecars(dir, sites$footprint[i], gd, lf)                              #       load two sidecar files for shapefile into cache
       footprint <- st_read(get_file(file.path(dir, sites$footprint[i]), 
                                     gd, logfile = lf), quiet = TRUE)                #    read footprint shapefile
       
+      sf <- resolve_dir(the$shapefilesdir, sites$site_name[i])
+      if(!dir.exists(sf))
+         dir.create(sf, recursive = TRUE)
+      shps <- list.files(the$cachedir, pattern = tools::file_path_sans_ext(basename(sites$footprint[i])))
+      for(f in shps)
+         file.copy(file.path(the$cachedir, f), sf, overwrite = TRUE, copy.date = TRUE)
       
-      if(field) {                                                                   #    if reading field transect shapefile,\
+      
+      if(field) {                                                                   #----if reading field transect shapefile,
          fd <- resolve_dir(the$fielddir, sites$site_name[i])                        #    results go in field/
          if(!dir.exists(fd))                                                        #       create field directory if it doesn't exist
             dir.create(fd, recursive = TRUE)
          
          
          if(!file.exists(file.path(fd, 'transects.tif'))) {                         #       if we don't already have it transect results,
-            msg('      Processing field transect shapefile', lf)
+            msg(' Processing field transect shapefile', lf)
             
             tp <- file.path(the$gather$sourcedir, sites$site_name[i], 
                             the$gather$transects)
             
             if(the$gather$sourcedrive %in% c('google', 'sftp'))                     #       if reading from Google Drive or SFTP,
-               get_sidecars(tp, sites$transects[i], gd, lf, dbftoo = TRUE)          #       load three sidecar files (include .dbf) for shapefile into cache
+               get_sidecars(tp, sites$transects[i], gd, lf)                         #       load three sidecar files (include .dbf) for shapefile into cache
             
             tpath <- get_file(file.path(tp, sites$transects[i]), 
-                                  gd, logfile = lf)                                 #       path and name of transects shapefile
+                              gd, logfile = lf)                                     #       path and name of transects shapefile
             
-            transects <- rasterize(vect(tpath), standard, field = 'SubCl')          #       convert it to raster and write it to field
-            transects <- as.numeric(transects$SubCl)                                #       uggg--field is character, with a space in the name
-            writeRaster(transects, file.path(fd, 'transects.tif'), overwrite = TRUE)
+            transects <- rasterize(vect(tpath), standard, field = 'SubCl')$SubCl |> #       convert it to raster and pull SubCl, numeric version of subclass
+               crop(footprint) |>                                                   #       crop, mask, and write
+               mask(footprint) |>
+               writeRaster(file.path(fd, 'transects.tif'), overwrite = TRUE)
             
             shps <- list.files(the$cachedir, pattern = tools::file_path_sans_ext(basename(sites$transects[i])))
             for(f in shps)
-               file.copy(file.path(the$cachedir, f), fd, overwrite = TRUE, copy.date = TRUE)
+               file.copy(file.path(the$cachedir, f), sf, overwrite = TRUE, copy.date = TRUE)
             count$transect <- count$transect + 1
          }
       }
@@ -243,7 +253,7 @@
       
       
       count$tiff <- count$tiff + length(files)
-      for(j in files) {                                                             #    for each target geoTIFF in site,
+      for(j in files) {                                                             #----for each target geoTIFF in site,
          msg(paste0('      processing ', j), lf)
          
          if(tryCatch({                                                              #    read the raster, skipping bad ones

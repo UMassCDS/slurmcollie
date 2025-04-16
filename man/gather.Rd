@@ -55,6 +55,8 @@ and cache it locally. Must set \code{cachedir} option.
 to include empty or nonexistent directories). Use \verb{<site>} in subdirectories that include a site name, e.g.,
 \verb{<site> Share/Photogrammetry DEMs}. WARNING: paths on the Google Drive are case-sensitive!
 \item \code{transects} directory with field transect shapefile
+\item \code{exclude} list of geoTIFFs to exclude, for whatever reasons. Note that files beginning with \code{bad} are also
+excluded
 \item \code{sftp} \verb{list(url = <address of site>, user = <credentials>)}. Credentials are either \code{username:password} or
 \verb{*filename} with \code{username:password}. Make sure
 to include credential files in \code{.gitignore} and \code{.Rbuildignore} so it doesn't end up out in the world!

@@ -16,7 +16,9 @@ Imports:
     googledrive,
     yaml,
     pkgcond,
-    tools
+    tools,
+    dplyr,
+    progressr
 Encoding: UTF-8
 Language: en-US
 LazyData: trued

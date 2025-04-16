@@ -34,7 +34,6 @@
 'get_file' <- function(name, gd, logfile) {
    
    
-   
    name <- gsub('/+', '/', name)                                                    # clean up slashes
    
    
