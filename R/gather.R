@@ -10,16 +10,18 @@
 #' - `sourcedrive` one of `local`, `google`, `sftp`
 #'   - `local` - read source from local drive 
 #'   - `google` - get source data from currently connected Google Drive (login via browser on first connection) 
-#'     and cache it locally. Must set `cachedir` option. 
+#'       and cache it locally. Must set `cachedir` option. 
 #'   - `sftp` - get source data from SFTP site. Must set `sftp` and `cachedir` options. 
 #' - `sourcedir` directory with source rasters, generally on Google Drive or SFTP site
 #' - `subdirs` subdirectories to search, ending with slash. Default = orthos, DEMs, and canopy height models (okay 
-#'   to include empty or nonexistent directories). Use `<site>` in subdirectories that include a site name, e.g., 
+#'      to include empty or nonexistent directories). Use `<site>` in subdirectories that include a site name, e.g., 
 #'   `<site> Share/Photogrammetry DEMs`. WARNING: paths on the Google Drive are case-sensitive!
 #' - `transects` directory with field transect shapefile
+#' - `exclude` list of geoTIFFs to exclude, for whatever reasons. Note that files beginning with `bad` are also
+#'      excluded
 #' - `sftp` `list(url = <address of site>, user = <credentials>)`. Credentials are either `username:password` or 
-#'   `*filename` with `username:password`. Make sure 
-#'   to include credential files in `.gitignore` and `.Rbuildignore` so it doesn't end up out in the world! 
+#'     `*filename` with `username:password`. Make sure 
+#'     to include credential files in `.gitignore` and `.Rbuildignore` so it doesn't end up out in the world! 
 #' 
 #' Source data: 
 #'   - geoTIFFs for each site
@@ -165,6 +167,7 @@
       files <- x$name[grep('.tif$', tolower(x$name))]                               #    only want files ending in .tif
       files <- files[grep(tolower(pattern), tolower(files))]                        #    match user's pattern - this is our definitive list of geoTIFFs to process for this site
       files <- files[grep('^bad_', tolower(files), invert = TRUE)]                  #    BUT drop files that begin with 'bad_', as they're corrupted
+      files <- files[!files %in% the$gather$exclude]                                #    also drop files listed in exclude
       
       if(length(files) == 0)
          next
