@@ -262,14 +262,15 @@
          }, 
          error = function(cond) {
             msg(paste0('         *** ', cond[[1]]), lf)
-            msg(paste0('         *** Skipping possibly corrupted raster ', j), lf)
+            msg(paste0('         *** Skipping missing or corrupted raster ', j), lf)
             TRUE
          }))
             next
          
          if(paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {
             msg(paste0('         !!! Reprojecting ', g), lf)
-            g <- project(g, 'epsg:4326')
+            pkgcond::suppress_warnings(g <- project(g, 'epsg:4326'), 
+                                       pattern = dumb_warning, class = 'warning')
          }
          else
             terra::crs(g) <- 'EPSG:4326'                                            #    prevent warnings when CRS is but isn't EPSG:4326 (e.g., 20Jun22_OTH_High_SWIR_Ortho.tif)
