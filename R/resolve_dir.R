@@ -10,4 +10,4 @@
 resolve_dir <- function(dir, site) 
    
    
-   sub('<site>', tolower(site), dir, fixed = TRUE)
+   sub('<site>', site, dir, fixed = TRUE)

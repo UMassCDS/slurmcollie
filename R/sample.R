@@ -21,8 +21,8 @@
 #' @param transects Name of transects file; default is `transects`.
 #' @param xy If TRUE, also get the X and Y coordinates of each sample point.
 #' @returns Sampled data table (invisibly)
-#' @importFrom terra rast global 
-#' @importFrom progressr progressor
+#' @importFrom terra rast global subst
+#' @importFrom progressr progressor handlers
 #' @importFrom dplyr group_by slice_sample
 #' @export
 
