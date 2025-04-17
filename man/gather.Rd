@@ -100,7 +100,8 @@ Remember that some SFTP servers require connection via VPN
 \item Windows dates are a mess for DST. Hopefully Linux won't be.
 }
 
-\strong{When running on Unity}, request at least 32 GB. It'll stall out using the default 8 GB.
+\strong{When running on Unity}, request 20 GB. It's been using just under 16 GB, and will fail quietly
+at the default of 8 GB.
 
 Example runs:
 

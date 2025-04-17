@@ -57,7 +57,7 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, distance = NULL,
    allsites <- read_pars_table('sites')                                          # site names from abbreviations to paths
    sites <- allsites[match(tolower(site), tolower(allsites$site)), ]
    
-   f <- resolve_dir(the$fielddir, sites$site_name)                               # get field transects
+   f <- resolve_dir(the$fielddir, sites$site)                                    # get field transects
    if(is.null(transects))
       transects <- 'transects.tif'
    field <- rast(file.path(f, transects))
@@ -66,7 +66,7 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, distance = NULL,
    if(!is.null(classes))
       field <- subst(field, from = classes, to = classes, others = NA)           # select classes in transect
    
-   fl <- resolve_dir(the$flightsdir, sites$site_name)
+   fl <- resolve_dir(the$flightsdir, sites$site)
    xvars <- list.files(fl, pattern = '.tif$')
    msg(paste0('Sampling ', length(xvars), ' variables'), lf)
    
@@ -86,7 +86,7 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, distance = NULL,
    
    result <- 'data'   # will tart this up
    
-   sd <- resolve_dir(the$samplesdir, sites$site_name)
+   sd <- resolve_dir(the$samplesdir, sites$site)
    if(!dir.exists(sd))
       dir.create(sd, recursive = TRUE)
    write.table(z, f <- file.path(sd, paste0(result, '_all.txt')), sep = '\t', quote = FALSE, row.names = FALSE)

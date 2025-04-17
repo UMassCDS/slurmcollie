@@ -9,7 +9,7 @@ resolve_dir(dir, site)
 \arguments{
 \item{dir}{Directory path}
 
-\item{site}{Site name}
+\item{site}{Site code (3 letter abbreviation)}
 }
 \value{
 Directory path including specified site.
