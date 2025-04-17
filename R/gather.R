@@ -261,7 +261,8 @@
             FALSE
          }, 
          error = function(cond) {
-            msg(paste0('      ** Skipping possibly corrupted raster ', j), lf)
+            msg(paste0('         *** ', cond[[1]]), lf)
+            msg(paste0('         *** Skipping possibly corrupted raster ', j), lf)
             TRUE
          }))
             next
