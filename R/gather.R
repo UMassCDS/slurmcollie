@@ -142,7 +142,7 @@
       s <- unique(s)                                                                #    and drop likely duplicate
       
       x <- NULL
-      for(j in resolve_dir(s, sites$site[i]))                                       #    for each subdir (with site name replacement),
+      for(j in resolve_dir(s, sites$site_name[i]))                                  #    for each subdir (with site name replacement),
          x <- rbind(x, get_dir(file.path(dir, j), 
                                the$gather$sourcedrive,
                                sftp = the$gather$sftp, logfile = lf))               #       get directory
@@ -175,7 +175,7 @@
          
          if(update) {                                                               #       if update, don't mess with files that have already been done
             sdir <- file.path(the$gather$sourcedir, sites$site_name[i])
-            rdir <- resolve_dir(the$flightsdir, sites$site[i])
+            rdir <- resolve_dir(the$flightsdir, tolower(sites$site[i]))
             ##    files<<-files;gd<<-gd;sdir<<-sdir;rdir<<-rdir;return()
             files <- files[!check_files(files, gd, sdir, rdir)]                     #          see which files already exist and are up to date
          }
@@ -206,7 +206,7 @@
       footprint <- st_read(get_file(file.path(dir, sites$footprint[i]), 
                                     gd, logfile = lf), quiet = TRUE)                #    read footprint shapefile
       
-      sf <- resolve_dir(the$shapefilesdir, sites$site[i])
+      sf <- resolve_dir(the$shapefilesdir, tolower(sites$site[i]))
       if(!dir.exists(sf))
          dir.create(sf, recursive = TRUE)
       shps <- list.files(the$cachedir, pattern = tools::file_path_sans_ext(basename(sites$footprint[i])))
@@ -215,7 +215,7 @@
       
       
       if(field) {                                                                   #----if reading field transect shapefile,
-         fd <- resolve_dir(the$fielddir, sites$site[i])                             #    results go in field/
+         fd <- resolve_dir(the$fielddir, tolower(sites$site[i]))                    #    results go in field/
          if(!dir.exists(fd))                                                        #       create field directory if it doesn't exist
             dir.create(fd, recursive = TRUE)
          
@@ -246,7 +246,7 @@
       
       
       
-      rd <- resolve_dir(the$flightsdir, sites$site[i])                              #    prepare result directory
+      rd <- resolve_dir(the$flightsdir, tolower(sites$site[i]))                    #    prepare result directory
       if(replace & dir.exists(rd))
          unlink(rd, recursive = TRUE)
       if(!dir.exists(rd))

@@ -9,7 +9,8 @@ resolve_dir(dir, site)
 \arguments{
 \item{dir}{Directory path}
 
-\item{site}{Site code (3 letter abbreviation)}
+\item{site}{Site name. For Google Drive, use \code{site_name}; on Unity, use
+\code{tolower(site)}, 3 letter code}
 }
 \value{
 Directory path including specified site.
