@@ -20,8 +20,9 @@
    for(i in 1:length(files))                                                              # for each file,
       if(file.exists(f <- file.path(resultdir, file.path(basename(files[i]))))) {         #    if the file exists in the results directory,
          sdate <- switch(gd$sourcedrive,                                                  #       get last modified date on source drive
-                         'local' = sdate <- file.mtime(f),
-                         'google' = drive_reveal(gd$dir[1,], what = 'modified_time')$modified_time,
+                         'local' = file.mtime(f),
+                         'google' = drive_reveal(gd$dir[gd$dir$name == files[i], ],
+                                                 what = 'modified_time')$modified_time,
                          'sftp' = gd$dir$date[basename(gd$dir$name) == basename(f)]
          )
          rdate <- file.mtime(f)                                                           #   date on result drive
