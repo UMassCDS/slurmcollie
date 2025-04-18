@@ -270,16 +270,18 @@
          
          if(paste(crs(g, describe = TRUE)[c('authority', 'code')], collapse = ':') != 'EPSG:4326') {
             msg(paste0('         !!! Reprojecting ', g), lf)
-            pkgcond::suppress_warnings(g <- project(g, 'epsg:4326'), 
-                                       pattern = dumb_warning, class = 'warning')
+            g <- project(g, 'epsg:4326')
          }
          else
             terra::crs(g) <- 'EPSG:4326'                                            #    prevent warnings when CRS is but isn't EPSG:4326 (e.g., 20Jun22_OTH_High_SWIR_Ortho.tif)
          
-         resample(g, standard, method = 'bilinear', threads = TRUE) |>
-            crop(footprint) |>
-            mask(footprint) |>
-            writeRaster(file.path(rd, basename(j)), overwrite = TRUE)               #       resample, crop, mask, and write to result directory
+        pkgcond::suppress_warnings({
+            resample(g, standard, method = 'bilinear', threads = TRUE) |>
+               crop(footprint) |>
+               mask(footprint) |>
+               writeRaster(file.path(rd, basename(j)), overwrite = TRUE)
+        }, 
+        pattern = dumb_warning, class = 'warning')                                  #       resample, crop, mask, and write to result directory
       }
       msg(paste0('Finished with site ', sites$site[i]), lf)
    }
