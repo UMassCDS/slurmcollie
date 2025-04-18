@@ -4,14 +4,7 @@
 \alias{gather}
 \title{Collect raster data for each site}
 \usage{
-gather(
-  site = NULL,
-  pattern = "",
-  update = TRUE,
-  replace = FALSE,
-  check = FALSE,
-  field = FALSE
-)
+gather(site = NULL, pattern = "", update = TRUE, check = FALSE, field = FALSE)
 }
 \arguments{
 \item{site}{One or more site names, using 3 letter abbreviation. Default = all sites.}
@@ -25,14 +18,14 @@ Examples:
 \item to match Mica files for a series of dates, use \verb{11nov20.*mica|14oct20.*mica}
 }}
 
-\item{update}{If TRUE, only process new files, assuming existing files are good}
+\item{update}{If TRUE, only process new files, assuming existing files are good; otherwise,
+process all files and replace existing ones.}
 
-\item{replace}{If TRUE, deletes the existing stack and replaces it. Use with care!}
+\item{check}{If TRUE, just check to see that source directories and files exist, but don't
+cache or process anything}
 
-\item{check}{If TRUE, just check to see that source directories and files exist, but don't cache or process anything}
-
-\item{field}{If TRUE, download and process the field transects if they don't already exist. The shapefile is downloaded
-for reference, and a raster corresponding to \code{standard} is created.}
+\item{field}{If TRUE, download and process the field transects if they don't already exist.
+The shapefile is downloaded for reference, and a raster corresponding to \code{standard} is created.}
 }
 \description{
 Clip to site boundary, resample and align to standard resolution. Data will be copied from various source
@@ -86,8 +79,8 @@ resampled to match. Standards MUST be in the standard projection, \code{EPSG:432
 orthophoto, with 8 cm resolution.
 
 Note that adding to an existing stack using a different standard will lead to sorrow. \strong{BEST
-PRACTICE}: don't change the standards in \code{standards.txt}; if you must change them, rerun with
-replace = TRUE to replace results that were created using the old standard.
+PRACTICE}: don't change the standards in \code{standards.txt}; if you must change them, clear the
+flights/ directory and rerun.
 
 Note that initial runs with Google Drive in a session open the browser for authentication or wait
 for input from the console, so don't run blindly when using the Google Drive

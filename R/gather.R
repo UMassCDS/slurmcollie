@@ -43,8 +43,8 @@
 #' orthophoto, with 8 cm resolution.
 #' 
 #' Note that adding to an existing stack using a different standard will lead to sorrow. **BEST
-#' PRACTICE**: don't change the standards in `standards.txt`; if you must change them, rerun with
-#' replace = TRUE to replace results that were created using the old standard.
+#' PRACTICE**: don't change the standards in `standards.txt`; if you must change them, clear the 
+#' flights/ directory and rerun.
 #'
 #' Note that initial runs with Google Drive in a session open the browser for authentication or wait
 #' for input from the console, so don't run blindly when using the Google Drive
@@ -80,11 +80,12 @@
 #'   - to match all Mica orthophotos, use `mica_orth`
 #'   - to match all Mica files from July, use `Jun.*mica`
 #'   - to match Mica files for a series of dates, use `11nov20.*mica|14oct20.*mica`
-#' @param update If TRUE, only process new files, assuming existing files are good 
-#' @param replace If TRUE, deletes the existing stack and replaces it. Use with care!
-#' @param check If TRUE, just check to see that source directories and files exist, but don't cache or process anything
-#' @param field If TRUE, download and process the field transects if they don't already exist. The shapefile is downloaded
-#'    for reference, and a raster corresponding to `standard` is created.
+#' @param update If TRUE, only process new files, assuming existing files are good; otherwise,
+#'    process all files and replace existing ones. 
+#' @param check If TRUE, just check to see that source directories and files exist, but don't 
+#'    cache or process anything
+#' @param field If TRUE, download and process the field transects if they don't already exist. 
+#'    The shapefile is downloaded for reference, and a raster corresponding to `standard` is created.
 #' @importFrom terra project rast crs writeRaster mask crop resample rasterize vect
 #' @importFrom sf st_read 
 #' @importFrom lubridate as.duration interval
@@ -94,7 +95,7 @@
 
 
 'gather' <- function(site = NULL, pattern = '', 
-                     update = TRUE, replace = FALSE, check = FALSE, field = FALSE) {
+                     update = TRUE, check = FALSE, field = FALSE) {
    
    
    lf <- file.path(the$modelsdir, 'gather.log')                                     # set up logging
@@ -120,9 +121,7 @@
       !dir.exists(the$cachedir))                                                    #    make sure cache directory exists if needed
       dir.create(the$cachedir, recursive = TRUE)
    
-   if(replace)
-      msg('\n!!! BEWARE: replace = TRUE will delete all existing contents in result directories !!!\n\n')
-   
+
    msg('', lf)
    msg('-----', lf)
    msg('', lf)
@@ -176,7 +175,6 @@
          if(update) {                                                               #       if update, don't mess with files that have already been done
             sdir <- file.path(the$gather$sourcedir, sites$site_name[i])
             rdir <- resolve_dir(the$flightsdir, tolower(sites$site[i]))
-            ##    files<<-files;gd<<-gd;sdir<<-sdir;rdir<<-rdir;return()
             files <- files[!check_files(files, gd, sdir, rdir)]                     #          see which files already exist and are up to date
          }
          
@@ -247,8 +245,6 @@
       
       
       rd <- resolve_dir(the$flightsdir, tolower(sites$site[i]))                    #    prepare result directory
-      if(replace & dir.exists(rd))
-         unlink(rd, recursive = TRUE)
       if(!dir.exists(rd))
          dir.create(rd, recursive = TRUE)
       
