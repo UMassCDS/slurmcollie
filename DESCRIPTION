@@ -17,8 +17,10 @@ Imports:
     yaml,
     pkgcond,
     tools,
+    stats,
     dplyr,
-    progressr
+    progressr,
+    caret
 Encoding: UTF-8
 Language: en-US
 LazyData: trued

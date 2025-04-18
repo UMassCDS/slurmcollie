@@ -15,7 +15,8 @@ sample(
   balance_excl = c(7, 33),
   result = NULL,
   transects = NULL,
-  xy = FALSE
+  drop_corr = NULL,
+  reuse = FALSE
 )
 }
 \arguments{
@@ -44,7 +45,11 @@ site, number of X vars, and strategy.}
 
 \item{transects}{Name of transects file; default is \code{transects}.}
 
-\item{xy}{If TRUE, also get the X and Y coordinates of each sample point.}
+\item{drop_corr}{Drop one of any pair of variables with correlation more than \code{drop_corr}.}
+
+\item{reuse}{Reuse the named file (ending in \verb{_all.txt}) from previous run, rather
+than resampling. Saves a lot of time if you're changing \code{n}, \code{p}, \code{d}, \code{balance},
+\code{balance_excl}, or \code{drop_corr}.}
 }
 \value{
 Sampled data table (invisibly)

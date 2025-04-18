@@ -17,24 +17,29 @@
 #'    selected to match the sparsest class.
 #' @param balance_excl Vector of classes to exclude when determining sample size when 
 #'    balancing. Include classes with low samples we don't care much about.
+#' @param drop_corr Drop one of any pair of variables with correlation more than `drop_corr`.
+#' @param reuse Reuse the named file (ending in `_all.txt`) from previous run, rather
+#'    than resampling. Saves a lot of time if you're changing `n`, `p`, `d`, `balance`, 
+#'    `balance_excl`, or `drop_corr`.
 #' @param result Name of result file. If not specified, file will be constructed from
 #'    site, number of X vars, and strategy.
 #' @param transects Name of transects file; default is `transects`.
-#' @param xy If TRUE, also get the X and Y coordinates of each sample point.
 #' @returns Sampled data table (invisibly)
 #' @importFrom terra rast global subst
 #' @importFrom progressr progressor handlers
 #' @importFrom dplyr group_by slice_sample
+#' @importFrom caret findCorrelation
+#' @importFrom stats cor
 #' @export
 
 
 sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL, 
                    classes = NULL, balance = TRUE, balance_excl = c(7, 33), result = NULL, 
-                   transects = NULL, xy = FALSE) {
+                   transects = NULL, drop_corr = NULL, reuse = FALSE) {
    
    
    handlers(global = TRUE)
-   lf <- file.path(the$modelsdir, 'gather.log')                                  # set up logging
+   lf <- file.path(the$modelsdir, paste0('sample_', site, '.log'))               # set up logging
    
    
    if(sum(!is.null(n), !is.null(p), !is.null(d)) != 1)
@@ -73,7 +78,8 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL,
    
    sel <- !is.na(field)                                                          # cells with field samples
    nrows <- as.numeric(global(sel, fun = 'sum', na.rm = TRUE))                   # total sample size
-   z <- data.frame(subclass = field[sel])                                        # result is expected to be ~4 GB for 130 variables
+   z <- data.frame(field[sel])                                                   # result is expected to be ~4 GB for 130 variables
+   names(z)[1] <- 'subclass'
    
    
    pr <- progressor(along = xvars)
@@ -110,6 +116,20 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL,
       n <- p * dim(z)[1]                                                         #       set n to proportion
    
    z <- z[base::sample(dim(z)[1], size = n, replace = FALSE), ]                  #    sample points
+   
+   
+   if(!is.null(drop_corr)) {                                                     #----drop_corr option: drop correlated variables
+      cat('Correlations before applying drop_corr:\n')
+      corr <- cor(z, use = 'pairwise.complete.obs')
+      print(summary(corr[upper.tri(corr)]))
+      c <- findCorrelation(corr, cutoff = drop_corr)
+      z <- z[, -c]
+      cat('Correlations after applying drop_corr:\n')
+      corr <- cor(z, use = 'pairwise.complete.obs')
+      print(summary(corr[upper.tri(corr)]))
+      msg(paste0('Applying drop_corr = ', drop_corr, ' reduced X variables from ', length(xvars), ' to ', dim(z)[2] - 1), lf)
+   }
+   
    
    write.table(z, f <- file.path(sd, paste0(result, '.txt')), sep = '\t', quote = FALSE, row.names = FALSE)
    msg(paste0('Sampled dataset saved to ', f), logfile = lf)
