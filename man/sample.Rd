@@ -9,7 +9,7 @@ sample(
   pattern = "",
   n = NULL,
   p = NULL,
-  distance = NULL,
+  d = NULL,
   classes = NULL,
   balance = TRUE,
   balance_excl = c(7, 33),
@@ -28,8 +28,7 @@ Default = "" (match all). Note: only files ending in \code{.tif} are included in
 
 \item{p}{Proportion of total samples to return. Use p = 1 to sample all.}
 
-\item{distance}{Sample points with an average spacing of \code{distance} m. Sampling is
-done in cells, so there's no guarantee points will be separated by this much.}
+\item{d}{Mean distance in cells between samples. No minimum spacing is guaranteed.}
 
 \item{classes}{Class or vector of classes in transects to sample. Default is all
 classes.}
@@ -41,7 +40,7 @@ selected to match the sparsest class.}
 balancing. Include classes with low samples we don't care much about.}
 
 \item{result}{Name of result file. If not specified, file will be constructed from
-site, number of X vars, strategy, and distance.}
+site, number of X vars, and strategy.}
 
 \item{transects}{Name of transects file; default is \code{transects}.}
 
@@ -51,6 +50,8 @@ site, number of X vars, strategy, and distance.}
 Sampled data table (invisibly)
 }
 \description{
-There are three mutually available sampling strategies (n, p, and distance). You
-must choose exactly one.
+There are three mutually available sampling strategies (n, p, and d). You
+must choose exactly one. \code{n} samples the total number of points provided.
+\code{p} samples the proportion of total points (after balancing, if \code{balance} is
+selected. \code{d} samples points with a mean (but not guaranteed) minimum distance.
 }

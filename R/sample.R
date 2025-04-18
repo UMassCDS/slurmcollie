@@ -1,15 +1,16 @@
 #' Sample Y and X variables for a site
 #' 
-#' There are three mutually available sampling strategies (n, p, and distance). You
-#' must choose exactly one.
+#' There are three mutually available sampling strategies (n, p, and d). You
+#' must choose exactly one. `n` samples the total number of points provided. 
+#' `p` samples the proportion of total points (after balancing, if `balance` is 
+#' selected. `d` samples points with a mean (but not guaranteed) minimum distance.
 #' 
 #' @param site One or more site names, using 3 letter abbreviation. Default = all sites.
 #' @param pattern Regex filtering rasters of predictor variables, case-insensitive. 
 #'    Default = "" (match all). Note: only files ending in `.tif` are included in any case.
 #' @param n Number of total samples to return.
 #' @param p Proportion of total samples to return. Use p = 1 to sample all.
-#' @param distance Sample points with an average spacing of `distance` m. Sampling is
-#'    done in cells, so there's no guarantee points will be separated by this much.
+#' @param d Mean distance in cells between samples. No minimum spacing is guaranteed.
 #' @param classes Class or vector of classes in transects to sample. Default is all
 #'    classes.
 #' @param balance If TRUE, balance number of samples for each class. Points will be randomly
@@ -17,7 +18,7 @@
 #' @param balance_excl Vector of classes to exclude when determining sample size when 
 #'    balancing. Include classes with low samples we don't care much about.
 #' @param result Name of result file. If not specified, file will be constructed from
-#'    site, number of X vars, strategy, and distance.
+#'    site, number of X vars, and strategy.
 #' @param transects Name of transects file; default is `transects`.
 #' @param xy If TRUE, also get the X and Y coordinates of each sample point.
 #' @returns Sampled data table (invisibly)
@@ -27,7 +28,7 @@
 #' @export
 
 
-sample <- function(site, pattern = '', n = NULL, p = NULL, distance = NULL, 
+sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL, 
                    classes = NULL, balance = TRUE, balance_excl = c(7, 33), result = NULL, 
                    transects = NULL, xy = FALSE) {
    
@@ -36,8 +37,8 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, distance = NULL,
    lf <- file.path(the$modelsdir, 'gather.log')                                  # set up logging
    
    
-   if(sum(!is.null(n), !is.null(p), !is.null(distance)) != 1)
-      stop('You must choose exactly one of the n, p, and distance options')
+   if(sum(!is.null(n), !is.null(p), !is.null(d)) != 1)
+      stop('You must choose exactly one of the n, p, and d options')
    
    
    msg('', lf)
@@ -50,8 +51,8 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, distance = NULL,
       msg(paste0('n = ', n), lf)
    if(!is.null(p))
       msg(paste0('p = ', p), lf)
-   if(!is.null(distance))
-      msg(paste0('distance = ', distance), lf)
+   if(!is.null(d))
+      msg(paste0('d = ', d), lf)
    
    
    allsites <- read_pars_table('sites')                                          # site names from abbreviations to paths
@@ -74,7 +75,7 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, distance = NULL,
    nrows <- as.numeric(global(sel, fun = 'sum', na.rm = TRUE))                   # total sample size
    z <- data.frame(subclass = field[sel])                                        # result is expected to be ~4 GB for 130 variables
    
-
+   
    pr <- progressor(along = xvars)
    for(xv in xvars) {                                                            # for each predictor variable,
       pr()
@@ -102,16 +103,13 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, distance = NULL,
          slice_sample(n = target_n)                                              #    take minimum subclass n for every class
    }
    
+   if(!is.null(d))                                                               #    if sampling by mean distance,
+      p <- 1 / (d + 1) ^ 2                                                       #       set proportion
+   
    if(!is.null(p))                                                               #    if sampling by proportion,
       n <- p * dim(z)[1]                                                         #       set n to proportion
    
-   if(!is.null(n))
-      z <- z[base::sample(dim(z)[1], size = n, replace = FALSE), ]               #    sample points
-   else {
-      # do distance here. I'll have to reproject to square cells. I think I'll create 2 rasters matching field, one of rows and one of columns, 
-      # in terms of distance, and then sample them into z.
-      # This may throw off balance. Not sure if I should rebalance?
-   }
+   z <- z[base::sample(dim(z)[1], size = n, replace = FALSE), ]                  #    sample points
    
    write.table(z, f <- file.path(sd, paste0(result, '.txt')), sep = '\t', quote = FALSE, row.names = FALSE)
    msg(paste0('Sampled dataset saved to ', f), logfile = lf)
