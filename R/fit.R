@@ -1,0 +1,98 @@
+#' Fit models
+#' 
+#' @param site Site name (potentially a metasite for multi-site models); determines path 
+#'    of data. Default = `the$site`; must be set here if `the$site` is NULL. `the$site` 
+#'    will be set by the first call of `fit`; it may also be set directly.
+#' @param datafile Name of data file. Extension `.RDS` must be included. Default = 
+#'    `the$datafile`, or `data.RDS` if `the$datafile` is NULL.
+#' @param method One of `rf` for Random Forest, `boost` for AdaBoost. Default = `rf`.
+#' @param reread If TRUE, forces reread of datafile.
+#' @param holdout Proportion of points to hold out. For Random Forest, this specifies 
+#'    the size of the single validation set, while for boosting, it is the size of each
+#'    of the testing and validation sets.
+#' @importFrom caret createDataPartition trainControl
+#' @import ranger
+#### ' @import fastAdaboost
+#' @export
+
+
+fit <- function(site = the$site, datafile = the$datafile, method = 'rf', 
+                reread = FALSE, holdout = 0.2) {
+   
+   
+   lf <- file.path(the$modelsdir, paste0('fit_', site, '.log'))                     # set up logging
+   
+   cat('the$site = ', the$site, '\n')
+   cat('the$datafile = ', the$datfile, '\n')
+   
+   
+   if(is.null(site) & is.null(the$site))
+      stop('Site name isn\'t already specified; it must be set with the site option')
+   
+   if(is.null(site))
+      site <- the$site
+   
+   if(is.null(datafile))
+      datafile <- the$datafile
+   
+   
+   reread <- reread | is.null(the$site) || site != the$site                         # reread data if this is a new site
+   reread <- reread | is.null(the$datafile) || datafile != the$datafile             # or a new datafile
+   reread <- reread | is.null(the$data)                                             # or if we don't have data yet
+   
+   if(reread) {                                                                     # if reading or rereading the datafile,
+      the$data <- NULL
+      the$site <- site                                                              #    read data and set the$site, the$datafile, and the$data
+      if(is.null(datafile))
+         datafile <- 'data.RDS'
+      the$datafile <- datafile
+      cat('the$datafile set to ', the$datafile, '\n')
+      df <- file.path(resolve_dir(the$samplesdir, tolower(site)), the$datafile)
+      if(!file.exists(df))
+         stop('Datafile ', df, ' does not exist')
+      
+      msg(paste0('Reading datafile ', datafile, ' for site ', site, '...'), lf)
+      x <- readRDS(df)                                                              # *** could add option to read .txt, add .RDS if need be, error if missing file
+      x$subclass <- as.factor(x$subclass)
+      the$data <- x
+   }
+   else 
+      x <- the$data
+   
+   the$datafile <- datafile
+   
+   msg('', lf)
+   msg(paste0('Fitting for site = ', site, ', datafile = ', datafile), lf)
+   
+   
+   
+   n_partitions <- switch(method, 
+                          'rf' = 1,                                                 # random forest uses a single validation set,
+                          'boost' = 2)                                              # and AdaBoost uses a test and a validation set
+   parts <- createDataPartition(x$subclass, p = holdout, times = n_partitions)      # create holdout sets
+   
+   train <- x[-unlist(parts), ]
+   validate <- x[parts[[1]], ]
+   if(method == 'boost')
+      test <- x[parts[[2]], ]
+   
+   
+   
+   switch(method, 
+          'rf' = {
+             method <- 'ranger'
+             control <- trainControl(method = 'oob', allowParallel = TRUE)                     # controls for random forests
+          },
+          'boost' = {
+             method <- 'adaboost'
+             control <- trainControl()                                                         # conrols for AdaBoost
+          }
+             )  
+   
+   # tuning ...
+   
+   
+   
+   
+   
+}

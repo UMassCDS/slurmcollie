@@ -5,6 +5,19 @@
 #' `p` samples the proportion of total points (after balancing, if `balance` is 
 #' selected. `d` samples points with a mean (but not guaranteed) minimum distance.
 #' 
+#' Results are saved in four files:
+#' 
+#' 1. <result>_all.txt - A text version of the full dataset (selected by `pattern` 
+#'    but not subsetted by `n`, `p`, `d`, `balance`, or `drop_corr`). Readable by
+#'    any software.
+#' 2. <result>_all.RDS - An RDS version of the full dataset; far faster to read 
+#'    in R (1.1 s vs. 14.4 s in one example).
+#' 3. <result>.txt - A text version of the final selected and subsetted dataset,
+#'    as a text file.
+#' 4. <result>.RDS - An RDS version of the final dataset.
+#' 
+#' **Memory requirements: I've measured up to 28.5 GB.**
+#' 
 #' @param site One or more site names, using 3 letter abbreviation. Default = all sites.
 #' @param pattern Regex filtering rasters of predictor variables, case-insensitive. 
 #'    Default = "" (match all). Note: only files ending in `.tif` are included in any case.
@@ -97,7 +110,8 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL,
    if(!dir.exists(sd))
       dir.create(sd, recursive = TRUE)
    write.table(z, f <- file.path(sd, paste0(result, '_all.txt')), sep = '\t', quote = FALSE, row.names = FALSE)
-   msg(paste0('Complete dataset saved to ', f), logfile = lf)
+   saveRDS(z, f2 <- file.path(sd, paste0(result, '_all.RDS')))
+   msg(paste0('Complete dataset saved to ', f, ' and ', f2), logfile = lf)
    
    
    if(balance) {                                                                 # if balancing smaples,
@@ -132,7 +146,8 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL,
    
    
    write.table(z, f <- file.path(sd, paste0(result, '.txt')), sep = '\t', quote = FALSE, row.names = FALSE)
-   msg(paste0('Sampled dataset saved to ', f), logfile = lf)
+   saveRDS(z, f2 <- file.path(sd, paste0(result, '.RDS')))
+   msg(paste0('Sampled dataset saved to ', f, ' and ', f2), logfile = lf)
    
    invisible(z)
 }

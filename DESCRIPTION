@@ -20,7 +20,8 @@ Imports:
     stats,
     dplyr,
     progressr,
-    caret
+    caret, 
+    ranger
 Encoding: UTF-8
 Language: en-US
 LazyData: trued

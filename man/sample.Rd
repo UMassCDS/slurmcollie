@@ -22,7 +22,7 @@ sample(
 \arguments{
 \item{site}{One or more site names, using 3 letter abbreviation. Default = all sites.}
 
-\item{pattern}{Regex filtering rasters of predictor variables, case-insensitive.
+\item{pattern}{Regex filtering rasters of  r predictor variables, case-insensitive.
 Default = "" (match all). Note: only files ending in \code{.tif} are included in any case.}
 
 \item{n}{Number of total samples to return.}
@@ -59,4 +59,19 @@ There are three mutually available sampling strategies (n, p, and d). You
 must choose exactly one. \code{n} samples the total number of points provided.
 \code{p} samples the proportion of total points (after balancing, if \code{balance} is
 selected. \code{d} samples points with a mean (but not guaranteed) minimum distance.
+}
+\details{
+Results are saved in four files:
+\enumerate{
+\item \if{html}{\out{<result>}}_all.txt - A text version of the full dataset (selected by \code{pattern}
+but not subsetted by \code{n}, \code{p}, \code{d}, \code{balance}, or \code{drop_corr}). Readable by
+any software.
+\item \if{html}{\out{<result>}}_all.RDS - An RDS version of the full dataset; far faster to read
+in R (1.1 s vs. 14.4 s in one example).
+\item \if{html}{\out{<result>}}.txt - A text version of the final selected and subsetted dataset,
+as a text file.
+\item \if{html}{\out{<result>}}.RDS - An RDS version of the final dataset.
+}
+
+\strong{Memory requirements: I've measured up to 28.5 GB.}
 }
