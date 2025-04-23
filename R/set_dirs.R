@@ -18,8 +18,8 @@ set_dirs <- function() {
    the$flightsdir <- file.path(the$gisdir, the$dirs$flights)                                          # data/<site>/gis/flights/
    the$fielddir <- file.path(the$gisdir, the$dirs$field)                                              # data/<site>/gis/field/
    the$shapefilesdir <- file.path(the$gisdir, the$dirs$shapefiles)                                    # data/<site>/gis/shapefiles/
+   the$predicteddir <- file.path(the$gisdir, the$dirs$predicted)                                      # data/<site>/gis/predicted/
    the$samplesdir <- file.path(the$datadir, the$dirs$samples)                                         # data/<site>/samples/
-   the$predicteddir <- file.path(the$datadir, the$dirs$predicted)                                     # data/<site>/predicted/
    
    the$cachedir <- file.path(the$scratchdir, the$dirs$cache)                                          # scratchdir/cache/
 }
