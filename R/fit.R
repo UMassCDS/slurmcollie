@@ -14,6 +14,7 @@
 #' @import caret
 #' @import ranger
 #' @importFrom stats complete.cases predict reformulate
+#' @importFrom lubridate interval as.duration
 #### ' @import fastAdaboost
 #' @export
 
@@ -100,7 +101,11 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    train$subclass <- droplevels(train$subclass)
    model <- reformulate(names(train)[-1], 'subclass')
+   
+   a <- Sys.time()
    z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity')
+   msg(paste0('Elapsed time for training = ',  as.duration(round(interval(a, Sys.time())))), lf)
+   
    
    import <- varImp(z)
    import <<- import
