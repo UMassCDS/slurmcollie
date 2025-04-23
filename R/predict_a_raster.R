@@ -14,5 +14,5 @@ if(FALSE) {
    rasters <- rast(file.path(path, x))
    names(rasters) <- sub('^(\\d)', 'X\\1', names(rasters))                         # files with leading digit get X prepended by R  
    
-   peakRAM(predicted <- terra::predict(rasters, zz, cores = 20, filename = file.path(rpath, 'predicted.tif')))
+   peakRAM(predicted <- terra::predict(rasters, zz, cores = 20, filename = file.path(rpath, 'predicted2.tif'), overwrite = TRUE))
 }
