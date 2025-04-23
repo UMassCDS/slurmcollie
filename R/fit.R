@@ -97,51 +97,30 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    # all I can make work so far is using complete cases
    # train <- train[!train$subclass %in% c(7, 10, 11, 26, 33), ]     # try this. Nope.
    
-   if(TRUE) {                                                        # ranget with caret.......................
-      
-      train$subclass <- droplevels(train$subclass)
-      model <- reformulate(names(train)[-1], 'subclass')
-      z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity')
-      
-      import <- varImp(z)
-      import <<- import
-      
-      plot(import)
-      
-      validate <- validate[complete.cases(validate), ]
-      validate$subclass <- droplevels(validate$subclass)
-      y <- predict(z, newdata = validate)
-      
-      confuse <- confusionMatrix(validate$subclass, y)
-      
-      print(confuse)
    
-      train <<- train
-      vaidate <<- validate
-      zz <<- z
-      confuse <<- confuse
-      yy <<- y
-   }
-   else {                                                            # ranget WITHOUT caret.......................DON'T WANT THIS
-      # this allows predict to work properly
-      
-      
-      train$subclass <- droplevels(train$subclass)
-      model <- reformulate(names(train)[-1], 'subclass')
-      z <- ranger(model, data = train, num.threads = 0, importance = 'impurity')
-      
-      zz <<- z
-      vi <- importance(z)
-      vi <- data.frame(importance = vi / max(z$variable.importance) * 100)
-      vi <- vi[order(vi$importance, decreasing = TRUE), , drop = FALSE]
-      
-      validate <- validate[complete.cases(validate), ]
-      validate$subclass <- droplevels(validate$subclass)
-      y <- predict(z, data = validate)
-      confuse <- confusionMatrix(validate$subclass, y$predictions)
-      
-      kappa <- confuse$overall['Kappa']                           # can pull stats like this
-      
-   }
+   train$subclass <- droplevels(train$subclass)
+   model <- reformulate(names(train)[-1], 'subclass')
+   z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity')
+   
+   import <- varImp(z)
+   import <<- import
+   
+   plot(import)
+   
+   validate <- validate[complete.cases(validate), ]
+   validate$subclass <- droplevels(validate$subclass)
+   y <- predict(z, newdata = validate)
+   
+   confuse <- confusionMatrix(validate$subclass, y)
+   kappa <- confuse$overall['Kappa']                           # can pull stats like this
+   
+   print(confuse)
+   
+   train <<- train
+   vaidate <<- validate
+   zz <<- z
+   confuse <<- confuse
+   yy <<- y
+   
    
 }
