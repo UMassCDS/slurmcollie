@@ -8,6 +8,7 @@ fit(
   site = the$site,
   datafile = the$datafile,
   method = "rf",
+  vars = NULL,
   reread = FALSE,
   holdout = 0.2
 )
@@ -21,6 +22,9 @@ will be set by the first call of \code{fit}; it may also be set directly.}
 \code{the$datafile}, or \code{data.RDS} if \code{the$datafile} is NULL.}
 
 \item{method}{One of \code{rf} for Random Forest, \code{boost} for AdaBoost. Default = \code{rf}.}
+
+\item{vars}{An optional list of variables to restrict analysis to. Default = NULL,
+all variables.}
 
 \item{reread}{If TRUE, forces reread of datafile.}
 

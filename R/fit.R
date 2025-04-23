@@ -6,6 +6,8 @@
 #' @param datafile Name of data file. Extension `.RDS` must be included. Default = 
 #'    `the$datafile`, or `data.RDS` if `the$datafile` is NULL.
 #' @param method One of `rf` for Random Forest, `boost` for AdaBoost. Default = `rf`.
+#' @param vars An optional list of variables to restrict analysis to. Default = NULL, 
+#'    all variables.
 #' @param reread If TRUE, forces reread of datafile.
 #' @param holdout Proportion of points to hold out. For Random Forest, this specifies 
 #'    the size of the single validation set, while for boosting, it is the size of each
@@ -20,7 +22,7 @@
 
 
 fit <- function(site = the$site, datafile = the$datafile, method = 'rf', 
-                reread = FALSE, holdout = 0.2) {
+                vars = NULL, reread = FALSE, holdout = 0.2) {
    
    
    lf <- file.path(the$modelsdir, paste0('fit_', site, '.log'))                     # set up logging
@@ -66,6 +68,14 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    msg('', lf)
    msg(paste0('Fitting for site = ', site, ', datafile = ', datafile), lf)
+   
+   
+   
+   if(!is.null(vars)) {                                                             # restrict to selected variables
+      x <- x[, names(x) %in% c('subclass', vars)]
+      msg(paste0('Analysis limited to ', length(names(x)) - 1, ' variables'), lf)
+   }
+   
    
    
    n_partitions <- switch(method, 

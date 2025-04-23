@@ -1,0 +1,12 @@
+#' pick variables based on importance >= n
+#' 
+#' @param n Cutoff value for variable importance.
+#' @param importance Variable importance object from `fit` 
+
+
+pickvars <- function(n, importance = import) {
+   
+   
+   row.names(importance$importance)[importance$importance >= n]
+   
+}
