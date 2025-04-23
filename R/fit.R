@@ -10,8 +10,10 @@
 #' @param holdout Proportion of points to hold out. For Random Forest, this specifies 
 #'    the size of the single validation set, while for boosting, it is the size of each
 #'    of the testing and validation sets.
-#' @importFrom caret createDataPartition trainControl
+####' @importFrom caret createDataPartition trainControl train
+#' @import caret
 #' @import ranger
+#' @importFrom stats complete.cases predict reformulate
 #### ' @import fastAdaboost
 #' @export
 
@@ -65,7 +67,6 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    msg(paste0('Fitting for site = ', site, ', datafile = ', datafile), lf)
    
    
-   
    n_partitions <- switch(method, 
                           'rf' = 1,                                                 # random forest uses a single validation set,
                           'boost' = 2)                                              # and AdaBoost uses a test and a validation set
@@ -80,19 +81,67 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    switch(method, 
           'rf' = {
-             method <- 'ranger'
-             control <- trainControl(method = 'oob', allowParallel = TRUE)                     # controls for random forests
+             meth <- 'ranger'
+             control <- trainControl(allowParallel = TRUE)                     # controls for random forests
           },
           'boost' = {
-             method <- 'adaboost'
+             meth <- 'adaboost'
              control <- trainControl()                                                         # conrols for AdaBoost
           }
-             )  
+   )  
    
    # tuning ...
    
+   train <- train[complete.cases(train), ]                        # wtf?
+   # na.action = 'na.omit' fails, but na.learn fails. Maybe impute values? Some vars are missing for half of site. Some subclasses have no complete rows.
+   # all I can make work so far is using complete cases
+   # train <- train[!train$subclass %in% c(7, 10, 11, 26, 33), ]     # try this. Nope.
    
+   if(TRUE) {                                                        # ranget with caret.......................
+      
+      train$subclass <- droplevels(train$subclass)
+      model <- reformulate(names(train)[-1], 'subclass')
+      z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity')
+      
+      import <- varImp(z)
+      import <<- import
+      
+      plot(import)
+      
+      validate <- validate[complete.cases(validate), ]
+      validate$subclass <- droplevels(validate$subclass)
+      y <- predict(z, newdata = validate)
+      
+      confuse <- confusionMatrix(validate$subclass, y)
+      
+      print(confuse)
    
-   
+      train <<- train
+      vaidate <<- validate
+      zz <<- z
+      confuse <<- confuse
+      yy <<- y
+   }
+   else {                                                            # ranget WITHOUT caret.......................DON'T WANT THIS
+      # this allows predict to work properly
+      
+      
+      train$subclass <- droplevels(train$subclass)
+      model <- reformulate(names(train)[-1], 'subclass')
+      z <- ranger(model, data = train, num.threads = 0, importance = 'impurity')
+      
+      zz <<- z
+      vi <- importance(z)
+      vi <- data.frame(importance = vi / max(z$variable.importance) * 100)
+      vi <- vi[order(vi$importance, decreasing = TRUE), , drop = FALSE]
+      
+      validate <- validate[complete.cases(validate), ]
+      validate$subclass <- droplevels(validate$subclass)
+      y <- predict(z, data = validate)
+      confuse <- confusionMatrix(validate$subclass, y$predictions)
+      
+      kappa <- confuse$overall['Kappa']                           # can pull stats like this
+      
+   }
    
 }

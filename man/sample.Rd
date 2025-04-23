@@ -22,7 +22,7 @@ sample(
 \arguments{
 \item{site}{One or more site names, using 3 letter abbreviation. Default = all sites.}
 
-\item{pattern}{Regex filtering rasters of  r predictor variables, case-insensitive.
+\item{pattern}{Regex filtering rasters of predictor variables, case-insensitive.
 Default = "" (match all). Note: only files ending in \code{.tif} are included in any case.}
 
 \item{n}{Number of total samples to return.}
