@@ -114,10 +114,11 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    confuse <- confusionMatrix(validate$subclass, y)
    kappa <- confuse$overall['Kappa']                           # can pull stats like this
    
+   cat('\n')
    print(confuse)
    
-   train <<- train
-   vaidate <<- validate
+   training <<- train
+   vaidation <<- validate
    zz <<- z
    confuse <<- confuse
    yy <<- y
