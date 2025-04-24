@@ -3,9 +3,12 @@
 if(FALSE) {
    devtools::load_all(".")
    library(peakRAM)
-   fit('oth')
-   fit('oth', vars = pickvars(40))
+   library(terra)
    
+   
+   # fit('oth')
+   # fit('oth', vars = pickvars(40))
+   the$fit <- readRDS('/work/pi_cschweik_umass_edu/marsh_mapping/models/fit_2025-Apr-24_16-08')
    
    path <- '/work/pi_cschweik_umass_edu/marsh_mapping/data/oth/gis/flights'
    rpath <- '/work/pi_cschweik_umass_edu/marsh_mapping/data/oth/gis/predicted'
@@ -22,6 +25,8 @@ if(FALSE) {
    
    rasters <- rasters[[names(rasters) %in% names(the$fit$fit$trainingData)[-1]]]      # drop bands we don't want
    
-   peakRAM(predicted <- terra::predict(rasters, the$fit$fit, cores = 18, filename = file.path(rpath, 'predicted.tif'), overwrite = TRUE))
+   # clip <- ext(c(-70.86254419, -70.86135362, 42.77072136, 42.7717978))
+   # rasters <- crop(rasters, clip)
    
+   peakRAM(predicted <- terra::predict(rasters, the$fit$fit, cores = 1, filename = file.path(rpath, 'predicted2.tif'), overwrite = TRUE, na.rm = TRUE))
 }
