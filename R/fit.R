@@ -8,6 +8,8 @@
 #' @param method One of `rf` for Random Forest, `boost` for AdaBoost. Default = `rf`.
 #' @param vars An optional list of variables to restrict analysis to. Default = NULL, 
 #'    all variables.
+#' @param maxmissing Maximum proportion of missing training points allowed before a 
+#'    varialbe is dropped.
 #' @param reread If TRUE, forces reread of datafile.
 #' @param holdout Proportion of points to hold out. For Random Forest, this specifies 
 #'    the size of the single validation set, while for boosting, it is the size of each
@@ -22,7 +24,7 @@
 
 
 fit <- function(site = the$site, datafile = the$datafile, method = 'rf', 
-                vars = NULL, reread = FALSE, holdout = 0.2) {
+                vars = NULL, maxmissing = 0.05, reread = FALSE, holdout = 0.2) {
    
    
    lf <- file.path(the$modelsdir, paste0('fit_', site, '.log'))                     # set up logging
@@ -77,6 +79,8 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    }
    
    
+   x <- x[, c(TRUE, colSums(is.na(x[, -1])) / dim(x)[1] <= maxmissing)]             # drop variables with too many missing values
+   
    
    n_partitions <- switch(method, 
                           'rf' = 1,                                                 # random forest uses a single validation set,
@@ -109,7 +113,10 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    # train <- train[!train$subclass %in% c(7, 10, 11, 26, 33), ]     # try this. Nope.
    
    
+   t <- length(levels(train$subclass))
    train$subclass <- droplevels(train$subclass)
+   msg(paste0(length(levels(train$subclass)) - t, ' levels dropped because of missing values'), lf)
+   
    model <- reformulate(names(train)[-1], 'subclass')
    
    a <- Sys.time()
@@ -118,7 +125,7 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    
    import <- varImp(z)
-   import <<- import
+
    
    plot(import)
    
@@ -138,6 +145,7 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    the$fit$train <- train
    the$fit$validate <- validate
    the$fit$confuse <- confuse
+   the$fit$import <- import
 
    ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
    f <- file.path(the$modelsdir, paste0('fit_', the$site, '_', ts(now()), '.RDS'))

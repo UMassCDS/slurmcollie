@@ -1,0 +1,90 @@
+---
+title: "Preliminary random forest results"
+author: "Brad Compton"
+date: "`r Sys.Date()`"
+output: html_document
+---
+<style>
+/* Limit body text width, center paragraphs and lists */
+.main-container p,
+.main-container ul,
+.main-container ol,
+.main-container blockquote {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Do NOT constrain code output or code blocks */
+.main-container pre,
+.main-container pre.r,
+.main-container code,
+.main-container .r-output {
+  max-width: none !important;
+}
+</style>
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, comment = NA)
+fit <- readRDS('c:/work/etc/saltmarsh/models/fit_oth_2025-Apr-24_15-45.RDS')
+```
+
+## Initial results
+
+These results are brand-new: I did my first random forest model run on April 23. I've only run a small 
+handful of models for one site, Old Town Hill. Here are some results of a representative run. I'm 
+surprised at how well they're fitting--correct classification rates are in the mid-90s, which is superb
+for a start.
+
+
+```{r}
+print(fit$confuse)
+```
+
+## Variable importance
+
+This plot summarizes overall variable importance. Only the most important 20 variables are shown; as you can 
+see, a handful of variables do the heavy lifting, and several are likely not worth including.
+
+```{r, echo = FALSE, out.width="100%"}
+plot(fit$import)
+```
+
+
+## Comments and caveats
+1. These results are super-preliminary. I expect model fits will generally improve as I refine models.
+2. These models are based on only 20% of the field points (mostly because I wanted fitting to run fast during
+   development).
+3. I built the models on 80% of the selected data points (so 80% of 20% of all pixels in field transects), and 
+   held out 20% of points for validation. All stats are based on the holdout validation set.
+4. I haven't tackled spatial autocorrelation yet. I'm concerned that autocorrelation could be contaminating
+   the holdout sets. This may not be a thing, but I want to be sure.
+5. I've done some minimal tuning of hyperparmeters, but will do more.
+6. Field-based transects are not representative, as several classes were photointerpreted in the lab to get
+   sample sizes up. I'm currently balancing representation, as we don't have true representation. I want to
+   either drop PI-based data and use field-based representation or, better, weight cases by field-based 
+   representation.
+7. I'm currently ignoring the years field transects and UAS imagery were collected. Will probably want to
+   put some effort into matching them up better (or at least let the data tell us if they matter).
+
+## Next steps
+1. Add derived variables such as NDVI, NWDI, NDRE.
+2. Try upscaling varaibles by taking focal mean, SD, IQR, maybe 10th and 90th percentile.
+3. Assess spatial autocorrelation and decide how sparsely we need to sample the data. Run with more complete
+   datasets if that's the thing to do.
+4. Try targeting subsets of classes and then spit these in subsequent models to see if that improves fits.
+5. Try alternatives to random forest. I'm currently thinking of trying AdaBoost, but there are other options.
+   I'm using the `caret` framework, which makes it easy to switch modeling approaches, and there are hundreds
+   of choices.
+6. Write the model launching and tracking framework I've envisioned, which will make it easy to launch models
+   in parallel as batch processes on Unity, and track model results over time. This will make it possible to 
+   run many different models and do preliminary evaluation without producing maps of results. It'll then be 
+   straightforward to produce maps of promising models.
+7. Make data sampling more flexible.
+8. Implement a macro naming system for variables so we can use common names across sites (e.g., 
+   `21Aug20_OTH_MidOut_SWIR_Ortho` from Old Town Hill and `17Sep22_RED_Mid_SWIR_Ortho` from Red River could both be 
+   referred to as `Late_Mid_SWID_Ortho`.
+9. Produce models for other sites as Ryan finishes preparing transect data. Peggoty, Red River, Wellfleet,
+   and Westport should be ready soon.
