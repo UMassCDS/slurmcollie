@@ -142,5 +142,6 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
    f <- file.path(the$modelsdir, paste0('fit_', ts(now())))
    saveRDS(the$fit, f)
+   msg(paste0('Fit saved to ', f), lf)
    
 }
