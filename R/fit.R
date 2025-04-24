@@ -93,11 +93,11 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    switch(method, 
           'rf' = {
              meth <- 'ranger'
-             control <- trainControl(allowParallel = TRUE)                     # controls for random forests
+             control <- trainControl(allowParallel = TRUE)                          # controls for random forests
           },
           'boost' = {
              meth <- 'adaboost'
-             control <- trainControl()                                                         # conrols for AdaBoost
+             control <- trainControl()                                              # conrols for AdaBoost
           }
    )  
    
@@ -127,16 +127,20 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    y <- predict(z, newdata = validate)
    
    confuse <- confusionMatrix(validate$subclass, y)
-   kappa <- confuse$overall['Kappa']                           # can pull stats like this
+   kappa <- confuse$overall['Kappa']                                             # can pull stats like this
    
    cat('\n')
    print(confuse)
    
-   training <<- train
-   vaidation <<- validate
-   zz <<- z
-   confuse <<- confuse
-   yy <<- y
    
+   the$fit$fit <- z                                                              # save most recent fit
+   the$fit$pred <- y
+   the$fit$train <- train
+   the$fit$validate <- validate
+   the$fit$confuse <- confuse
+
+   ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
+   f <- file.path(the$modelsdir, paste0('fit_', ts(now())))
+   saveRDS(the$fit, f)
    
 }
