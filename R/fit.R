@@ -140,7 +140,8 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    the$fit$confuse <- confuse
 
    ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
-   f <- file.path(the$modelsdir, paste0('fit_', ts(now())))
+   f <- file.path(the$modelsdir, paste0('fit_', the$site, '_', ts(now()), '.RDS'))
    saveRDS(the$fit, f)
+   msg(paste0('Fit saved to ', f), lf)
    
 }
