@@ -22,6 +22,6 @@ if(FALSE) {
    
    rasters <- rasters[[names(rasters) %in% names(the$fit$fit$trainingData)[-1]]]      # drop bands we don't want
    
-   peakRAM(predicted <- terra::predict(rasters, zz, cores = 20, filename = file.path(rpath, 'predicted.tif'), overwrite = TRUE))
+   peakRAM(predicted <- terra::predict(rasters, the$fit$fit, cores = 20, filename = file.path(rpath, 'predicted.tif'), overwrite = TRUE))
    
 }
