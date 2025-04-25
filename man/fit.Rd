@@ -9,6 +9,8 @@ fit(
   datafile = the$datafile,
   method = "rf",
   vars = NULL,
+  years = NULL,
+  maxmissing = 0.05,
   reread = FALSE,
   holdout = 0.2
 )
@@ -25,6 +27,11 @@ will be set by the first call of \code{fit}; it may also be set directly.}
 
 \item{vars}{An optional list of variables to restrict analysis to. Default = NULL,
 all variables.}
+
+\item{years}{An optional vector of years to restrict variables to.}
+
+\item{maxmissing}{Maximum proportion of missing training points allowed before a
+variable is dropped.}
 
 \item{reread}{If TRUE, forces reread of datafile.}
 

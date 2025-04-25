@@ -8,7 +8,7 @@
 #' @param method One of `rf` for Random Forest, `boost` for AdaBoost. Default = `rf`.
 #' @param vars An optional list of variables to restrict analysis to. Default = NULL, 
 #'    all variables.
-#' @oaram years An optional vector of years to restrict variables to.
+#' @param years An optional vector of years to restrict variables to.
 #' @param maxmissing Maximum proportion of missing training points allowed before a 
 #'    variable is dropped.
 #' @param reread If TRUE, forces reread of datafile.
@@ -128,7 +128,7 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    model <- reformulate(names(train)[-1], 'subclass')
    
-   msg(paste0('Training set has ', dim(train)[2], ' variables and ', dim(train[1]), ' cases'), lf)
+   msg(paste0('Training set has ', dim(train)[2], ' variables and ', dim(train)[1], ' cases'), lf)
    
    a <- Sys.time()
    z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity')

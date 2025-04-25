@@ -48,7 +48,7 @@ site, number of X vars, and strategy.}
 \item{drop_corr}{Drop one of any pair of variables with correlation more than \code{drop_corr}.}
 
 \item{reuse}{Reuse the named file (ending in \verb{_all.txt}) from previous run, rather
-than resampling. Saves a lot of time if you're changing \code{n}, \code{p}, \code{d}, \code{balance},
+than resampling. Saves a whole lot of time if you're changing \code{n}, \code{p}, \code{d}, \code{balance},
 \code{balance_excl}, or \code{drop_corr}.}
 }
 \value{
