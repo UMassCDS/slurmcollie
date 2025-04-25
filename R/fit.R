@@ -30,10 +30,6 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    lf <- file.path(the$modelsdir, paste0('fit_', site, '.log'))                     # set up logging
    
-   cat('the$site = ', the$site, '\n')
-   cat('the$datafile = ', the$datfile, '\n')
-   
-   
    if(is.null(site) & is.null(the$site))
       stop('Site name isn\'t already specified; it must be set with the site option')
    
@@ -54,7 +50,7 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
       if(is.null(datafile))
          datafile <- 'data.RDS'
       the$datafile <- datafile
-      cat('the$datafile set to ', the$datafile, '\n')
+      
       df <- file.path(resolve_dir(the$samplesdir, tolower(site)), the$datafile)
       if(!file.exists(df))
          stop('Datafile ', df, ' does not exist')
@@ -131,6 +127,8 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    msg(paste0(length(levels(train$subclass)) - t, ' levels dropped because of missing values'), lf)
    
    model <- reformulate(names(train)[-1], 'subclass')
+   
+   msg(paste0('Training set has ', dim(train)[2], ' variables and ', dim(train[1]), ' cases'), lf)
    
    a <- Sys.time()
    z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity')
