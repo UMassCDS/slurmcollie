@@ -8,8 +8,9 @@
 #' @param method One of `rf` for Random Forest, `boost` for AdaBoost. Default = `rf`.
 #' @param vars An optional list of variables to restrict analysis to. Default = NULL, 
 #'    all variables.
+#' @oaram years An optional vector of years to restrict variables to.
 #' @param maxmissing Maximum proportion of missing training points allowed before a 
-#'    varialbe is dropped.
+#'    variable is dropped.
 #' @param reread If TRUE, forces reread of datafile.
 #' @param holdout Proportion of points to hold out. For Random Forest, this specifies 
 #'    the size of the single validation set, while for boosting, it is the size of each
@@ -24,7 +25,7 @@
 
 
 fit <- function(site = the$site, datafile = the$datafile, method = 'rf', 
-                vars = NULL, maxmissing = 0.05, reread = FALSE, holdout = 0.2) {
+                vars = NULL, years = NULL, maxmissing = 0.05, reread = FALSE, holdout = 0.2) {
    
    
    lf <- file.path(the$modelsdir, paste0('fit_', site, '.log'))                     # set up logging
@@ -73,9 +74,21 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    
    
-   if(!is.null(vars)) {                                                             # restrict to selected variables
+   if(!is.null(vars)) {                                                             # if restricting to selected variables,
       x <- x[, names(x) %in% c('subclass', vars)]
-      msg(paste0('Analysis limited to ', length(names(x)) - 1, ' variables'), lf)
+      msg(paste0('Analysis limited to ', length(names(x)) - 1, ' selected variables'), lf)
+   }
+   
+   
+   if(!is.null(years)) {                                                            # if restricting to selected years,
+      d <- stringr::str_extract(names(x), '^X*\\d+[a-zA-Z]{3}\\d+_') |>               #    extract substring with year
+         stringr::str_extract('\\d+_') |>                                        #    and year with underscore                                          
+         sub(pattern = '_', replacement = '') |>
+         as.numeric()
+      d <- d + (d < 2000) * 2000
+      d <- d %in% years 
+      x <- x[, c(TRUE, d[-1])]
+      msg(paste0('Analysis limited to ', length(names(x)) - 1, ' variables by year'), lf)
    }
    
    
@@ -125,7 +138,7 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    
    import <- varImp(z)
-
+   
    
    plot(import)
    
@@ -146,7 +159,7 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    the$fit$validate <- validate
    the$fit$confuse <- confuse
    the$fit$import <- import
-
+   
    ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
    f <- file.path(the$modelsdir, paste0('fit_', the$site, '_', ts(now()), '.RDS'))
    saveRDS(the$fit, f)

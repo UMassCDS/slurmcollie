@@ -32,7 +32,7 @@
 #'    balancing. Include classes with low samples we don't care much about.
 #' @param drop_corr Drop one of any pair of variables with correlation more than `drop_corr`.
 #' @param reuse Reuse the named file (ending in `_all.txt`) from previous run, rather
-#'    than resampling. Saves a lot of time if you're changing `n`, `p`, `d`, `balance`, 
+#'    than resampling. Saves a whole lot of time if you're changing `n`, `p`, `d`, `balance`, 
 #'    `balance_excl`, or `drop_corr`.
 #' @param result Name of result file. If not specified, file will be constructed from
 #'    site, number of X vars, and strategy.
@@ -76,42 +76,51 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL,
    allsites <- read_pars_table('sites')                                          # site names from abbreviations to paths
    sites <- allsites[match(tolower(site), tolower(allsites$site)), ]
    
-   f <- resolve_dir(the$fielddir, tolower(sites$site))                           # get field transects
-   if(is.null(transects))
-      transects <- 'transects.tif'
-   field <- rast(file.path(f, transects))
+   result <- 'data'   # will tart this up
+   sd <- resolve_dir(the$samplesdir, tolower(sites$site))
    
-   
-   if(!is.null(classes))
-      field <- subst(field, from = classes, to = classes, others = NA)           # select classes in transect
-   
-   fl <- resolve_dir(the$flightsdir, tolower(sites$site))
-   xvars <- list.files(fl, pattern = '.tif$')
-   msg(paste0('Sampling ', length(xvars), ' variables'), lf)
-   
-   sel <- !is.na(field)                                                          # cells with field samples
-   nrows <- as.numeric(global(sel, fun = 'sum', na.rm = TRUE))                   # total sample size
-   z <- data.frame(field[sel])                                                   # result is expected to be ~4 GB for 130 variables
-   names(z)[1] <- 'subclass'
-   
-   
-   pr <- progressor(along = xvars)
-   for(xv in xvars) {                                                            # for each predictor variable,
-      pr()
-      x <- rast(file.path(fl, xv))
-      z[, names(x)] <- x[sel]
+   if(reuse) {
+      z <- readRDS(f2 <- file.path(sd, paste0(result, '_all.RDS')))
+      msg(paste0('Reusing dataset ', f2), logfile = lf)
    }
    
-   z <- round(z, 2)                                                              # round to 2 digits, which seems like plenty
-   
-   result <- 'data'   # will tart this up
-   
-   sd <- resolve_dir(the$samplesdir, tolower(sites$site))
-   if(!dir.exists(sd))
-      dir.create(sd, recursive = TRUE)
-   write.table(z, f <- file.path(sd, paste0(result, '_all.txt')), sep = '\t', quote = FALSE, row.names = FALSE)
-   saveRDS(z, f2 <- file.path(sd, paste0(result, '_all.RDS')))
-   msg(paste0('Complete dataset saved to ', f, ' and ', f2), logfile = lf)
+   else {
+      
+      f <- resolve_dir(the$fielddir, tolower(sites$site))                           # get field transects
+      if(is.null(transects))
+         transects <- 'transects.tif'
+      field <- rast(file.path(f, transects))
+      
+      
+      if(!is.null(classes))
+         field <- subst(field, from = classes, to = classes, others = NA)           # select classes in transect
+      
+      fl <- resolve_dir(the$flightsdir, tolower(sites$site))
+      xvars <- list.files(fl, pattern = '.tif$')
+      msg(paste0('Sampling ', length(xvars), ' variables'), lf)
+      
+      sel <- !is.na(field)                                                          # cells with field samples
+      nrows <- as.numeric(global(sel, fun = 'sum', na.rm = TRUE))                   # total sample size
+      z <- data.frame(field[sel])                                                   # result is expected to be ~4 GB for 130 variables
+      names(z)[1] <- 'subclass'
+      
+      
+      pr <- progressor(along = xvars)
+      for(xv in xvars) {                                                            # for each predictor variable,
+         pr()
+         x <- rast(file.path(fl, xv))
+         z[, names(x)] <- x[sel]
+      }
+      
+      z <- round(z, 2)                                                              # round to 2 digits, which seems like plenty
+      
+      
+      if(!dir.exists(sd))
+         dir.create(sd, recursive = TRUE)
+      write.table(z, f <- file.path(sd, paste0(result, '_all.txt')), sep = '\t', quote = FALSE, row.names = FALSE)
+      saveRDS(z, f2 <- file.path(sd, paste0(result, '_all.RDS')))
+      msg(paste0('Complete dataset saved to ', f, ' and ', f2), logfile = lf)
+   }
    
    
    if(balance) {                                                                 # if balancing smaples,
