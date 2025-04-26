@@ -8,6 +8,7 @@
 #' @param method One of `rf` for Random Forest, `boost` for AdaBoost. Default = `rf`.
 #' @param vars An optional list of variables to restrict analysis to. Default = NULL, 
 #'    all variables.
+#' @param exclude An optional vector of variables to exclude.
 #' @param years An optional vector of years to restrict variables to.
 #' @param maxmissing Maximum proportion of missing training points allowed before a 
 #'    variable is dropped.
@@ -25,7 +26,8 @@
 
 
 fit <- function(site = the$site, datafile = the$datafile, method = 'rf', 
-                vars = NULL, years = NULL, maxmissing = 0.05, reread = FALSE, holdout = 0.2) {
+                vars = NULL, exclude = NULL, years = NULL, maxmissing = 0.05, 
+                reread = FALSE, holdout = 0.2) {
    
    
    lf <- file.path(the$modelsdir, paste0('fit_', site, '.log'))                     # set up logging
@@ -72,13 +74,19 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    if(!is.null(vars)) {                                                             # if restricting to selected variables,
       x <- x[, names(x) %in% c('subclass', vars)]
-      msg(paste0('Analysis limited to ', length(names(x)) - 1, ' selected variables'), lf)
+      msg(paste0('Analysis limited to ', length(names(x)) - 1, 
+                 ' selected variables'), lf)
    }
    
+   if(!is.null(vars)) {
+      x <- x[, !names(x) %in% exclude]                                              # if excluding variables,
+      msg(paste0('Analysis limited to ', length(names(x)) - 1, 
+                 ' variables after exclusions'), lf)
+   }
    
    if(!is.null(years)) {                                                            # if restricting to selected years,
-      d <- stringr::str_extract(names(x), '^X*\\d+[a-zA-Z]{3}\\d+_') |>               #    extract substring with year
-         stringr::str_extract('\\d+_') |>                                        #    and year with underscore                                          
+      d <- stringr::str_extract(names(x), '^X*\\d+[a-zA-Z]{3}\\d+_') |>             #    extract substring with year
+         stringr::str_extract('\\d+_') |>                                           #    and year with underscore                                          
          sub(pattern = '_', replacement = '') |>
          as.numeric()
       d <- d + (d < 2000) * 2000

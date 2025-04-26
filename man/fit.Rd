@@ -9,6 +9,7 @@ fit(
   datafile = the$datafile,
   method = "rf",
   vars = NULL,
+  exclude = NULL,
   years = NULL,
   maxmissing = 0.05,
   reread = FALSE,
@@ -27,6 +28,8 @@ will be set by the first call of \code{fit}; it may also be set directly.}
 
 \item{vars}{An optional list of variables to restrict analysis to. Default = NULL,
 all variables.}
+
+\item{exclude}{An optional vector of variables to exclude.}
 
 \item{years}{An optional vector of years to restrict variables to.}
 
