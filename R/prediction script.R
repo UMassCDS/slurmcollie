@@ -7,7 +7,7 @@ if(FALSE) {
    
    
    #fit('oth', years = 2019:2020, reread = TRUE)
-   fit('oth', exclude = c('OTH_Aug_CHM_CSF2012_Thin25cm_TriNN8cm.tif'), reread = TRUE)
+   fit('oth', exclude = c('OTH_Aug_CHM_CSF2012_Thin25cm_TriNN8cm.tif', 'Band.tif', 'Band_1.tif'), reread = TRUE)
    # fit('oth', vars = pickvars(40))
    # the$fit <- readRDS('/work/pi_cschweik_umass_edu/marsh_mapping/models/fit_2025-Apr-24_16-08')
    

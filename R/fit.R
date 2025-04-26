@@ -78,8 +78,8 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
                  ' selected variables'), lf)
    }
    
-   if(!is.null(vars)) {
-      x <- x[, !names(x) %in% exclude]                                              # if excluding variables,
+   if(!is.null(exclude)) {                                                          # if excluding variables,
+      x <- x[, !names(x) %in% exclude]                                              
       msg(paste0('Analysis limited to ', length(names(x)) - 1, 
                  ' variables after exclusions'), lf)
    }
