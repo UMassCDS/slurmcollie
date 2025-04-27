@@ -12,6 +12,7 @@
 #' @param years An optional vector of years to restrict variables to.
 #' @param maxmissing Maximum proportion of missing training points allowed before a 
 #'    variable is dropped.
+#' @param top_importance Give number of variables to keep for varaible importance.
 #' @param reread If TRUE, forces reread of datafile.
 #' @param holdout Proportion of points to hold out. For Random Forest, this specifies 
 #'    the size of the single validation set, while for boosting, it is the size of each
@@ -27,7 +28,7 @@
 
 fit <- function(site = the$site, datafile = the$datafile, method = 'rf', 
                 vars = NULL, exclude = NULL, years = NULL, maxmissing = 0.05, 
-                reread = FALSE, holdout = 0.2) {
+                top_importance = 20, reread = FALSE, holdout = 0.2) {
    
    
    lf <- file.path(the$modelsdir, paste0('fit_', site, '.log'))                     # set up logging
@@ -146,8 +147,7 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    
    import <- varImp(z)
-   
-   
+   import$importance <- import$importance[order(import$importance$Overall, decreasing = TRUE), , drop = FALSE][1:top_importance, , drop = FALSE]
    plot(import)
    
    validate <- validate[complete.cases(validate), ]
