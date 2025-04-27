@@ -114,6 +114,10 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL,
       
       names(z) <- sub('^(\\d)', 'X\\1', names(z))                                   # add an X to the start of names that begin with a digit
       
+      t <- data.frame(apply(z, MARGIN = 2, FUN = as.vector))                        # fix crazy shit with one-column matrices ending up in data frame. I don't understand what happened.
+      names(t) <- names(z)
+      z <- t
+      
       z <- round(z, 2)                                                              # round to 2 digits, which seems like plenty
       
       

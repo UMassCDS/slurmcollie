@@ -36,7 +36,7 @@ if(FALSE) {
    # clip <- ext(c(-70.86452506, -70.86040917, 42.76976948, 42.77283781))                # larger clip
    rasters <- crop(rasters, clip)
    
-   peakRAM(predicted <- terra::predict(rasters, the$fit$fit, cores = 18, filename = file.path(rpath, 'predicted3.tif'), overwrite = TRUE, na.rm = TRUE))
+   peakRAM(predicted <- terra::predict(rasters, the$fit$fit, cores = 18, filename = file.path(rpath, 'predicted4.tif'), overwrite = TRUE, na.rm = TRUE))
    f <- file.path(rpath, paste0('predict_', the$site, '_', ts(now()), '.RDS'))
    saveRDS(predicted, f)
    
