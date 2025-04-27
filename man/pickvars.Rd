@@ -4,7 +4,7 @@
 \alias{pickvars}
 \title{pick variables based on importance >= n}
 \usage{
-pickvars(n, importance = import)
+pickvars(n, importance = the$fit$import)
 }
 \arguments{
 \item{n}{Cutoff value for variable importance.}

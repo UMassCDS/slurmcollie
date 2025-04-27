@@ -4,7 +4,7 @@
 #' @param importance Variable importance object from `fit` 
 
 
-pickvars <- function(n, importance = import) {
+pickvars <- function(n, importance = the$fit$import) {
    
    
    row.names(importance$importance)[importance$importance >= n]

@@ -21,7 +21,8 @@ Imports:
     dplyr,
     progressr,
     caret, 
-    ranger
+    ranger,
+    stringr
 Encoding: UTF-8
 Language: en-US
 LazyData: trued

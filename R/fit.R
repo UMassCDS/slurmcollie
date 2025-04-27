@@ -21,6 +21,7 @@
 #' @import ranger
 #' @importFrom stats complete.cases predict reformulate
 #' @importFrom lubridate interval as.duration
+#' @importFrom stringr str_extract
 #### ' @import fastAdaboost
 #' @export
 
@@ -78,8 +79,7 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
                  ' selected variables'), lf)
    }
    
-   print(length(names(x)) - 1)
-   
+
    if(!is.null(exclude)) {                                                          # if excluding variables,
       x <- x[, !names(x) %in% exclude]                                              
       msg(paste0('Analysis limited to ', length(names(x)) - 1, 
