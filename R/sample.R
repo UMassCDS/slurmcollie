@@ -52,7 +52,7 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL,
    
    
    handlers(global = TRUE)
-   lf <- file.path(the$modelsdir, paste0('sample_', site, '.log'))               # set up logging
+   lf <- file.path(the$modelsdir, paste0('sample_', site, '.log'))                  # set up logging
    
    
    if(sum(!is.null(n), !is.null(p), !is.null(d)) != 1)
@@ -73,7 +73,7 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL,
       msg(paste0('d = ', d), lf)
    
    
-   allsites <- read_pars_table('sites')                                          # site names from abbreviations to paths
+   allsites <- read_pars_table('sites')                                             # site names from abbreviations to paths
    sites <- allsites[match(tolower(site), tolower(allsites$site)), ]
    
    result <- 'data'   # will tart this up
@@ -112,6 +112,8 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL,
          z[, names(x)] <- x[sel]
       }
       
+      names(z) <- sub('^(\\d)', 'X\\1', names(z))                                   # add an X to the start of names that begin with a digit
+      
       z <- round(z, 2)                                                              # round to 2 digits, which seems like plenty
       
       
@@ -123,25 +125,25 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL,
    }
    
    
-   if(balance) {                                                                 # if balancing smaples,
+   if(balance) {                                                                    # if balancing smaples,
       counts <- table(z$subclass)
-      counts <- counts[!as.numeric(names(counts)) %in% balance_excl]             #    excluding classe in balance_ex,l
+      counts <- counts[!as.numeric(names(counts)) %in% balance_excl]                #    excluding classe in balance_ex,l
       target_n <- min(counts)
       
       z <- group_by(z, subclass) |>
-         slice_sample(n = target_n)                                              #    take minimum subclass n for every class
+         slice_sample(n = target_n)                                                 #    take minimum subclass n for every class
    }
    
-   if(!is.null(d))                                                               #    if sampling by mean distance,
-      p <- 1 / (d + 1) ^ 2                                                       #       set proportion
+   if(!is.null(d))                                                                  #    if sampling by mean distance,
+      p <- 1 / (d + 1) ^ 2                                                          #       set proportion
    
-   if(!is.null(p))                                                               #    if sampling by proportion,
-      n <- p * dim(z)[1]                                                         #       set n to proportion
+   if(!is.null(p))                                                                  #    if sampling by proportion,
+      n <- p * dim(z)[1]                                                            #       set n to proportion
    
-   z <- z[base::sample(dim(z)[1], size = n, replace = FALSE), ]                  #    sample points
+   z <- z[base::sample(dim(z)[1], size = n, replace = FALSE), ]                     #    sample points
    
    
-   if(!is.null(drop_corr)) {                                                     #----drop_corr option: drop correlated variables
+   if(!is.null(drop_corr)) {                                                        #----drop_corr option: drop correlated variables
       cat('Correlations before applying drop_corr:\n')
       corr <- cor(z, use = 'pairwise.complete.obs')
       print(summary(corr[upper.tri(corr)]))
