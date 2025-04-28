@@ -12,6 +12,7 @@ fit(
   exclude = NULL,
   years = NULL,
   maxmissing = 0.05,
+  top_importance = 20,
   reread = FALSE,
   holdout = 0.2
 )
@@ -35,6 +36,8 @@ all variables.}
 
 \item{maxmissing}{Maximum proportion of missing training points allowed before a
 variable is dropped.}
+
+\item{top_importance}{Give number of variables to keep for varaible importance.}
 
 \item{reread}{If TRUE, forces reread of datafile.}
 

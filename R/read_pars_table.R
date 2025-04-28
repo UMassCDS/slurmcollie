@@ -5,7 +5,7 @@
 #' @param name Parameter name
 #' @returns Data frame of the parameter file
 #' @importFrom utils read.table
-#' @keywords internal
+#' @export
 
 
 read_pars_table <- function(name) {
