@@ -139,10 +139,12 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    model <- reformulate(names(train)[-1], 'subclass')
    
-   msg(paste0('Training set has ', dim(train)[2], ' variables and ', dim(train)[1], ' cases'), lf)
+   msg(paste0('Training set has ', dim(train)[2] - 1, ' predictor variables and ', dim(train)[1], ' cases'), lf)
    
    a <- Sys.time()
-   z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity')
+   z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity')             #---train the model
+ #    z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity', tuneGrid = expand.grid(.mtry = 1, .splitrule = 'gini', .min.node.size = c(10, 20)))
+
    msg(paste0('Elapsed time for training = ',  as.duration(round(interval(a, Sys.time())))), lf)
    
    
