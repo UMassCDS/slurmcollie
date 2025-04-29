@@ -30,16 +30,14 @@ max-width: none !important;
 knitr::opts_chunk$set(echo = FALSE, comment = NA)
 
 modelsdir <- 'C:/Work/etc/saltmarsh/models/' 
-predictdir <- 'c:/Work/etc/saltmarsh/data/oth/gis/predicted'
-# model <- 'fit_oth_2025-Apr-25_15-52' # orig
-# predicted <- 'predicted'
-
-model <- 'fit_oth_2025-Apr-28_13-54'         # better model: all vars for 2018-2021
-predicted <- 'predict_oth_2025-Apr-28_13-54'
-
+# model <- 'fit_oth_2025-Apr-25_15-52'                            # orig
+model <- 'fit_oth_2025-Apr-28_13-54'                              # better model: all vars for 2018-2021
 model_fit <- readRDS(file.path(modelsdir, paste0(model, '.RDS')))
-prediction <- terra::rast(file.path(predictdir, paste0(predicted, '.tif')))
 
+predictdir <- 'c:/Work/etc/saltmarsh/data/oth/gis/predicted'
+# predicted <- 'predicted'                                        # orig
+predict <- 'predict_oth_2025-Apr-28_13-54'
+prediction <- terra::rast(file.path(predictdir, paste0(predict, '.tif')))
 ```
 
 ## Initial results
@@ -64,7 +62,7 @@ print(model_fit$confuse)
 ```
 #### Note
 
-See the Appendix for a list of subclasses (called "class" in the table) and their names.
+See the Appendix for a list of subclasses ("class" in the stats table above).
 
 #### Explanations
 

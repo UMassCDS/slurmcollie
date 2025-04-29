@@ -80,7 +80,7 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
                  ' selected variables'), lf)
    }
    
-
+   
    if(!is.null(exclude)) {                                                          # if excluding variables,
       x <- x[, !names(x) %in% exclude]                                              
       msg(paste0('Analysis limited to ', length(names(x)) - 1, 
@@ -117,62 +117,69 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    switch(method, 
           'rf' = {
              meth <- 'ranger'
-             control <- trainControl(allowParallel = TRUE)                          # controls for random forests
-          },
-          'boost' = {
-             meth <- 'adaboost'
-             control <- trainControl()                                              # conrols for AdaBoost
-          }
+             #    control <- trainControl(allowParallel = TRUE,)                          # controls for random forests
+             control <- trainControl(                                      # this version allows calculating AUC. Not sure if it's worth it.
+                allowParallel = TRUE,
+                method = "cv",
+                number = 5,
+                classProbs = TRUE,
+                savePredictions = "final"
+             )
+   },
+   'boost' = {
+      meth <- 'adaboost'
+      control <- trainControl()                                              # conrols for AdaBoost
+   }
    )  
-   
-   # tuning ...
-   
-   train <- train[complete.cases(train), ]                        # wtf?
-   # na.action = 'na.omit' fails, but na.learn fails. Maybe impute values? Some vars are missing for half of site. Some subclasses have no complete rows.
-   # all I can make work so far is using complete cases
-   # train <- train[!train$subclass %in% c(7, 10, 11, 26, 33), ]     # try this. Nope.
-   
-   
-   t <- length(levels(train$subclass))
-   train$subclass <- droplevels(train$subclass)
-   msg(paste0(length(levels(train$subclass)) - t, ' levels dropped because of missing values'), lf)
-   
-   model <- reformulate(names(train)[-1], 'subclass')
-   
-   msg(paste0('Training set has ', dim(train)[2] - 1, ' predictor variables and ', dim(train)[1], ' cases'), lf)
-   
-   a <- Sys.time()
-   z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity')             #---train the model
- #    z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity', tuneGrid = expand.grid(.mtry = 1, .splitrule = 'gini', .min.node.size = c(10, 20)))
 
-   msg(paste0('Elapsed time for training = ',  as.duration(round(interval(a, Sys.time())))), lf)
-   
-   
-   import <- varImp(z)
-   import$importance <- import$importance[order(import$importance$Overall, decreasing = TRUE), , drop = FALSE][1:top_importance, , drop = FALSE]
-   plot(import)
-   
-   validate <- validate[complete.cases(validate), ]
-   validate$subclass <- droplevels(validate$subclass)
-   y <- predict(z, newdata = validate)
-   
-   confuse <- confusionMatrix(validate$subclass, y)
-   kappa <- confuse$overall['Kappa']                                             # can pull stats like this
-   
-   cat('\n')
-   print(confuse)
-   
-   
-   the$fit$fit <- z                                                              # save most recent fit
-   the$fit$pred <- y
-   the$fit$train <- train
-   the$fit$validate <- validate
-   the$fit$confuse <- confuse
-   the$fit$import <- import
-   
-   ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
-   f <- file.path(the$modelsdir, paste0('fit_', the$site, '_', ts(now()), '.RDS'))
-   saveRDS(the$fit, f)
-   msg(paste0('Fit saved to ', f), lf)
-   
+# tuning ...
+
+train <- train[complete.cases(train), ]                        # wtf?
+# na.action = 'na.omit' fails, but na.learn fails. Maybe impute values? Some vars are missing for half of site. Some subclasses have no complete rows.
+# all I can make work so far is using complete cases
+# train <- train[!train$subclass %in% c(7, 10, 11, 26, 33), ]     # try this. Nope.
+
+
+t <- length(levels(train$subclass))
+train$subclass <- droplevels(train$subclass)
+msg(paste0(length(levels(train$subclass)) - t, ' levels dropped because of missing values'), lf)
+
+model <- reformulate(names(train)[-1], 'subclass')
+
+msg(paste0('Training set has ', dim(train)[2] - 1, ' predictor variables and ', dim(train)[1], ' cases'), lf)
+
+a <- Sys.time()
+z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity')             #---train the model
+#    z <- train(model, data = train, method = meth, trControl = control, num.threads = 0, importance = 'impurity', tuneGrid = expand.grid(.mtry = 1, .splitrule = 'gini', .min.node.size = c(10, 20)))
+
+msg(paste0('Elapsed time for training = ',  as.duration(round(interval(a, Sys.time())))), lf)
+
+
+import <- varImp(z)
+import$importance <- import$importance[order(import$importance$Overall, decreasing = TRUE), , drop = FALSE][1:top_importance, , drop = FALSE]
+plot(import)
+
+validate <- validate[complete.cases(validate), ]
+validate$subclass <- droplevels(validate$subclass)
+y <- predict(z, newdata = validate)
+
+confuse <- confusionMatrix(validate$subclass, y)
+kappa <- confuse$overall['Kappa']                                             # can pull stats like this
+
+cat('\n')
+print(confuse)
+
+
+the$fit$fit <- z                                                              # save most recent fit
+the$fit$pred <- y
+the$fit$train <- train
+the$fit$validate <- validate
+the$fit$confuse <- confuse
+the$fit$import <- import
+
+ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
+f <- file.path(the$modelsdir, paste0('fit_', the$site, '_', ts(now()), '.RDS'))
+saveRDS(the$fit, f)
+msg(paste0('Fit saved to ', f), lf)
+
 }
