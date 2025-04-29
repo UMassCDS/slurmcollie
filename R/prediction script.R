@@ -18,7 +18,7 @@ if(FALSE) {
 #   
    the$fit <- readRDS('/work/pi_cschweik_umass_edu/marsh_mapping/models/fit_oth_2025-Apr-28_13-54.RDS')   # read fit for 2018-2021
    #fit('oth', years = 2018:2021, reread = TRUE, vars = rownames(the$fit$import$importance)[1:40])
-   fit('oth', years = 2018:2021, reread = TRUE, vars = 'X04Aug21_OTH_Low_SWIR_1')
+#   fit('oth', years = 2018:2021, reread = TRUE, vars = 'X04Aug21_OTH_Low_SWIR_1')
    
    
 ###   fit('oth', reread = TRUE)
@@ -46,8 +46,8 @@ if(FALSE) {
    
    rasters <- rasters[[names(rasters) %in% names(the$fit$fit$trainingData)[-1]]]       # drop bands we don't want
    
-    clip <- ext(c(-70.86254419, -70.86135362, 42.77072136, 42.7717978))               # small clip
-   # clip <- ext(c(-70.86452506, -70.86040917, 42.76976948, 42.77283781))                # larger clip: 38 min, 69 GB
+   # clip <- ext(c(-70.86254419, -70.86135362, 42.77072136, 42.7717978))               # small clip
+    clip <- ext(c(-70.86452506, -70.86040917, 42.76976948, 42.77283781))                # larger clip: 38 min, 69 GB
     rasters <- crop(rasters, clip)
    
     

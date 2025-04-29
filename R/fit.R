@@ -101,6 +101,7 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    
    x <- x[, c(TRUE, colSums(is.na(x[, -1])) / dim(x)[1] <= maxmissing)]             # drop variables with too many missing values
    
+   x$subclass <- as.factor(paste0('class', x$subclass))                            ########################## temporary - can't use numbers for factors when doing classProbs in train
    
    n_partitions <- switch(method, 
                           'rf' = 1,                                                 # random forest uses a single validation set,
