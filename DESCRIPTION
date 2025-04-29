@@ -22,7 +22,8 @@ Imports:
     progressr,
     caret, 
     ranger,
-    stringr
+    stringr,
+    pROC
 Encoding: UTF-8
 Language: en-US
 LazyData: trued

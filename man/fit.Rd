@@ -37,7 +37,7 @@ all variables.}
 \item{maxmissing}{Maximum proportion of missing training points allowed before a
 variable is dropped.}
 
-\item{top_importance}{Give number of variables to keep for varaible importance.}
+\item{top_importance}{Give number of variables to keep for variable importance.}
 
 \item{reread}{If TRUE, forces reread of datafile.}
 
