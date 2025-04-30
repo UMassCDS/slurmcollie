@@ -1,11 +1,13 @@
-# Read a predict grid and plot it nicely
+#' Read a predict grid and plot it nicely
+#' @param tiff A predicted geoTIFF
+#' @param pal Selected palette
+#' @importFrom terra rast plot
+#' @importFrom paletteer paletteer_d
+#' @export 
 
 plot_predict <- function(tiff = 'C:/Work/etc/saltmarsh/data/oth/gis/predicted/predict_oth_2025-Apr-28_13-54.tif',
                          pal = 'ggsci::category20b_d3') {
    
-   
-   library(terra)
-   library(paletteer)
    
    pal <- paletteer::paletteer_d(pal)
    

@@ -21,9 +21,11 @@ Imports:
     dplyr,
     progressr,
     caret, 
-    ranger,
     stringr,
-    pROC
+    pROC,
+    paletteer
+Suggests: 
+    ranger
 Encoding: UTF-8
 Language: en-US
 LazyData: trued

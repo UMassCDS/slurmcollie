@@ -6,19 +6,19 @@
 #'   - change the labels to `Class <number>` in the byClass table and sort
 #'     numerically
 #' - Round the byClass table to 4 digits, which is more than plenty!
-#' - Optionally add rows for AUC and F1 to the byClass table
-#' - If the model is not a 2x2, drop Mcnemar's Test P-Value
+#' - Optionally add a row for AUC to the byClass table. If the model hasn't been
+#'   run with the necessary data for AUC, a message will be displayed and the
+#'   row won't be added.L
 #' 
-#' Print the resulting table with `print(fit$confuse, mode = 'everything')`
+#' Print the resulting table with `print(fit$confuse, mode = 'prec_recall')`.
 #' 
 #' @param fit A ranger model object
 #' @param auc If TRUE, add AUC to the byClass table
-#' @param f1 If TRUE, add F1 to the byClass table
 #' @returns A new model object with the confusion matrix cleaned up
 #' @export
 
 
-unconfuse <- function(fit, auc = TRUE, f1 = TRUE) {
+unconfuse <- function(fit, auc = TRUE) {
    
    
    classes <- colnames(fit$confuse$table)
@@ -36,15 +36,9 @@ unconfuse <- function(fit, auc = TRUE, f1 = TRUE) {
    
    fit$confuse$byClass <- round(fit$confuse$byClass, 4)
    
-   # if(auc)
-   #    fit$confuse$byClass <- cbind(fit$confuse$byClass, AUC = aucs(fit))
-   # 
-   # 
-   # print(fit$confuse, mode = 'everything', digits = 3)           Hmmmmmmm................
-   # # they include F1
-   # # but it doesn't like me adding AUC
-   # # 
-   # 
-   # 
+   if(auc)
+      if(!is.null(auc <- aucs(fit$fit, sort = FALSE)))
+      fit$confuse$byClass <- cbind(fit$confuse$byClass, AUC = auc)
+  
    fit
 }

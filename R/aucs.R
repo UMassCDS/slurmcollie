@@ -17,12 +17,19 @@
 #' `class10`, `class100`.
 #'   
 #' @param fit Model fit from `train`
+#' @param sort If TRUE, sort classes by trailing number
 #' @returns A vector with the AUC for each class
 #' @importFrom pROC auc
+#' @importFrom stats setNames
 #' @export
 
 
-aucs <- function(fit) {
+aucs <- function(fit, sort = TRUE) {
+   
+   if(is.null(names(fit$pred))) {
+      message('Skipping AUC, as model doesn\'t have necessary data')
+      return(NULL)
+   }
    
    
    levels <- levels(fit$trainingData$.outcome)

@@ -14,7 +14,8 @@ fit(
   maxmissing = 0.05,
   top_importance = 20,
   reread = FALSE,
-  holdout = 0.2
+  holdout = 0.2,
+  auc = TRUE
 )
 }
 \arguments{
@@ -44,6 +45,8 @@ variable is dropped.}
 \item{holdout}{Proportion of points to hold out. For Random Forest, this specifies
 the size of the single validation set, while for boosting, it is the size of each
 of the testing and validation sets.}
+
+\item{auc}{If TRUE, calculate class probabilities so we can calculate AUC.}
 }
 \description{
 Fit models

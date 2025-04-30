@@ -58,10 +58,7 @@ Kappa = `r round(model_fit$confuse$overall['Kappa'], 4)`
 ### Confusion matrix and detailed stats
 
 ```{r}
-model_fit$confuse$byClass$AUC <- aucs(model_fit$fit)
-print(model_fit$confuse)
-auc_f1 <- t(data.frame(AUC = saltmarsh::aucs(model_fit$fit), F1 = 1:19 / 19))
-print(auc_f1)
+print(saltmarsh::unconfuse(model_fit)$confuse, mode = 'prec_recall')                          # I'll move unconfuse to fit, so won't need it here
 ```
 #### Note
 
@@ -71,22 +68,23 @@ See the Appendix for a list of subclasses ("class" in the stats table above).
 
 - The confusion matrix and all stats are based on a 20% holdout set.
 - The *confusion matrix* shows which classification errors were made. Values falling on the 
-diagonal were predicted correctly.
+  diagonal were predicted correctly.
 - *Accuracy* is the correct classification rate (also known as CCR), the proportion of cases that fall on the 
-diagonal in the confusion matrix.
-- *Kappa* is a refined version of the CCR that takes the probability of chance agreement into account.
+  diagonal in the confusion matrix.
 - The *No Information Rate* is the CCR you'd get if you always bet the majority class. In this particular 
-example, I've balanced the samples (subject to random sampling), so the NIR isn't particularly relevant.
-- For each class, we get the following statistics. These all scale from 0 to 1, with 1 generally indicating
-  higher performance (except for prevalence, detection rate, and detection prevalence).
-  - *Sensitivity*, true positives / all positives (also called *precision*)
-  - *Specificity*, true negatives / all negatives
-  - *Positive Predicted Value*, the proportion of positives that are true positives
-  - *Negative Predicted Value*, the proportion of negatives that are true negatives
+  example, I've balanced the samples (subject to random sampling), so the NIR isn't particularly relevant.
+- *Kappa* is a refined version of the CCR that takes the probability of chance agreement into account.
+- *Mcnemar's test* only applies to two-class data.
+- For each class (the 19 subclasses), we get the following statistics. These all scale from 0 to 1, with 1 
+  generally indicating higher performance (except for prevalence, detection rate, and detection prevalence).
+  
+  - *Precision*, the proportion of cases predicted to be in the class that are correct
+  - *Recall*, the proportion of cases in the class that were predicted to be in the class
+  - *F1*, the harmonic mean of precision and recall; a combined metric of model performance
   - *Prevalence*, the proportion of cases that are in this class
   - *Detection Rate*, the proportion of cases that are true positives
   - *Detection Prevalence*, the proportion of cases predicted as positive
-  - *Balanced Accuracy*, mean of sensitivity and selectivity
+  - *Balanced Accuracy*, mean of true positive rate and true negative rate; a combined metric of model performance
   - *AUC* (Area Under the Curve) is the probability that the model, for a particular class, when given a 
     random case in the class and a random case from another class, will rate the case in the class higher. 
     Unlike the other statistics, AUC is independent of the particluar cutpoint chosen, and is telling us
@@ -96,8 +94,9 @@ example, I've balanced the samples (subject to random sampling), so the NIR isn'
 
 Overall, the CCR and other statistics look superb. I'm surprised at how well the model is fitting, even
 with relatively small sample sizes. We can use the by-class statistics to look for problem classes, though
-none of them look bad in this example. We're fitting the transitional marsh subclasses (3, 4, 5) well. 
-The model even does well with small-sample size classes such as 7 and 12
+none of them look bad in this example. We're fitting the transitional marsh subclasses (3, 4, 5) fairly well,
+though subclass 4 could use some improvement (though predicting classes along a gradient is inherently tricky).
+The model even does well with small-sample size classes such as 7 and 12.
 
 
 ## AUC and F1
@@ -163,26 +162,29 @@ of available imagery. This will be worth exploring.
 ## Next steps
 1. Add derived variables such as NDVI, NWDI, NDRE.
 2. Try upscaling variables at several scales, taking focal mean, SD, IQR, maybe 10th and 90th percentile.
-3. Assess spatial autocorrelation and decide how sparsely we need to sample the data. Run with more complete
+2. Assess spatial autocorrelation and decide how sparsely we need to sample the data. Run with more complete
 datasets if that's the thing to do.
-4. Multi-stage modeling: try targeting lumped subclasses and then spit these in subsequent models to see if 
+2. Multi-stage modeling: try targeting lumped subclasses and then spit these in subsequent models to see if 
 that improves fits. I expect to see performance improvements if we target a smaller number of classes.
-5. Try alternatives to random forest. I'm currently planning to try AdaBoost, but there are other options.
+2. Try alternatives to random forest. I'm currently planning to try AdaBoost, but there are other options.
 I'm using the `caret` framework, which makes it easy to switch modeling approaches, and there are hundreds
 of choices, a few of which will be appropriate.
-6. Write the model launching and tracking framework I've envisioned, which will make it easy to launch models
+2. Write the model launching and tracking framework I've envisioned, which will make it easy to launch models
 in parallel as batch processes on Unity, and track model results over time. This will make it possible to 
 run many different models and do preliminary evaluation without producing maps of results. It'll then be 
 straightforward to produce maps of promising models. A setup like this will be necessary for running more
 than a handful of models without losing my mind.
-7. Make data sampling more flexible.
-7. Improve robustness to various data issues.
-8. Implement a macro naming system for variables so we can use common names across sites (e.g., 
+2. Make data sampling more flexible.
+2. Deal better with missing values in source data. Automatically reject images with too much missing data
+in site footprint.
+2. Screen source imagery for missing data and other issues. Pick the best image for each season/year/sensor.
+2. Improve robustness to various data issues.
+2. Implement a macro naming system for variables so we can use common names across sites (e.g., 
 `21Aug20_OTH_MidOut_SWIR_Ortho` from Old Town Hill and `17Sep22_RED_Mid_SWIR_Ortho` from Red River could 
 both be referred to as `Late_Mid_SWIR_Ortho`. This will be necessary for cross-site modeling.
-9. Produce models for other sites as Ryan finishes preparing transect data. Peggoty, Red River, Wellfleet,
+2. Produce models for other sites as Ryan finishes preparing transect data. Peggoty, Red River, Wellfleet,
 and Westport should be ready soon.
-9. Try applying models across sites and building models for multiple sites in a cross-validation framework.
+2. Try applying models across sites and building models for multiple sites in a cross-validation framework.
 
 # Appendix: Subclasses
 

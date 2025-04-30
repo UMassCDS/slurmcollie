@@ -54,7 +54,7 @@ if(FALSE) {
     ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
     f <- file.path(rpath, paste0('predict_', the$site, '_', ts(now()), '.tif'))
     
-   peakRAM(predicted <- terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, filename = f, overwrite = TRUE, na.rm = TRUE))
+ ###  peakRAM(predicted <- terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, filename = f, overwrite = TRUE, na.rm = TRUE))
    ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
    f <- file.path(rpath, paste0('predict_', the$site, '_', ts(now()), '.RDS'))
    saveRDS(predicted, f)

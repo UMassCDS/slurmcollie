@@ -4,10 +4,12 @@
 \alias{aucs}
 \title{Return multi-class AUC (Area Under the Curve) for ranger models from caret}
 \usage{
-aucs(fit)
+aucs(fit, sort = TRUE)
 }
 \arguments{
 \item{fit}{Model fit from \code{train}}
+
+\item{sort}{If TRUE, sort classes by trailing number}
 }
 \value{
 A vector with the AUC for each class

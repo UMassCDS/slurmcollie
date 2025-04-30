@@ -135,7 +135,8 @@ sample <- function(site, pattern = '', n = NULL, p = NULL, d = NULL,
       target_n <- min(counts)
       
       z <- group_by(z, subclass) |>
-         slice_sample(n = target_n)                                                 #    take minimum subclass n for every class
+         slice_sample(n = target_n) |>                                              #    take minimum subclass n for every class
+         data.frame(z)                                                              #    and cure tidyverse infection
    }
    
    if(!is.null(d))                                                                  #    if sampling by mean distance,
