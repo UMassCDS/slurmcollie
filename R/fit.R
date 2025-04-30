@@ -22,7 +22,6 @@
 #' @importFrom stats complete.cases predict reformulate
 #' @importFrom lubridate interval as.duration
 #' @importFrom stringr str_extract
-#### ' @import fastAdaboost
 #' @export
 
 
