@@ -31,7 +31,7 @@ knitr::opts_chunk$set(echo = FALSE, comment = NA)
 
 modelsdir <- 'C:/Work/etc/saltmarsh/models/' 
 # model <- 'fit_oth_2025-Apr-25_15-52'                            # orig
-model <- 'fit_oth_2025-Apr-28_13-54'                              # better model: all vars for 2018-2021
+model <- 'fit_oth_2025-Apr-29_15-19'                              # better model: all vars for 2018-2021 (this one includes data for AUC)
 model_fit <- readRDS(file.path(modelsdir, paste0(model, '.RDS')))
 
 predictdir <- 'c:/Work/etc/saltmarsh/data/oth/gis/predicted'
@@ -58,7 +58,10 @@ Kappa = `r round(model_fit$confuse$overall['Kappa'], 4)`
 ### Confusion matrix and detailed stats
 
 ```{r}
+model_fit$confuse$byClass$AUC <- aucs(model_fit$fit)
 print(model_fit$confuse)
+auc_f1 <- t(data.frame(AUC = saltmarsh::aucs(model_fit$fit), F1 = 1:19 / 19))
+print(auc_f1)
 ```
 #### Note
 
@@ -74,7 +77,8 @@ diagonal in the confusion matrix.
 - *Kappa* is a refined version of the CCR that takes the probability of chance agreement into account.
 - The *No Information Rate* is the CCR you'd get if you always bet the majority class. In this particular 
 example, I've balanced the samples (subject to random sampling), so the NIR isn't particularly relevant.
-- For each class, we get 
+- For each class, we get the following statistics. These all scale from 0 to 1, with 1 generally indicating
+  higher performance (except for prevalence, detection rate, and detection prevalence).
   - *Sensitivity*, true positives / all positives (also called *precision*)
   - *Specificity*, true negatives / all negatives
   - *Positive Predicted Value*, the proportion of positives that are true positives
@@ -83,6 +87,10 @@ example, I've balanced the samples (subject to random sampling), so the NIR isn'
   - *Detection Rate*, the proportion of cases that are true positives
   - *Detection Prevalence*, the proportion of cases predicted as positive
   - *Balanced Accuracy*, mean of sensitivity and selectivity
+  - *AUC* (Area Under the Curve) is the probability that the model, for a particular class, when given a 
+    random case in the class and a random case from another class, will rate the case in the class higher. 
+    Unlike the other statistics, AUC is independent of the particluar cutpoint chosen, and is telling us
+    about the performance of the probabilities produced by the model.
 
 #### Comments
 
