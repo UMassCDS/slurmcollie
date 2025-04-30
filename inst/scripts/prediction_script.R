@@ -12,7 +12,7 @@ if(FALSE) {
    
    
 #   fit('oth', years = 2019:2020, reread = TRUE)
-#   fit('oth', years = 2018:2021, reread = TRUE)
+#   fit('oth', years = 2018:2021, reread = TRUE)                                                            # this is my favorite model at the moment. It's in fit_oth_2025-Apr-29_15-19.RDS
 #   fit('oth', years = 2018:2021, reread = TRUE, vars = rownames(the$fit$import$importance)[1:20])
 #   
 #   
