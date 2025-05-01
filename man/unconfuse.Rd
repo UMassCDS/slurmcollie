@@ -9,7 +9,7 @@ unconfuse(fit, auc = TRUE)
 \arguments{
 \item{fit}{A ranger model object}
 
-\item{auc}{If TRUE, add AUC to the byClass table}
+\item{auc}{If TRUE, add AUC to the \code{byClass} table}
 }
 \value{
 A new model object with the confusion matrix cleaned up
@@ -20,11 +20,11 @@ Cleans up the confusion matrix from a caret/ranger model fit:
 \item If class names are numeric:
 \itemize{
 \item include only the number in the confusion matrix and sort numerically
-\item change the labels to \verb{Class <number>} in the byClass table and sort
+\item change the labels to \verb{Class <number>} in the \code{byClass} table and sort
 numerically
 }
-\item Round the byClass table to 4 digits, which is more than plenty!
-\item Optionally add a row for AUC to the byClass table. If the model hasn't been
+\item Round the \code{byClass} table to 4 digits, which is more than plenty!
+\item Optionally add a row for AUC to the \code{byClass} table. If the model hasn't been
 run with the necessary data for AUC, a message will be displayed and the
 row won't be added.L
 }

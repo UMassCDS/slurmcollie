@@ -1,5 +1,5 @@
 ---
-title: "Preliminary random forest results"
+title: "Preliminary salt marsh random forest model results"
 author: "Brad Compton"
 date: "`r Sys.Date()`"
 output: html_document
@@ -43,8 +43,7 @@ prediction <- terra::rast(file.path(predictdir, paste0(predict, '.tif')))
 ## Initial results
 
 These results are brand-new: I did my first random forest model run on April 23. I've only run a small 
-handful of models for one site, Old Town Hill. Here are some results of a representative run. I'm 
-surprised at how well they're fitting: correct classification rates are in the mid-90s, which is superb.
+handful of models for one site, Old Town Hill. Here are some results of a representative run.
 
 ### Model info
 
@@ -62,28 +61,32 @@ print(saltmarsh::unconfuse(model_fit)$confuse, mode = 'prec_recall')            
 ```
 #### Note
 
-See the Appendix for a list of subclasses ("class" in the stats table above).
+This model targets all 19 subclasses found in the field transects ("class" in the stats table above). See 
+the Appendix for a list of all 27 subclasses.
 
 #### Explanations
 
 - The confusion matrix and all stats are based on a 20% holdout set.
 - The *confusion matrix* shows which classification errors were made. Values falling on the 
   diagonal were predicted correctly.
-- *Accuracy* is the correct classification rate (also known as CCR), the proportion of cases that fall on the 
-  diagonal in the confusion matrix.
+- *Accuracy* is the correct classification rate (also known as CCR), the proportion of cases that fall on 
+  the diagonal in the confusion matrix.
 - The *No Information Rate* is the CCR you'd get if you always bet the majority class. In this particular 
   example, I've balanced the samples (subject to random sampling), so the NIR isn't particularly relevant.
 - *Kappa* is a refined version of the CCR that takes the probability of chance agreement into account.
 - *Mcnemar's test* only applies to two-class data.
-- For each class (the 19 subclasses), we get the following statistics. These all scale from 0 to 1, with 1 
-  generally indicating higher performance (except for prevalence, detection rate, and detection prevalence).
+- *Statistics by Class* lists the follwing statistics for each of the 19 subclasses sampled at this site. 
+  These all scale from 0 to 1, with 1 generally indicating higher performance (except for prevalence, 
+  detection rate, and detection prevalence).
   
-  - *Precision*, the proportion of positive cases that were predicted as positive
-  - *Recall*, the proportion of cases in the class that were predicted to be in the class
+  - *Precision*, the proportion of cases predicted to be in the class that actually were (true positives / 
+    (true positives + false positives))
+  - *Recall*, the proportion of cases actually in the class that were predicted to be in the class (true positives / 
+    (true positives + false negatives))
   - *F1*, the harmonic mean of precision and recall; a combined metric of model performance
-  - *Prevalence*, the proportion of cases that are in this class
-  - *Detection Rate*, the proportion of cases that are true positives
-  - *Detection Prevalence*, the proportion of cases predicted as positive
+  - *Prevalence*, the proportion of all cases that are in this class
+  - *Detection Rate*, the proportion of all cases that are correctly predicted to be in this class
+  - *Detection Prevalence*, the proportion of all cases predicted to be in this class
   - *Balanced Accuracy*, mean of true positive rate and true negative rate; a combined metric of model performance
   - *AUC* (Area Under the Curve) is the probability that the model, for a particular class, when given a 
     random case in the class and a random case from another class, will rate the case in the class higher. 
@@ -93,10 +96,11 @@ See the Appendix for a list of subclasses ("class" in the stats table above).
 #### Comments
 
 Overall, the CCR and other statistics look superb. I'm surprised at how well the model is fitting, even
-with relatively small sample sizes. We can use the by-class statistics to look for problem classes, though
-none of them look bad in this example. We're fitting the transitional marsh subclasses (3, 4, 5) fairly well,
-though subclass 4 could use some improvement (predicting classes along a gradient is inherently tricky).
-The model even does well with small-sample size classes such as 7 and 12.
+with relatively small sample sizes (this model only uses 20% of the field data). We can use the by-class
+statistics to look for problem classes, though none of them look bad in this example. We're fitting the 
+transitional marsh subclasses (3, 4, 5) fairly well, though subclass 4 could use improvement 
+(predicting classes along a gradient is inherently tricky). The model even does well with small-sample 
+size classes such as 7 and 12.
 
 ## Variable importance
 
@@ -116,17 +120,17 @@ variables not shown.
 - Note that a high tide image doesn't come in until the 19th most important variable,
 indicating that the fit is driven primarily by topography and vegetation rather than directly
 by hydrology. 
-- This particular fit photogrammetry-based DEMs in the two top positions, with one in April and
-one in August. DEMs representing other seasons come in later. Other runs I've tried have early-late 
-pairs high up too. I interpret this as the model using this combination to get at canopy height. I'd had 
-high hopes for the LiDAR-based canopy height model, but it comes in quite low--the model is 
-preferring photogrammetry-based versions instead.
-- Short-wave infrared images come in three times in the first seven variables, and an RGB image doesn't 
-come in until the 5th place. SWIR often comes out as highly important.
+- This particular fit includes photogrammetry-based DEMs in the two top positions, with one in April and
+one in August. Several DEMs representing other seasons come in later. Other runs I've tried have early-late 
+pairs high up too. I interpret this as the model using the combination of no vegetation and full vegetation DEMs
+to get at canopy height. I'd had high hopes for the LiDAR-based canopy height model, but it comes in quite 
+low--the model is preferring photogrammetry-based versions instead.
+- Short-wave infrared images come in three times in the first eight variables. In other models I've tried,
+  SWIR usually comes out as highly important.
 
 ## Example map
 
-This map shows the prediction from the same model, zoomed in on a small area (about 1 ha) in Old Town Hill.
+This map shows the prediction from this model, zoomed in on a small area (about 1 ha) in Old Town Hill.
 
 ```{r out.width = "150%"}
 pal <- paletteer::paletteer_d('ggthemes::Superfishel_Stone')
@@ -135,52 +139,52 @@ terra::plot(prediction, col = pal, all_levels = TRUE)
 
 ## Comments and caveats
 1. These results are super-preliminary. I expect model fits will generally improve as I refine models. 
-The only obvious places where we're likely to see declines in performance are if it turns out we
-have a spatial autocorrelation problem, and doubtless when we apply a model built on one site to another
-site.
-2. These models are based on only 20% of the field points (mostly because I wanted fitting to run fast during
-development).
+   The only obvious places where we're likely to see declines in performance are if it turns out we
+   have a spatial autocorrelation problem, and doubtless when we apply a model built on one site to another
+   site.
+2. These models are based on only 20% of the field points, mostly because I wanted fitting to run fast during
+   development.
 3. I built the models on 80% of the selected data points (so 80% of 20% of all pixels in field transects), and 
-held out 20% of points for validation. All stats are based on the holdout validation set.
+   held out 20% of points for validation. All stats are based on the holdout validation set.
 4. I haven't tackled spatial autocorrelation yet. I'm concerned that autocorrelation could be contaminating
-the holdout sets. This may not be a thing, but I want to be sure.
+   the holdout sets. This may not be a thing, but I want to be sure.
 5. I've done some minimal tuning of hyperparmeters, but will do more.
 6. Field-based transects are not representative, as several classes were photointerpreted in the lab to get
-sample sizes up. I'm currently balancing representation, as we don't have true representation. I'll probably
-end up using both field-based and PI-based data, but weighting cases by field-based representation so I
-can drop balancing.
+   sample sizes up. I'm currently balancing representation, as we don't have true representation. Revised 
+   transects with polygons labeled by source will be available soon. I'll probably end up using both 
+   field-based and PI-based data, but weighting cases by field-based representation so I can drop balancing.
 7. I'm currently lightly matching the years field transects and UAS imagery were collected (field data were 
-collected in 2019-20; imagery is from 2018-21). To some extent, the model is preferring years that match well,
-but I got a better fit restricting to field years plus or minus one. Strictly matching years reduces the amount
-of available imagery. This will be worth exploring.
+   collected in 2019-20; imagery is from 2018-21). To some extent, the model has been preferring years that 
+   match well without me bothering to force matching, but loosely matchings years works a bit better. On the 
+   other hand, strictly matching years reduces the amount of available imagery. This will be worth exploring.
 
 ## Next steps
-1. Add derived variables such as NDVI, NWDI, NDRE.
-2. Try upscaling variables at several scales, taking focal mean, SD, IQR, maybe 10th and 90th percentile.
-2. Assess spatial autocorrelation and decide how sparsely we need to sample the data. Run with more complete
-datasets if that's the thing to do.
-2. Multi-stage modeling: try targeting lumped subclasses and then spit these in subsequent models to see if 
-that improves fits. I expect to see performance improvements if we target a smaller number of classes.
-2. Try alternatives to random forest. I'm currently planning to try AdaBoost, but there are other options.
-I'm using the `caret` framework, which makes it easy to switch modeling approaches, and there are hundreds
-of choices, a few of which will be appropriate.
-2. Write the model launching and tracking framework I've envisioned, which will make it easy to launch models
-in parallel as batch processes on Unity, and track model results over time. This will make it possible to 
-run many different models and do preliminary evaluation without producing maps of results. It'll then be 
-straightforward to produce maps of promising models. A setup like this will be necessary for running more
-than a handful of models without losing my mind.
-2. Make data sampling more flexible.
-2. Deal better with missing values in source data. Automatically reject images with too much missing data
-in site footprint.
-2. Screen source imagery for missing data and other issues. Pick the best image for each season/year/sensor.
-2. Improve robustness to various data issues.
+
+1. Assess spatial autocorrelation and decide how sparsely we need to sample the data. Run with more complete
+   datasets if that's the thing to do. Perhaps sample data in blocks, so validation data are spatially 
+   distant from training data.
+2. Try adding derived (NDVI, NWDI, NDRE) and upscaled (focal mean, SD, IQR, maybe 10th and 90th percentile)
+   variables.
 2. Variable selection: fits may be better with fewer variables.
+2. Screen source imagery for missing data and other issues. Pick the best image for each season/year/sensor. 
+   Deal better with missing values in source data. Automatically reject images with too much missing data
+   in site footprint. Possibly impute missing values.
 2. Implement a macro naming system for variables so we can use common names across sites (e.g., 
-`21Aug20_OTH_MidOut_SWIR_Ortho` from Old Town Hill and `17Sep22_RED_Mid_SWIR_Ortho` from Red River could 
-both be referred to as `Late_Mid_SWIR_Ortho`. This will be necessary for cross-site modeling.
+   `21Aug20_OTH_MidOut_SWIR_Ortho` from Old Town Hill and `17Sep22_RED_Mid_SWIR_Ortho` from Red River could 
+   both be referred to as `Late_Mid_SWIR_Ortho`. This will be necessary for cross-site modeling.
+2. Multi-stage modeling: try targeting lumped subclasses and then spit these in subsequent models to see if 
+   that improves fits. I expect to see performance improvements if we target a smaller number of classes.
+2. Try alternatives to random forest. I'm currently planning to try AdaBoost, but there are other options.
+   I'm using the `caret` framework, which makes it easy to switch modeling approaches, and there are hundreds
+   of choices, a few of which will be appropriate. In any case, do more extensive tuning of hyperparameters.
+2. Write the model launching and tracking framework I've envisioned, which will make it easy to launch models
+   in parallel as batch processes on Unity, and track model results over time. This will make it possible to 
+   run many different models and do preliminary evaluation without producing maps of results. It'll then be 
+   straightforward to produce maps of promising models. A setup like this will be necessary for running more
+   than a handful of models without losing my mind.
 2. Produce models for other sites as Ryan finishes preparing transect data. Peggoty, Red River, Wellfleet,
-and Westport should be ready soon.
-2. Try applying models across sites and building models for multiple sites in a cross-validation framework.
+   and Westport should be ready soon. Try applying models across sites and building models for multiple sites 
+   in a cross-validation framework.
 
 # Appendix: Subclasses
 
