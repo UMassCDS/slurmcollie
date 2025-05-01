@@ -3,17 +3,17 @@
 #' Cleans up the confusion matrix from a caret/ranger model fit:
 #' - If class names are numeric:
 #'   - include only the number in the confusion matrix and sort numerically
-#'   - change the labels to `Class <number>` in the byClass table and sort
+#'   - change the labels to `Class <number>` in the `byClass` table and sort
 #'     numerically
-#' - Round the byClass table to 4 digits, which is more than plenty!
-#' - Optionally add a row for AUC to the byClass table. If the model hasn't been
+#' - Round the `byClass` table to 4 digits, which is more than plenty!
+#' - Optionally add a row for AUC to the `byClass` table. If the model hasn't been
 #'   run with the necessary data for AUC, a message will be displayed and the
 #'   row won't be added.L
 #' 
 #' Print the resulting table with `print(fit$confuse, mode = 'prec_recall')`.
 #' 
 #' @param fit A ranger model object
-#' @param auc If TRUE, add AUC to the byClass table
+#' @param auc If TRUE, add AUC to the `byClass` table
 #' @returns A new model object with the confusion matrix cleaned up
 #' @export
 
