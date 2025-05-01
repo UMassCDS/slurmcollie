@@ -55,10 +55,10 @@ if(FALSE) {
     
     ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
     fx <- file.path(rpath, paste0('predict_', the$site, '_', ts(now())))
-    f0 <- paste0(fx, '0.tif')
+    f0 <- paste0(fx, '_0.tif')
     f <- paste0(fx, '.tif')
     
-   peakRAM(terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, filename = f, overwrite = TRUE, na.rm = TRUE))
+   peakRAM(terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, filename = f0, overwrite = TRUE, na.rm = TRUE))
 
    
    makeNiceTif(source = f0, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = TRUE)
