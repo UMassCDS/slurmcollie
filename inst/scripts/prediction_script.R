@@ -5,6 +5,8 @@ if(FALSE) {
    devtools::load_all(".")
    library(peakRAM)
    library(terra)
+   # remotes::install_github('ethanplunkett/rasterPrep')
+   library(rasterPrep)
   
    
     
@@ -52,12 +54,17 @@ if(FALSE) {
    
     
     ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
-    f <- file.path(rpath, paste0('predict_', the$site, '_', ts(now()), '.tif'))
+    fx <- file.path(rpath, paste0('predict_', the$site, '_', ts(now())))
+    f0 <- paste0(fx, '0.tif')
+    f <- paste0(fx, '.tif')
     
- ###  peakRAM(predicted <- terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, filename = f, overwrite = TRUE, na.rm = TRUE))
-   ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
-   f <- file.path(rpath, paste0('predict_', the$site, '_', ts(now()), '.RDS'))
-   saveRDS(predicted, f)
+   peakRAM(terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, filename = f, overwrite = TRUE, na.rm = TRUE))
+
+   
+   makeNiceTif(source = f0, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = TRUE)
+   
+ #   f <- file.path(rpath, paste0('predict_', the$site, '_', ts(now()), '.RDS'))
+ #  saveRDS(predicted, f)
    print(paste0('Done!! Results are in ', f))
  
    
