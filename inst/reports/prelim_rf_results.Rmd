@@ -78,7 +78,7 @@ See the Appendix for a list of subclasses ("class" in the stats table above).
 - For each class (the 19 subclasses), we get the following statistics. These all scale from 0 to 1, with 1 
   generally indicating higher performance (except for prevalence, detection rate, and detection prevalence).
   
-  - *Precision*, the proportion of cases predicted to be in the class that are correct
+  - *Precision*, the proportion of positive cases that were predicted as positive
   - *Recall*, the proportion of cases in the class that were predicted to be in the class
   - *F1*, the harmonic mean of precision and recall; a combined metric of model performance
   - *Prevalence*, the proportion of cases that are in this class
@@ -95,13 +95,8 @@ See the Appendix for a list of subclasses ("class" in the stats table above).
 Overall, the CCR and other statistics look superb. I'm surprised at how well the model is fitting, even
 with relatively small sample sizes. We can use the by-class statistics to look for problem classes, though
 none of them look bad in this example. We're fitting the transitional marsh subclasses (3, 4, 5) fairly well,
-though subclass 4 could use some improvement (though predicting classes along a gradient is inherently tricky).
+though subclass 4 could use some improvement (predicting classes along a gradient is inherently tricky).
 The model even does well with small-sample size classes such as 7 and 12.
-
-
-## AUC and F1
-
-**I'd like to implement these and include them.**
 
 ## Variable importance
 
@@ -179,6 +174,7 @@ than a handful of models without losing my mind.
 in site footprint.
 2. Screen source imagery for missing data and other issues. Pick the best image for each season/year/sensor.
 2. Improve robustness to various data issues.
+2. Variable selection: fits may be better with fewer variables.
 2. Implement a macro naming system for variables so we can use common names across sites (e.g., 
 `21Aug20_OTH_MidOut_SWIR_Ortho` from Old Town Hill and `17Sep22_RED_Mid_SWIR_Ortho` from Red River could 
 both be referred to as `Late_Mid_SWIR_Ortho`. This will be necessary for cross-site modeling.
