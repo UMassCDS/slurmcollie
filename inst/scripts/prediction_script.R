@@ -19,6 +19,7 @@ if(FALSE) {
 #   
 #   
    the$fit <- readRDS('/work/pi_cschweik_umass_edu/marsh_mapping/models/fit_oth_2025-Apr-28_13-54.RDS')   # read fit for 2018-2021
+   the$site <- 'oth'
    #fit('oth', years = 2018:2021, reread = TRUE, vars = rownames(the$fit$import$importance)[1:40])
 #   fit('oth', years = 2018:2021, reread = TRUE, vars = 'X04Aug21_OTH_Low_SWIR_1')
    
