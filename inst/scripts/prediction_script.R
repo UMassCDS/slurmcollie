@@ -49,8 +49,8 @@ if(FALSE) {
    
    rasters <- rasters[[names(rasters) %in% names(the$fit$fit$trainingData)[-1]]]       # drop bands we don't want
    
-   # clip <- ext(c(-70.86254419, -70.86135362, 42.77072136, 42.7717978))               # small clip
-    clip <- ext(c(-70.86452506, -70.86040917, 42.76976948, 42.77283781))                # larger clip: 38 min, 69 GB
+    clip <- ext(c(-70.86254419, -70.86135362, 42.77072136, 42.7717978))               # small clip
+  #  clip <- ext(c(-70.86452506, -70.86040917, 42.76976948, 42.77283781))                # larger clip: 38 min, 69 GB
     rasters <- crop(rasters, clip)
    
     
@@ -59,14 +59,19 @@ if(FALSE) {
     f0 <- paste0(fx, '_0.tif')
     f <- paste0(fx, '.tif')
     
-   peakRAM(terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, filename = f0, overwrite = TRUE, na.rm = TRUE))
-
+  # peakRAM(terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, filename = f0, overwrite = TRUE, na.rm = TRUE))
+    peakRAM(pred <- terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, na.rm = TRUE))    # try without saving
    
-   makeNiceTif(source = f0, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = TRUE)
+    
+    
+    writeRaster(pred, f0, overwrite = TRUE, datatype = 'INT2U', progress = 1, memfrac = 0.8, )
+    
+    
+   #makeNiceTif(source = f0, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = TRUE)
    
  #   f <- file.path(rpath, paste0('predict_', the$site, '_', ts(now()), '.RDS'))
  #  saveRDS(predicted, f)
-   print(paste0('Done!! Results are in ', f))
+ #  print(paste0('Done!! Results are in ', f))
  
    
    
