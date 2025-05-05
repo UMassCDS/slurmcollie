@@ -18,7 +18,9 @@ if(FALSE) {
 #   fit('oth', years = 2018:2021, reread = TRUE, vars = rownames(the$fit$import$importance)[1:20])
 #   
 #   
-   the$fit <- readRDS('/work/pi_cschweik_umass_edu/marsh_mapping/models/fit_oth_2025-Apr-28_13-54.RDS')   # read fit for 2018-2021
+ #  the$fit <- readRDS('/work/pi_cschweik_umass_edu/marsh_mapping/models/fit_oth_2025-Apr-28_13-54.RDS')   # read fit for 2018-2021
+   
+   the$fit <- readRDS('c:/work/etc/saltmarsh/models/fit_oth_2025-May-05_15-53.RDS')                           ############# FOR TESTING
    the$site <- 'oth'
    #fit('oth', years = 2018:2021, reread = TRUE, vars = rownames(the$fit$import$importance)[1:40])
 #   fit('oth', years = 2018:2021, reread = TRUE, vars = 'X04Aug21_OTH_Low_SWIR_1')
@@ -35,6 +37,11 @@ if(FALSE) {
    
    path <- '/work/pi_cschweik_umass_edu/marsh_mapping/data/oth/gis/flights'
    rpath <- '/work/pi_cschweik_umass_edu/marsh_mapping/data/oth/gis/predicted'
+   
+   
+   path <- 'C:/Work/etc/saltmarsh/data/oth/gis/flights'                                                        ############## for testing
+   rpath <- 'C:/Work/etc/saltmarsh/data/oth/gis/predicted'
+   
    
    
    x <- names(the$fit$fit$trainingData)[-1]
@@ -63,11 +70,22 @@ if(FALSE) {
     peakRAM(pred <- terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, na.rm = TRUE))    # try without saving
    
     
+    levs <- levels(pred$class)[[1]]                                                             # replace values with levels
+    levs$class <- as.numeric(levs$class)
+    pred2 <- subst(as.numeric(pred), from = levs$value, to = levs$class)
     
-    writeRaster(pred, f0, overwrite = TRUE, datatype = 'INT2U', progress = 1, memfrac = 0.8, )
+    writeRaster(pred2, f0, overwrite = TRUE, datatype = 'INT1U', progress = 1, memfrac = 0.8)
+    makeNiceTif(source = f0, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = TRUE)
     
+    classes <- read_pars_table('classes')
+    vat <- data.frame(value = classes$subclass, subclass = classes$subclass_name, color = classes$subclass_color)
+    vat <- vat[vat$value %in% levs$class, ]
+    addVat(f, attributes = vat, skipCount = TRUE)
     
-   #makeNiceTif(source = f0, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = TRUE)
+  
+   plot(tt, col = vat$color)  # this should plot using the colors
+   
+   
    
  #   f <- file.path(rpath, paste0('predict_', the$site, '_', ts(now()), '.RDS'))
  #  saveRDS(predicted, f)

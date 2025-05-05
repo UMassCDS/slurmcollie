@@ -16,5 +16,5 @@ read_pars_table <- function(name) {
    f <- file.path(the$parsdir, the[[name]])
    if(!file.exists(f))
       stop(paste0('Parameter file ', f, ' not found'))
-   read.table(f, sep = '\t', header = TRUE)
+   read.table(f, sep = '\t', header = TRUE, comment.char = '')
 }

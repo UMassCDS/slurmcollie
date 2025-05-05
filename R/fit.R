@@ -6,7 +6,7 @@
 #' @param datafile Name of data file. Extension `.RDS` must be included. Default = 
 #'    `the$datafile`, or `data.RDS` if `the$datafile` is NULL.
 #' @param method One of `rf` for Random Forest, `boost` for AdaBoost. Default = `rf`.
-#' @param vars An optional list of variables to restrict analysis to. Default = NULL, 
+#' @param vars An optional vector of variables to restrict analysis to. Default = NULL, 
 #'    all variables.
 #' @param exclude An optional vector of variables to exclude.
 #' @param years An optional vector of years to restrict variables to.
