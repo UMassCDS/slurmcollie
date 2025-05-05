@@ -117,15 +117,14 @@ fit <- function(site = the$site, datafile = the$datafile, method = 'rf',
    switch(method, 
           'rf' = {
              meth <- 'ranger'
-             tc <- list(allowParallel = TRUE)                                       # controls for random forests
              if(auc)                                                                #    if prepping for AUC,
-                tc <- c(tc,                                                         #       add necessary items to train control  ***** check these--are they all needed here??????
-                        method = "cv",
-                        number = 5,
-                        classProbs = TRUE,
-                        savePredictions = "final"
+                control <- trainControl(method = "cv",                              #       add necessary items to train control  ***** check these--are they all needed here??????
+                                        number = 5,
+                                        classProbs = TRUE,
+                                        savePredictions = "final"
                 )
-             control <- trainControl(tc)
+             else                                                                   #    else,
+                control <- trainControl(allowParallel = TRUE)                       #       controls for random forests, no AUC
           },
           'boost' = {
              meth <- 'adaboost'
