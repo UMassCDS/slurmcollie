@@ -61,7 +61,7 @@ if(FALSE) {
     rasters <- crop(rasters, clip)
    
     
-    ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                # and write to an RDS (this is temporary; will include in database soon)
+    ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                
     fx <- file.path(rpath, paste0('predict_', the$site, '_', ts(now())))
     f0 <- paste0(fx, '_0.tif')
     f <- paste0(fx, '.tif')
@@ -75,15 +75,34 @@ if(FALSE) {
     pred2 <- subst(as.numeric(pred), from = levs$value, to = levs$class)
     
     writeRaster(pred2, f0, overwrite = TRUE, datatype = 'INT1U', progress = 1, memfrac = 0.8)
-    makeNiceTif(source = f0, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = TRUE)
+   # makeNiceTif(source = f0, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = TRUE)
     
     classes <- read_pars_table('classes')
     vat <- data.frame(value = classes$subclass, subclass = classes$subclass_name, color = classes$subclass_color)
     vat <- vat[vat$value %in% levs$class, ]
-    addVat(f, attributes = vat, skipCount = TRUE)
+    
+    
+    rgb <- matrix(NA, dim(vat)[1], 4)                                         # colormap for ArcGIS
+    rgb[, 1] <- vat$value
+    for(i in 1:3)
+       rgb[, i + 1] <- strtoi(substr(vat$color, i * 2, i * 2 + 1), 16L)
+    write.table(rgb, paste0(fx, '.clr'), sep = ' ', quote = FALSE, row.names = FALSE, col.names = FALSE)
+    
+    qvat <- vat                                                               # color table for QGIS. Doesn't work. .clr does, but ugly
+    names(qvat) <- c('VALUE', 'LABEL', 'COLOR')
+    write.csv(qvat, paste0(fx, '.csv'), quote = FALSE, row.names = FALSE)
+    
+    vat2 <- vat
+    names(vat2) <- c('value', 'category', 'color')
+    vrt.file <- addColorTable(f0, table = vat2)
+    makeNiceTif(source = vrt.file, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = TRUE)
+    
+    
+    addVat(f, attributes = vat, skipCount = TRUE)                        # <<-----------------------------------------
+    
     
   
-   plot(tt, col = vat$color)  # this should plot using the colors
+   plot(tt, col = vat$color)                                                  # plot in R
    
    
    
