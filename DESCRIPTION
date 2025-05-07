@@ -23,7 +23,8 @@ Imports:
     caret, 
     stringr,
     pROC,
-    paletteer
+    paletteer,
+    rasterPrep
 Suggests: 
     ranger
 Encoding: UTF-8
