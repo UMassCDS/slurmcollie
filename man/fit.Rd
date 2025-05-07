@@ -28,7 +28,7 @@ will be set by the first call of \code{fit}; it may also be set directly.}
 
 \item{method}{One of \code{rf} for Random Forest, \code{boost} for AdaBoost. Default = \code{rf}.}
 
-\item{vars}{An optional list of variables to restrict analysis to. Default = NULL,
+\item{vars}{An optional vector of variables to restrict analysis to. Default = NULL,
 all variables.}
 
 \item{exclude}{An optional vector of variables to exclude.}

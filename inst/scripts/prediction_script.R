@@ -56,46 +56,37 @@ if(FALSE) {
    
    rasters <- rasters[[names(rasters) %in% names(the$fit$fit$trainingData)[-1]]]       # drop bands we don't want
    
-    clip <- ext(c(-70.86254419, -70.86135362, 42.77072136, 42.7717978))               # small clip
+ #   clip <- ext(c(-70.86254419, -70.86135362, 42.77072136, 42.7717978))               # small clip
   #  clip <- ext(c(-70.86452506, -70.86040917, 42.76976948, 42.77283781))                # larger clip: 38 min, 69 GB
-    rasters <- crop(rasters, clip)
+  #  
+  
+    clip <- the$clip$oth$small                                             # we'll have a clip argument, with clips from pars.yml, like this
+    rasters <- crop(rasters, ext(clip))
    
     
-    ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                
-    fx <- file.path(rpath, paste0('predict_', the$site, '_', ts(now())))
-    f0 <- paste0(fx, '_0.tif')
-    f <- paste0(fx, '.tif')
+    ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                     # set format for timestamp in filename                         
+    fx <- file.path(rpath, paste0('predict_', the$site, '_', ts(now())))               # base result filename
+    f0 <- paste0(fx, '_0.tif')                                                         # preliminary result filename
+    f <- paste0(fx, '.tif')                                                            # final result filename
     
-  # peakRAM(terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, filename = f0, overwrite = TRUE, na.rm = TRUE))
-    peakRAM(pred <- terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, na.rm = TRUE))    # try without saving
+    peakRAM(pred <- terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, na.rm = TRUE))    # do a prediction for the model
    
     
-    levs <- levels(pred$class)[[1]]                                                             # replace values with levels
-    levs$class <- as.numeric(levs$class)
-    pred2 <- subst(as.numeric(pred), from = levs$value, to = levs$class)
+    # levs <- levels(pred$class)[[1]]                                                             # replace values with levels
+    # levs$class <- as.numeric(levs$class)
+    # pred2 <- subst(as.numeric(pred), from = levs$value, to = levs$class)
+    pred2 <- pred
     
-    writeRaster(pred2, f0, overwrite = TRUE, datatype = 'INT1U', progress = 1, memfrac = 0.8)
-   # makeNiceTif(source = f0, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = TRUE)
+    writeRaster(pred2, f0, overwrite = TRUE, datatype = 'INT1U', progress = 1, memfrac = 0.8)      # save the geoTIFF
+
+    classes <- read_pars_table('classes')                                                          # read classes file
+    vat <- data.frame(value = classes$subclass, subclass = classes$subclass_name, color = classes$subclass_color)             # need class level. Use names(fit$train)[1]
+    vat <- vat2 <- vat[vat$value %in% levs$class, ]
     
-    classes <- read_pars_table('classes')
-    vat <- data.frame(value = classes$subclass, subclass = classes$subclass_name, color = classes$subclass_color)
-    vat <- vat[vat$value %in% levs$class, ]
-    
-    
-    rgb <- matrix(NA, dim(vat)[1], 4)                                         # colormap for ArcGIS
-    rgb[, 1] <- vat$value
-    for(i in 1:3)
-       rgb[, i + 1] <- strtoi(substr(vat$color, i * 2, i * 2 + 1), 16L)
-    write.table(rgb, paste0(fx, '.clr'), sep = ' ', quote = FALSE, row.names = FALSE, col.names = FALSE)
-    
-    qvat <- vat                                                               # color table for QGIS. Doesn't work. .clr does, but ugly
-    names(qvat) <- c('VALUE', 'LABEL', 'COLOR')
-    write.csv(qvat, paste0(fx, '.csv'), quote = FALSE, row.names = FALSE)
-    
-    vat2 <- vat
-    names(vat2) <- c('value', 'category', 'color')
+   
+    names(vat2) <- c('value', 'category', 'color')                                                 # color the geoTIFF
     vrt.file <- addColorTable(f0, table = vat2)
-    makeNiceTif(source = vrt.file, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = TRUE)
+    makeNiceTif(source = vrt.file, destination = f, overwrite = TRUE, overviewResample = 'nearest', stats = FALSE, vat = FALSE)
     
     
     addVat(f, attributes = vat, skipCount = TRUE)                        # <<-----------------------------------------
@@ -104,11 +95,7 @@ if(FALSE) {
   
    plot(tt, col = vat$color)                                                  # plot in R
    
-   
-   
- #   f <- file.path(rpath, paste0('predict_', the$site, '_', ts(now()), '.RDS'))
- #  saveRDS(predicted, f)
- #  print(paste0('Done!! Results are in ', f))
+  print(paste0('Done!! Results are in ', f))
  
    
    
