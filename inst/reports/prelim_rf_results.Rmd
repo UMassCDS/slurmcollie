@@ -36,7 +36,7 @@ model_fit <- readRDS(file.path(modelsdir, paste0(model, '.RDS')))
 
 predictdir <- 'c:/Work/etc/saltmarsh/data/oth/gis/predicted'
 # predicted <- 'predicted'                                        # orig
-predict <- 'predict_oth_2025-Apr-28_13-54'
+predict <- 'predict_oth_2025-Apr-28_13-54_recolor'
 prediction <- terra::rast(file.path(predictdir, paste0(predict, '.tif')))
 ```
 
