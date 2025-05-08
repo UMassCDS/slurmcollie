@@ -1,10 +1,26 @@
-#' Build a geoTIFF of predictions for specified model fit
+#' Build a map of geoTIFF of predictions for specified model fit
+#' 
+#' This funciton may be run at the console, but it's typically spun off as a batch job on Unity by `map`.
+#' 
+#' It writes a geoTIFF, `<result>.tif`, and a run info file, `<runinfo>.RDS`, with the following:
+#' 1. Time taken for the run (s)
+#' 2. Maximum memory used (GB)
+#' 3. Raster size (M pixel)
+#' 4. R error, or NULL for success
 #' 
 #' 
+#' You'll need to install rasterPrep with 
+#'    remotes::install_github('ethanplunkett/rasterPrep')
 #' 
-#' @param model Model ID, fit filename, or fit object - figure it out)
+#' @param fit Model fit object
+#' @param site Three-letter site abbreviation
+#' @param target Target level, such as `subclass`
 #' @param clip Optional clip, vector of xmin, xmax, ymin, ymax
-#' @param result Optional result filename. If not provided, uses name from database if it exists. Otherwise, constructs a name.
+#' @param sourcedir Source directory, probably the flights directory
+#' @param result Result path and filename, sans extension
+#' @param runinfo Path and filename of run info file. When the run finishes, run info 
+#'    is written to this file.
+#' @param cores Number of CPU cores to use
 #' @importFrom peakRam peakRAM
 #' @importFrom terra predict writeRaster
 #' @importFrom rasterPrep addColorTable makeNiceTif addVAT
@@ -12,36 +28,13 @@
    
    
    
-   predict <- function(fit, clip = NULL, result = NULL) {
+   do_map <- function(fit, site, target = 'subclass', clip = NULL, 
+                      sourcedir = the$flightsdir, result = NULL,
+                      cores = 1) {
       
-      
-      # if model is a scalar number,
-      #    it's fit id, so pull fit from database
-      # if it's a string,
-      #    it's a filename, so read filename to get fit
-      # if it's a fit object,
-      #    we've got it
-      
-      
-          # remotes::install_github('ethanplunkett/rasterPrep')
          
-      #pull target and site out of fit object
-         target <- 'subclass'                               # this will be pulled from names(fit$train)[1]
-         
-      
-         the$fit <- readRDS('c:/work/etc/saltmarsh/models/fit_oth_2025-May-05_15-53.RDS')                           ############# FOR TESTING
-         the$site <- 'oth'
-           
-       # change path to the$flightsdir
-       # change rpath to the$predicteddir
-         
-         path <- '/work/pi_cschweik_umass_edu/marsh_mapping/data/oth/gis/flights'
-         rpath <- '/work/pi_cschweik_umass_edu/marsh_mapping/data/oth/gis/predicted'
-         
-         
-         path <- 'C:/Work/etc/saltmarsh/data/oth/gis/flights'                                                        ############## for testing
-         rpath <- 'C:/Work/etc/saltmarsh/data/oth/gis/predicted'
-         
+
+            
          
          
          x <- names(the$fit$fit$trainingData)[-1]
@@ -51,7 +44,7 @@
          
          print(x)
          
-         rasters <- rast(file.path(path, paste0(x, '.tif')))
+         rasters <- rast(file.path(sourcedir, paste0(x, '.tif')))
          names(rasters) <- sub('^(\\d)', 'X\\1', names(rasters))                             # files with leading digit get X prepended by R  
          
          rasters <- rasters[[names(rasters) %in% names(the$fit$fit$trainingData)[-1]]]       # drop bands we don't want
@@ -60,16 +53,14 @@
          #  clip <- ext(c(-70.86452506, -70.86040917, 42.76976948, 42.77283781))                # larger clip: 38 min, 69 GB
          #  
          
-         clip <- the$clip$oth$small                                             # we'll have a clip argument, with clips from pars.yml, like this
-         rasters <- crop(rasters, ext(clip))
+         if(!is.null(clip))                                                                  # if clip is provided,
+         rasters <- crop(rasters, ext(clip))                                                 #    clip result
          
          
-         ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                     # set format for timestamp in filename                         
-         fx <- file.path(rpath, paste0('predict_', the$site, '_', ts(now())))               # base result filename
-         f0 <- paste0(fx, '_0.tif')                                                         # preliminary result filename
-         f <- paste0(fx, '.tif')                                                            # final result filename
+         f0 <- paste0(result, '_0.tif')                                                         # preliminary result filename
+         f <- paste0(result, '.tif')                                                            # final result filename
          
-         mem <- peakRAM(pred <- terra::predict(rasters, the$fit$fit, cpkgs = 'ranger', cores = 1, na.rm = TRUE))    # do a prediction for the model
+         mem <- peakRAM(pred <- terra::predict(rasters, fit, cpkgs = fit$method, cores = cores, na.rm = TRUE))    # do a prediction for the model
          
          
          levs <- levels(pred$class)[[1]]                                                             # replace values with levels
