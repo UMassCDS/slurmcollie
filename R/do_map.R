@@ -14,7 +14,6 @@
 #'    `remotes::install_github('ethanplunkett/rasterPrep')`
 #' 
 #' @param fit Model fit object
-#' @param target Target level, such as `subclass`
 #' @param clip Optional clip, vector of `xmin`, `xmax`, `ymin`, `ymax`
 #' @param sourcedir Source directory, probably the flights directory
 #' @param result Result path and filename, sans extension
@@ -28,8 +27,7 @@
 #' @export
 
 
-do_map <- function(fit, target = 'subclass', clip = NULL, 
-                   sourcedir = the$flightsdir, result = NULL,
+do_map <- function(fit, clip = NULL, sourcedir = the$flightsdir, result = NULL,
                    cores = 1, runinfo = NULL) {
    
    
@@ -37,6 +35,9 @@ do_map <- function(fit, target = 'subclass', clip = NULL,
    mpix <- NA
    
    err <- tryCatch({                                                                # trap any errors and save them to runinfo.RDS
+      
+      target <- fit$terms[[2]]                                                      #    get target level, e.g., 'subclass'
+      
       f0 <- paste0(result, '_0.tif')                                                #    preliminary result filename
       f0x <- paste0(result, '_0.*')                                                 #    all preliminary result files for later deletion
       f <- paste0(result, '.tif')                                                   #    final result filename

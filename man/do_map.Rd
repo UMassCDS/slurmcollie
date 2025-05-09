@@ -6,7 +6,6 @@
 \usage{
 do_map(
   fit,
-  target = "subclass",
   clip = NULL,
   sourcedir = the$flightsdir,
   result = NULL,
@@ -16,8 +15,6 @@ do_map(
 }
 \arguments{
 \item{fit}{Model fit object}
-
-\item{target}{Target level, such as \code{subclass}}
 
 \item{clip}{Optional clip, vector of \code{xmin}, \code{xmax}, \code{ymin}, \code{ymax}}
 

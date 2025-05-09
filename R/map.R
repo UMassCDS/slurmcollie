@@ -2,40 +2,53 @@
 #' 
 #' Console command to launch a prediction run via `do_map`, typically in a batch job on Unity.
 #' 
-#' @param model Model ID, fit filename, or fit object - figure it out)
+#' @param fit Model ID, fit filename, or fit object - figure it out)
+#' @param site Three-letter site abbreviation
 #' @param clip Optional clip, vector of `xmin`, `xmax`, `ymin`, `ymax`
-#' @param result Optional result filename. If not provided, uses name from database if it exists. Otherwise, constructs a name.
+#' @param result Optional result filename or path and filename. If not provided, uses name from 
+#'    database if it exists. Otherwise, constructs a name. If no path is supplied, `the$predicteddir`
+#'    for the current site is used.
+#' @param batch If TRUE, spawn a batch run on Unity; otherwise run locally
 #' @export
 
 
-
-map <- function(fit, clip = NULL, result = NULL) {
-   
-
-   
-   # if model is a scalar number,
-   #    it's fit id, so pull fit from database
-   # if it's a string,
-   #    it's a filename, so read filename to get fit
-   # if it's a fit object,
-   #    we've got it
-   
- 
+map <- function(fit, site = the$site, clip = NULL, result = NULL, batch = FALSE) {
    
    
+   if(!is.list(fit)) {                                                                 # if fit isn't a list (thus a fit object),
+      if(is.character(fit))                                                            #    if it's a character (thus a file name),
+         fit <- readRDS(fit)                                                           #       read it
+      else                                                                             #    else, it's a number (thus fit id in database),
+         print('load fit from databse')                                                #       pull fit from database
+   }                                                                                   # otherwise, it's already a fit object
    
-   ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                     # set format for timestamp in filename                         
-   fx <- file.path(resultdir, paste0('predict_', the$site, '_', ts(now())))               # base result filename
    
-     
+   if(is.null(site) & is.null(the$site))                                               # get the site
+      stop('Site name isn\'t already specified; it must be set with the site option')
+   if(is.null(site))
+      site <- the$site
+   the$site <- site                                                                    # and save it
    
- 
-   # Run info file returns some stats; I get others from https://github.com/birdflow-science/BirdFlowPipeline/blob/main/R/get_job_efficiency.R  
    
- 
+   res_path <- resolve_dir(the$predicteddir, site)                                     # default result path
+   if(is.null(result)) {                                                               # if no result name supplied,
+      ts <- stamp('2025-Mar-25_13-18', quiet = TRUE)                                   #    set format for timestamp in filename                         
+      result <- file.path(res_path, paste0('map_', the$site, '_', ts(now())))          #    base result filename
+   }
+   else if(dirname(result) == '.')                                                     # else, if we have a result with no path,
+      result <- file.path(res_path, result)                                            #    use default path
    
-   the$fit <- readRDS('c:/work/etc/saltmarsh/models/fit_oth_2025-May-05_15-53.RDS')    
-   do_map(the$fit$fit, target = 'subclass', sourcedir = resolve_dir(the$flightsdir, 'oth'), result = file.path(resolve_dir(the$predicteddir, 'oth'), 'test07'), runinfo = file.path(the$modelsdir, 'zzztest'), clip = the$clip$oth$small)
    
-     
+   source <- resolve_dir(the$flightsdir, site)
+   runinfo <- paste0(result, '.RDS')
+   
+   if(batch) {                                                                         # if it's a batch run on Unity,
+      print('spawning the run on Unity')
+      
+      # spawn batch run
+      
+      # Run info file returns some stats; I get others from https://github.com/birdflow-science/BirdFlowPipeline/blob/main/R/get_job_efficiency.R  
+   }
+   else                                                                                # else, it's a local run right now
+      do_map(fit, sourcedir = source, result = result, runinfo = runinfo, clip = clip)
 }
