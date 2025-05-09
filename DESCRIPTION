@@ -24,7 +24,8 @@ Imports:
     stringr,
     pROC,
     paletteer,
-    rasterPrep
+    rasterPrep,
+    peakRAM
 Suggests: 
     ranger
 Encoding: UTF-8

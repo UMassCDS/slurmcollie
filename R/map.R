@@ -3,7 +3,7 @@
 #' Console command to launch a prediction run via `do_map`, typically in a batch job on Unity.
 #' 
 #' @param model Model ID, fit filename, or fit object - figure it out)
-#' @param clip Optional clip, vector of xmin, xmax, ymin, ymax
+#' @param clip Optional clip, vector of `xmin`, `xmax`, `ymin`, `ymax`
 #' @param result Optional result filename. If not provided, uses name from database if it exists. Otherwise, constructs a name.
 #' @export
 
@@ -32,5 +32,10 @@ map <- function(fit, clip = NULL, result = NULL) {
  
    # Run info file returns some stats; I get others from https://github.com/birdflow-science/BirdFlowPipeline/blob/main/R/get_job_efficiency.R  
    
+ 
    
+   the$fit <- readRDS('c:/work/etc/saltmarsh/models/fit_oth_2025-May-05_15-53.RDS')    
+   do_map(the$fit$fit, target = 'subclass', sourcedir = resolve_dir(the$flightsdir, 'oth'), result = file.path(resolve_dir(the$predicteddir, 'oth'), 'test07'), runinfo = file.path(the$modelsdir, 'zzztest'), clip = the$clip$oth$small)
+   
+     
 }
