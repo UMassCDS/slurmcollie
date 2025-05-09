@@ -36,7 +36,7 @@ do_map <- function(fit, clip = NULL, sourcedir = the$flightsdir, result = NULL,
    
    err <- tryCatch({                                                                # trap any errors and save them to runinfo.RDS
       
-      target <- fit$terms[[2]]                                                      #    get target level, e.g., 'subclass'
+      target <- as.character(fit$terms[[2]])                                        #    get target level, e.g., 'subclass'
       
       f0 <- paste0(result, '_0.tif')                                                #    preliminary result filename
       f0x <- paste0(result, '_0.*')                                                 #    all preliminary result files for later deletion
@@ -63,7 +63,7 @@ do_map <- function(fit, clip = NULL, sourcedir = the$flightsdir, result = NULL,
                                             cores = cores, na.rm = TRUE))           #    prediction for the model
       writeRaster(pred, f0, overwrite = TRUE, datatype = 'INT1U', progress = 1, 
                   memfrac = 0.8)                                                    #    save the preliminary prediction as a geoTIFF
-
+      
       levs <- terra::levels(pred$class)[[1]]                                        #    get class levels from prediction
       levs$class <- as.numeric(levs$class)                                          #    make sure they're numeric
       names(levs)[2] <- target                                                      #    use target (e.g., 'subclass') as class name                                                                                 
@@ -98,11 +98,11 @@ do_map <- function(fit, clip = NULL, sourcedir = the$flightsdir, result = NULL,
    saveRDS(info, runinfo)
    
    if(err == '')
-   cat('do_map finished with no errors in ', 
-       format(as.duration(round(seconds(info$elapsed), 0))), 
-       ' using ', round(info$max_mem, 2), ' GB\n', sep = '')
+      cat('do_map finished with no errors in ', 
+          format(as.duration(round(seconds(info$elapsed), 0))), 
+          ' using ', round(info$max_mem, 2), ' GB\n', sep = '')
    else
-      cat('error: ', err, '\n', sep = '')
+      cat('Trapped error: ', err, '\n', sep = '')
 }
 
 
