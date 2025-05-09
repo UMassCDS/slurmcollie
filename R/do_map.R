@@ -102,7 +102,7 @@ do_map <- function(fit, clip = NULL, sourcedir = the$flightsdir, result = NULL,
           format(as.duration(round(seconds(info$elapsed), 0))), 
           ' using ', round(info$max_mem, 2), ' GB\n', sep = '')
    else
-      cat('Trapped error: ', err, '\n', sep = '')
+      cat('Error: (trapped) ', err, '\n', sep = '')
 }
 
 
