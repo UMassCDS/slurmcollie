@@ -25,7 +25,8 @@ Imports:
     pROC,
     paletteer,
     rasterPrep,
-    peakRAM
+    peakRAM,
+    batchtools
 Suggests: 
     ranger
 Encoding: UTF-8

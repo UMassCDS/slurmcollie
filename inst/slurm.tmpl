@@ -53,13 +53,13 @@ has_prefer <- !is.null(resources$prefer.gpu) && !is.na(resources$prefer.gpu)
 export DEBUGME=<%= Sys.getenv("DEBUGME") %>
 
 ## Export value of EBIRDST_KEY environemnt var
-export EBIRDST_KEY=<%= Sys.getenv("EBIRDST_KEY") %>
+## export EBIRDST_KEY=<%= Sys.getenv("EBIRDST_KEY") %>
 
 
-TZ='America/Los_Angeles' date
-whoami
-hostname
-source /etc/profile
-module load apptainer/latest
-apptainer exec <%= if (!is.null(resources$ngpus)) "--nv" %> /work/pi_drsheldon_umass_edu/birdflow_modeling/BirdFlowContainer/BirdFlowContainer.sif Rscript <%= if (!is.null(resources$ngpus)) "--no-environ" %> -e 'batchtools::doJobCollection("<%= uri %>")'
-TZ='America/Los_Angeles' date
+# TZ='America/Los_Angeles' date
+# whoami
+# hostname
+# source /etc/profile
+# module load apptainer/latest
+# apptainer exec <%= if (!is.null(resources$ngpus)) "--nv" %> /work/pi_drsheldon_umass_edu/birdflow_modeling/BirdFlowContainer/BirdFlowContainer.sif Rscript <%= if (!is.null(resources$ngpus)) "--no-environ" %> -e 'batchtools::doJobCollection("<%= uri %>")'
+# TZ='America/Los_Angeles' date
