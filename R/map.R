@@ -47,6 +47,7 @@ map <- function(fit, site = the$site, clip = NULL, result = NULL, batch = FALSE)
       
       # spawn batch run
       
+      # we'll collect job stats later when the job is done with sweep
       # Run info file returns some stats; I get others from https://github.com/birdflow-science/BirdFlowPipeline/blob/main/R/get_job_efficiency.R  
    }
    else                                                                                # else, it's a local run right now
