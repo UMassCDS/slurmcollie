@@ -73,3 +73,28 @@ submitJobs(reg = reg)
 status <- getStatus(reg = reg)
 print(status)
 # Look for column 'batch.id'
+# 
+# 
+# 
+# 
+########################################################## Let's get this right
+########################################################## Remember: slurm.tmpl comes from the built package, so must rebuild after changing
+########################################################## Once the registry is created, it can be accessed with loadRegistry
+########################################################## Huh. Need a new registry every time you submit jobs. WTF?
+########################################################## 
+########################################################## use testJob() to test before launching lots
+########################################################## consider using chunk() for many quick tasks
+library(batchtools)
+
+reg_dir <- '/work/pi_cschweik_umass_edu/marsh_mapping/registry/'
+reg <- makeRegistry(file.dir = reg_dir, conf.file = system.file('slurm.tmpl', package = 'saltmarsh', mustWork = TRUE))        # I think this only happens once
+
+
+loadRegistry(file.dir = reg_dir, writeable = TRUE)                                                                            # subsequent runs
+clearRegistry()
+jobs <- batchMap(fun = batch_test, reps = 43:45)                                                                              # uses default registry
+submitJobs()
+getStatus()
+getErrorMessages()
+findDone()
+j <- getJobTable()                                                                                                            # holds a bunch of info, but not Slurm job id
