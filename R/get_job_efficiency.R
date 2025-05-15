@@ -4,6 +4,9 @@
 #' via [batchtools::runOSCommand()], which uses ssh to connect to a login
 #' node before running the command.  The resulting output is then parsed 
 #' into an R list.
+#' 
+#' Source: https://github.com/birdflow-science/BirdFlowPipeline
+#' 
 #' @param id The slurm job ID including an array suffix e.g. "_1" if
 #'  appropriate.
 #'
@@ -21,7 +24,11 @@
 #' \item{`wall_min`}{Job wall-clock time in decimal minutes}
 #' @export
 #' @seealso [batchtools::findJobs()]
+
+
 get_job_efficiency <- function(id) {
+   
+   
    stopifnot(length(id) == 1)
    cmd <- paste("seff ", id, sep = "")
    a <- batchtools::runOSCommand(cmd, nodename = the$login_node)
@@ -43,6 +50,6 @@ get_job_efficiency <- function(id) {
    bytes <- fs::fs_bytes(c$memory_utilized) |> as.numeric() 
    c$mem_gb <- bytes / 1024^3
    c$wall_min <- hms::parse_hms(c$walltime) |> as.numeric() / 60
-   return(c) 
    
+   return(c) 
 }

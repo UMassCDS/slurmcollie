@@ -30,6 +30,9 @@ via \code{\link[batchtools:runOSCommand]{batchtools::runOSCommand()}}, which use
 node before running the command.  The resulting output is then parsed
 into an R list.
 }
+\details{
+Source: https://github.com/birdflow-science/BirdFlowPipeline
+}
 \seealso{
 \code{\link[batchtools:findJobs]{batchtools::findJobs()}}
 }

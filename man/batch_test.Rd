@@ -4,11 +4,7 @@
 \alias{batch_test}
 \title{a test thingy}
 \usage{
-batch_test(
-  rep,
-  item = "hello ",
-  file = "/work/pi_cschweik_umass_edu/marsh_mapping/reg/btest"
-)
+batch_test(reps, file = "/work/pi_cschweik_umass_edu/batch_test/btest/test_")
 }
 \description{
 a test thingy

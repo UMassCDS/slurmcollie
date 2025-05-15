@@ -9,7 +9,7 @@
 set_dirs <- function() {
    
    
-   for(i in c('models', 'data', 'gis', 'flights', 'field', 'shapefiles', 'samples', 'predicted', 'cache'))          # set directory name defaults
+   for(i in c('models', 'data', 'gis', 'flights', 'field', 'shapefiles', 'samples', 'predicted', 'cache', 'registries'))          # set directory name defaults
       the$dirs[[paste0(i, 'dir')]] <- ifelse(is.null(the$dirs[[i]]), i, the$dirs[[i]])
    
    the$modelsdir <- file.path(the$basedir, the$dirs$model)                                            # models
@@ -20,6 +20,8 @@ set_dirs <- function() {
    the$shapefilesdir <- file.path(the$gisdir, the$dirs$shapefiles)                                    # data/<site>/gis/shapefiles/
    the$predicteddir <- file.path(the$gisdir, the$dirs$predicted)                                      # data/<site>/gis/predicted/
    the$samplesdir <- file.path(the$datadir, the$dirs$samples)                                         # data/<site>/samples/
+   
+   the$registriesdir <- file.path(the$basedir, the$dirs$registries)                                   # Slurm/bathctools registries directory
    
    the$cachedir <- file.path(the$scratchdir, the$dirs$cache)                                          # scratchdir/cache/
 }
