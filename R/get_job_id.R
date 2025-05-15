@@ -1,5 +1,6 @@
-#' Get the Slurm job id for the specified batchtools job id in the specified registry. If
-#' the job.id doesn't exist, returns NA.
+#' Get Slurm job id for a batchtools job
+#' 
+#' Gets the Slurm job id for the specified batchtools job id in the specified registry. 
 #' 
 #' In order for this to work, you must add the following line to your Slurm template 
 #' (slurm.tmpl): \cr \cr
@@ -16,7 +17,14 @@ get_job_id <- function(job.id, reg = getDefaultRegistry()) {
    
    i <- reg$status$job.id == job.id
    if(!any(i))
-      return(NA)
+      stop('Job doesn\'t exist')
    
-   readLines(file.path(reg$file.dir, 'logs', paste0(reg$status$job.hash[i], '.log.slurmjobid')))
+   if(!file.exists(reg$file.dir))
+      stop('Registry ', reg$file.dir, ' doesn\'t exist')
+   
+   file <- file.path(reg$file.dir, 'logs', paste0(reg$status$job.hash[i], '.log.slurmjobid'))
+   if(!file.exists(file))
+      stop('Your job apparently hasn\'t completed yet.')
+   
+   readLines(file)
 }

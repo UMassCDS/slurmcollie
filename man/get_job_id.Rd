@@ -2,8 +2,7 @@
 % Please edit documentation in R/get_job_id.R
 \name{get_job_id}
 \alias{get_job_id}
-\title{Get the Slurm job id for the specified batchtools job id in the specified registry. If
-the job.id doesn't exist, returns NA.}
+\title{Get Slurm job id for a batchtools job}
 \usage{
 get_job_id(job.id, reg = getDefaultRegistry())
 }
@@ -13,6 +12,9 @@ get_job_id(job.id, reg = getDefaultRegistry())
 \item{reg}{batchtools registry object}
 }
 \description{
+Gets the Slurm job id for the specified batchtools job id in the specified registry.
+}
+\details{
 In order for this to work, you must add the following line to your Slurm template
 (slurm.tmpl): \cr \cr
 \verb{echo $SLURM_JOB_ID > <\%= log.file \%>.slurmjobid}
