@@ -111,11 +111,11 @@
    if(!the$gather$sourcedrive %in% c('local', 'google', 'sftp'))                    # make source sourcedrive is good
       stop('sourcedrive must be one of local, google, or sftp')
    if(any(is.na(sites$site_name)))                                                  # check for missing sites
-      stop(paste0('Bad site names: ', paste(site[is.na(sites$site_name)], collapse = ', ')))
+      stop('Bad site names: ', paste(site[is.na(sites$site_name)], collapse = ', '))
    if(any(t <- is.na(sites$footprint) | sites$footprint == ''))                     # check for missing standards
-      stop(paste0('Missing footprints for sites ', paste(sites$footprint[t], collapse = ', ')))
+      stop('Missing footprints for sites ', paste(sites$footprint[t], collapse = ', '))
    if(any(t <- is.na(sites$standard) | sites$standard == ''))                       # check for missing standards
-      stop(paste0('Missing standards for sites ', paste(sites$site[t], collapse = ', ')))
+      stop('Missing standards for sites ', paste(sites$site[t], collapse = ', '))
    
    if((the$gather$sourcedrive %in% c('google', 'sftp')) & 
       !dir.exists(the$cachedir))                                                    #    make sure cache directory exists if needed

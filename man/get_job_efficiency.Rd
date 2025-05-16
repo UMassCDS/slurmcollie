@@ -2,24 +2,24 @@
 % Please edit documentation in R/get_job_efficiency.R
 \name{get_job_efficiency}
 \alias{get_job_efficiency}
-\title{get the job efficiency of a completed job from slurm}
+\title{get the job efficiency of a completed job from Slurm}
 \usage{
 get_job_efficiency(id)
 }
 \arguments{
-\item{id}{The slurm job ID including an array suffix e.g. "_1" if
+\item{id}{The Slurm job ID including an array suffix e.g. "_1" if
 appropriate.}
 }
 \value{
 A list with items:
-\item{\code{job_id}}{slurm job id - without array suffix}
-\item{\code{array_job_id}}{slurm job id with array suffix}
+\item{\code{job_id}}{Slurm job id - without array suffix}
+\item{\code{array_job_id}}{Slurm job id with array suffix}
 \item{\code{state}}{The job state}
 \item{\code{cores}}{How many cores did the job use.}
 \item{\code{cpu_utilized}}{How much CPU time was used.}
 \item{\code{cpu_efficiency}}{CPU efficiency}
-\item{\code{walltime}}{ Job wall-clock time (ellapsed time) in h:m:s format}
-\item{\code{memory_utilized}}{Memory utilized in human readible format with (varying) units}
+\item{\code{walltime}}{ Job wall-clock time (elapsed time) in h:m:s format}
+\item{\code{memory_utilized}}{Memory utilized in human readable format with (varying) units}
 \item{\code{memory_efficiency}}{Memory efficiency.}
 \item{\code{mem_gb}}{Utilized memory in GiB (bytes * 1024^3)}
 \item{\code{wall_min}}{Job wall-clock time in decimal minutes}
@@ -31,7 +31,7 @@ node before running the command.  The resulting output is then parsed
 into an R list.
 }
 \details{
-Source: https://github.com/birdflow-science/BirdFlowPipeline
+Modified from \verb{https://github.com/birdflow-science/BirdFlowPipeline}.
 }
 \seealso{
 \code{\link[batchtools:findJobs]{batchtools::findJobs()}}

@@ -1,24 +1,24 @@
-#' get the job efficiency of a completed job from slurm
+#' get the job efficiency of a completed job from Slurm
 #'
 #' `get_job_efficiency()` calls the shell command `"seff"` on the job ID
 #' via [batchtools::runOSCommand()], which uses ssh to connect to a login
 #' node before running the command.  The resulting output is then parsed 
 #' into an R list.
 #' 
-#' Source: https://github.com/birdflow-science/BirdFlowPipeline
+#' Modified from `https://github.com/birdflow-science/BirdFlowPipeline`.
 #' 
-#' @param id The slurm job ID including an array suffix e.g. "_1" if
+#' @param id The Slurm job ID including an array suffix e.g. "_1" if
 #'  appropriate.
 #'
 #' @return A list with items:
-#' \item{`job_id`}{slurm job id - without array suffix}
-#' \item{`array_job_id`}{slurm job id with array suffix}
+#' \item{`job_id`}{Slurm job id - without array suffix}
+#' \item{`array_job_id`}{Slurm job id with array suffix}
 #' \item{`state`}{The job state}
 #' \item{`cores`}{How many cores did the job use.}
 #' \item{`cpu_utilized`}{How much CPU time was used.}
 #' \item{`cpu_efficiency`}{CPU efficiency}
-#' \item{`walltime`}{ Job wall-clock time (ellapsed time) in h:m:s format}
-#' \item{`memory_utilized`}{Memory utilized in human readible format with (varying) units}
+#' \item{`walltime`}{ Job wall-clock time (elapsed time) in h:m:s format}
+#' \item{`memory_utilized`}{Memory utilized in human readable format with (varying) units}
 #' \item{`memory_efficiency`}{Memory efficiency.}
 #' \item{`mem_gb`}{Utilized memory in GiB (bytes * 1024^3)}
 #' \item{`wall_min`}{Job wall-clock time in decimal minutes}

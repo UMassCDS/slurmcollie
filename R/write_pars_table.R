@@ -12,9 +12,9 @@ write_pars_table <- function(data, name) {
    
    
    if(!name %in% names(the))
-      stop(paste0('Parameter ', name, ' not in ', file.path(the$parsdir, the$parsfile)))
+      stop('Parameter ', name, ' not in ', file.path(the$parsdir, the$parsfile))
    f <- file.path(the$parsdir, the[[name]])
    if(!file.exists(f))
-      stop(paste0('Parameter file ', f, ' not found'))
+      stop('Parameter file ', f, ' not found')
    write.table(data, f, sep = '\t', row.names = FALSE, quote = FALSE)
 }
