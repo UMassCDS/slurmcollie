@@ -76,7 +76,7 @@ init <- function() {
    
    f <- file.path(path.expand('~'), 'saltmarsh.yml')
    if(!file.exists(f))
-      stop(paste0('User parameter file ', f, ' not found'))
+      stop('User parameter file ', f, ' not found')
    x <- yaml::read_yaml(f)
    for(i in 1:length(x)) 
       the[[names(x)[i]]] <- x[[i]]
@@ -84,7 +84,7 @@ init <- function() {
    
    p <- c('basedir', 'parsdir', 'parsfile', 'scratchdir') 
    if(any(t <- !p %in% names(the)))
-      stop(paste0('Parameters ', paste0(p[t], collapse = ', ') , ' are missing from ', f))
+      stop('Parameters ', paste0(p[t], collapse = ', ') , ' are missing from ', f)
    
    the$parsdir <- file.path(the$basedir, the$parsdir)                                                    # path to parameter files
    

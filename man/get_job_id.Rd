@@ -2,20 +2,20 @@
 % Please edit documentation in R/get_job_id.R
 \name{get_job_id}
 \alias{get_job_id}
-\title{Get Slurm job id for a batchtools job}
+\title{Get Slurm job id for a \code{batchtools} job}
 \usage{
 get_job_id(job.id, reg = getDefaultRegistry())
 }
 \arguments{
-\item{job.id}{The job.id of a batchtools job}
+\item{job.id}{The job.id of a \code{batchtools} job}
 
-\item{reg}{batchtools registry object}
+\item{reg}{\code{batchtools} registry object}
 }
 \description{
-Gets the Slurm job id for the specified batchtools job id in the specified registry.
+Gets the Slurm job id for the specified \code{batchtools} job id in the specified registry.
 }
 \details{
 In order for this to work, you must add the following line to your Slurm template
-(slurm.tmpl): \cr \cr
+(\code{slurm.tmpl}): \cr \cr
 \verb{echo $SLURM_JOB_ID > <\%= log.file \%>.slurmjobid}
 }

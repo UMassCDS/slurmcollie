@@ -12,9 +12,9 @@ read_pars_table <- function(name) {
    
    
    if(!name %in% names(the))
-      stop(paste0('Parameter ', name, ' not in ', file.path(the$parsdir, the$parsfile)))
+      stop('Parameter ', name, ' not in ', file.path(the$parsdir, the$parsfile))
    f <- file.path(the$parsdir, the[[name]])
    if(!file.exists(f))
-      stop(paste0('Parameter file ', f, ' not found'))
+      stop('Parameter file ', f, ' not found')
    read.table(f, sep = '\t', header = TRUE, comment.char = '')
 }

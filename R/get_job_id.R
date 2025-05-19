@@ -1,13 +1,13 @@
-#' Get Slurm job id for a batchtools job
+#' Get Slurm job id for a `batchtools` job
 #' 
-#' Gets the Slurm job id for the specified batchtools job id in the specified registry. 
+#' Gets the Slurm job id for the specified `batchtools` job id in the specified registry. 
 #' 
 #' In order for this to work, you must add the following line to your Slurm template 
-#' (slurm.tmpl): \cr \cr
+#' (`slurm.tmpl`): \cr \cr
 #'    `echo $SLURM_JOB_ID > <%= log.file %>.slurmjobid`
 #'
-#' @param job.id The job.id of a batchtools job 
-#' @param reg batchtools registry object
+#' @param job.id The job.id of a `batchtools` job 
+#' @param reg `batchtools` registry object
 #' @importFrom batchtools getDefaultRegistry
 #' @export
 

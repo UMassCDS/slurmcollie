@@ -70,7 +70,7 @@
          }
       },
       error = function(cond)
-         stop(paste0('File ', name, ' not found on remote drive'))
+         stop('File ', name, ' not found on remote drive')
       )
       
       s <- (file.size(tname) * 8 / 1e6) / 
