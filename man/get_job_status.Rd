@@ -7,19 +7,19 @@
 get_job_status(jobid = NULL, days = NULL)
 }
 \arguments{
-\item{jobid}{Slurm JobID}
+\item{jobid}{Slurm \code{JobID}}
 
 \item{days}{Number of days to look back}
 }
 \value{
-Data frame with jobID, State, and Reason
+Data frame with \code{jobID}, \code{State}, and \code{Reason}
 }
 \description{
 Gets the Slurm State and Reason codes for a specific job or all jobs launched
 in the past n days.
 }
 \details{
-Either specify the \code{jobid} with the Slurm JobID to get the status for a
+Either specify the \code{jobid} with the Slurm \code{JobID} to get the status for a
 single job, or \code{days} to get the status for all jobs run in the past \code{days}
 days. If you don't specify either, you'll get the Slurm default: jobs you
 launched today.

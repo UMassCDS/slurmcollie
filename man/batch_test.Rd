@@ -4,7 +4,12 @@
 \alias{batch_test}
 \title{a test thingy}
 \usage{
-batch_test(reps, file = "/work/pi_cschweik_umass_edu/batch_test/btest/test_")
+batch_test(rep, file = "/work/pi_cschweik_umass_edu/batch_test/btest/test_")
+}
+\arguments{
+\item{rep}{Rep number}
+
+\item{file}{File to write to}
 }
 \description{
 a test thingy

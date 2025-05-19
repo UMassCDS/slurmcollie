@@ -29,7 +29,7 @@ launch <- function(call, args, reps, resources, regdir = the$regdir, jobids, rep
    else
       regid <- (max(as.numeric(sub('reg', '', x))) + 1) |>
       formatC(width = 3, format = 'd', flag = 0)
-   regid <- paste0('reg', reg_id)
+   regid <- paste0('reg', regid)
    
    
    reg <- makeRegistry(file.dir = file.path(regdir, regid), 

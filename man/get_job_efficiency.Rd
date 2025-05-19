@@ -23,6 +23,10 @@ A list with items:
 \item{\code{memory_efficiency}}{Memory efficiency.}
 \item{\code{mem_gb}}{Utilized memory in GiB (bytes * 1024^3)}
 \item{\code{wall_min}}{Job wall-clock time in decimal minutes}
+importsFrom batchtools runOSCommand
+importsFrom yaml read_yaml
+importsFrom fs fs_bytes
+importsFrom hms parse_hms
 }
 \description{
 \code{get_job_efficiency()} calls the shell command \code{"seff"} on the job ID

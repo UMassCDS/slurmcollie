@@ -3,7 +3,7 @@
 #' Gets the Slurm State and Reason codes for a specific job or all jobs launched
 #' in the past n days.
 #'
-#' Either specify the `jobid` with the Slurm JobID to get the status for a
+#' Either specify the `jobid` with the Slurm `JobID` to get the status for a
 #' single job, or `days` to get the status for all jobs run in the past `days`
 #' days. If you don't specify either, you'll get the Slurm default: jobs you
 #' launched today.
@@ -18,9 +18,9 @@
 #' from those returned by `squeue`. Interacting with Slurm requires setting up
 #' `ssh` to connect to a login node.
 #' 
-#' @param jobid Slurm JobID
+#' @param jobid Slurm `JobID`
 #' @param days Number of days to look back
-#' @returns Data frame with jobID, State, and Reason
+#' @returns Data frame with `jobID`, `State`, and `Reason`
 #' @importFrom batchtools runOSCommand
 #' @export
 

@@ -4,7 +4,6 @@
 #' `jbd_2.RDS`, etc. Will need a mechanism to delete databases more than a week old (or something).
 #' 
 #' @param database Name of database (`jdb` or `db`)
-#' @param force If TRUE, always loads the database, replacing the current one if it exists
 #' @importFrom tools file_path_sans_ext
 #' @export
 

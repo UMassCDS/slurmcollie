@@ -8,8 +8,6 @@ save_database(database)
 }
 \arguments{
 \item{database}{Name of database (\code{jdb} or \code{db})}
-
-\item{force}{If TRUE, always loads the database, replacing the current one if it exists}
 }
 \description{
 Saves the database in directory \code{the$dbdir}. Previous versions are renamed e.g., \code{jbd_1.RDS},
