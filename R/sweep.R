@@ -12,6 +12,8 @@
 
 sweep <- function(registriesdir = the$registriesdir) {
    
+   load_database('jdb')
+   
    
    
    

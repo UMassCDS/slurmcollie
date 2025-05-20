@@ -59,6 +59,7 @@ launch <- function(call, args, reps, resources, regdir = the$regdir, jobids, rep
    
    the$jdb$jobid[i] <- jobids                                                 # add job ids to jobs database
    the$jdb$bid[i] <- bid                                                      # and add batchtools job ids to jobs database
+   
   
    save_database('jdb')                                                       # save the database
    
