@@ -14,7 +14,7 @@
 #' @param regdir Directory containing `batchtools` registries
 #' @param jobids ids for these jobs in jobs database. Supply existing
 #'    jobs to relaunch jobs; NA or NULL will create new jobs.
-#' @param jobnames Optional names for jobs, informational only
+#' @param comment Optional comment; will be recycled for multiple reps
 #' @param finish Optional name of a function to run for completed jobs,
 #'    for example `finish = 'sweep_fit'` to gather fit stats
 #' @param replace If TRUE, replace existing job ids in jobs database; 
@@ -25,7 +25,7 @@
 
 launch <- function(call, args, reps = 1, argname = 'rep', more.args = list(), 
                    resources = list(), regdir = the$regdir, 
-                   jobids = NULL, jobnames = NA, finish = NA, replace = TRUE) {
+                   jobids = NULL, comment = '', finish = NA, replace = TRUE) {
    
    
    load_database('jdb')                                                       # load the jobs database if we don't already have it
@@ -62,8 +62,6 @@ launch <- function(call, args, reps = 1, argname = 'rep', more.args = list(),
       submitJobs(resources = resources)                                       # definte and submit jobs
    
    
-   bid <- paste0(regid, ':', jobs$job.id)                                     # batchtools id (registry:job.id)
-   
    
    ########### CREATE DATA FOR TESTING
    # the$jdb <- data.frame(jobid = 101:105, bid = c(paste0('reg001:', 1:3), paste0('reg002:', 1:2)))    # for testing
@@ -85,10 +83,11 @@ launch <- function(call, args, reps = 1, argname = 'rep', more.args = list(),
    i[is.na(i)] <- j
    
    the$jdb$jobid[i] <- jobids                                                 # add job ids to jobs database
-   the$jdb$jobname[i] <- jobnames
-   the$jdb$bjobid[i] <- bid                                                   # and add batchtools job ids to jobs database
+   the$jdb$bjobid[i] <- jobs$job.id                                                   # and add batchtools job ids to jobs database
    the$jdb$registry[i] <- regid
+   the$jdb$done[i] <- FALSE
    the$jdb$finish[i] <- finish
+   the$jdb$comment[i] <- rep(comment, length = length(i))                     # job comment
    
    save_database('jdb')                                                       # save the database
    

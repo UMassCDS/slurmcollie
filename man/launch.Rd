@@ -13,7 +13,7 @@ launch(
   resources = list(),
   regdir = the$regdir,
   jobids = NULL,
-  jobnames = NA,
+  comment = "",
   finish = NA,
   replace = TRUE
 )
@@ -38,7 +38,7 @@ only when \code{reps} is a vector or unnamed list}
 \item{jobids}{ids for these jobs in jobs database. Supply existing
 jobs to relaunch jobs; NA or NULL will create new jobs.}
 
-\item{jobnames}{Optional names for jobs, informational only}
+\item{comment}{Optional comment; will be recycled for multiple reps}
 
 \item{finish}{Optional name of a function to run for completed jobs,
 for example \code{finish = 'sweep_fit'} to gather fit stats}
