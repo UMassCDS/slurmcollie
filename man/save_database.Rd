@@ -10,6 +10,6 @@ save_database(database)
 \item{database}{Name of database (\code{jdb} or \code{db})}
 }
 \description{
-Saves the database in directory \code{the$dbdir}. Previous versions are renamed e.g., \code{jbd_1.RDS},
-\code{jbd_2.RDS}, etc. Will need a mechanism to delete databases more than a week old (or something).
+Saves the database in directory \code{the$dbdir}. Previous versions are renamed e.g., \code{jdb_1.RDS},
+\code{jdb_2.RDS}, etc. Will need a mechanism to delete databases more than a week old (or something).
 }

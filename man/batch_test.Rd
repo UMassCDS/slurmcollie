@@ -12,5 +12,5 @@ batch_test(rep, file = "/work/pi_cschweik_umass_edu/batch_test/btest/test_")
 \item{file}{File to write to}
 }
 \description{
-a test thingy
+Rep 2 will throw an error, and rep 4 will blow out memory
 }

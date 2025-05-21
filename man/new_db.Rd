@@ -12,6 +12,6 @@ new_db(database, really = FALSE)
 \item{really}{If TRUE, creates database, \strong{destroying existing database}}
 }
 \description{
-Creates a new empty fits database (\code{db}) or jobs database (\code{jbd}). Use with great care--this
+Creates a new empty fits database (\code{db}) or jobs database (\code{jdb}). Use with great care--this
 function will destroy any existing database. It saves the results to disk immediately.
 }

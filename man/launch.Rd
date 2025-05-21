@@ -7,10 +7,14 @@
 launch(
   call,
   args,
-  reps,
-  resources,
+  reps = 1,
+  argname = "rep",
+  more.args = list(),
+  resources = list(),
   regdir = the$regdir,
-  jobids,
+  jobids = NULL,
+  jobnames = NA,
+  finish = NA,
   replace = TRUE
 )
 }
@@ -19,14 +23,25 @@ launch(
 
 \item{args}{Named list of arguments to called function}
 
-\item{reps}{Vector, list or data frame to vectorize call over}
+\item{reps}{Vector, list, or data frame to vectorize call over. If a
+named list or data frame, the names must correspond to the fuction's
+arguments. If a vector or unnamed list, \code{argname} is used.}
+
+\item{argname}{Name of \code{reps} argument in function to be called, used
+only when \code{reps} is a vector or unnamed list}
 
 \item{resources}{Named list of resources, overriding defaults in
 \code{batchtools.conf}}
 
 \item{regdir}{Directory containing \code{batchtools} registries}
 
-\item{jobids}{ids for these jobs in jobs database}
+\item{jobids}{ids for these jobs in jobs database. Supply existing
+jobs to relaunch jobs; NA or NULL will create new jobs.}
+
+\item{jobnames}{Optional names for jobs, informational only}
+
+\item{finish}{Optional name of a function to run for completed jobs,
+for example \code{finish = 'sweep_fit'} to gather fit stats}
 
 \item{replace}{If TRUE, replace existing job ids in jobs database;
 otherwise throw an error for existing jobs}

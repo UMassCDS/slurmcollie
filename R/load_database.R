@@ -11,8 +11,9 @@
 load_database <- function(database, force = FALSE) {
    
    
+   f <- file.path(the$dbdir, paste0(database, '.RDS'))
    if(is.null(the[[database]]) | force)                         # if don't have the database or force = TRUE,
-      if(!file.exists(f <- file.path(the$dbdir, paste0(database, '.RDS'))))
+      if(!file.exists(f))
          stop('Database ', f, ' doesn\'t exist. Use new_db(\'',database,'\') to create it.')
       the[[database]] <- readRDS(f)
 }

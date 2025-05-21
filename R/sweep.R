@@ -16,6 +16,12 @@ sweep <- function(registriesdir = the$registriesdir) {
    
    
    
+   for(i in 1:3) {
+      x <- get_job_efficiency(get_job_id(i))
+      x$cpu_pct <- as.numeric(sub('%.*$', '', x$cpu_efficiency))
+      the$jdb[i, c('cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct')] <- x[c('cores', 'mem_gb', 'walltime', 'cpu_utilized', 'cpu_pct')]
+   }
+   
    
    
 }

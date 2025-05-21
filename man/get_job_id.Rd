@@ -13,6 +13,8 @@ get_job_id(job.id, reg = getDefaultRegistry())
 }
 \description{
 Gets the Slurm job id for the specified \code{batchtools} job id in the specified registry.
+Throws an error if the \code{batchtools} job or registry don't exist. If there is no Slurm
+job id yet, returns NA.
 }
 \details{
 In order for this to work, you must add the following line to your Slurm template
