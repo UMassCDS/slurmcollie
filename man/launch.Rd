@@ -9,7 +9,7 @@ launch(
   args,
   reps = 1,
   argname = "rep",
-  more.args = list(),
+  moreargs = list(),
   resources = list(),
   regdir = the$regdir,
   jobids = NULL,
@@ -29,6 +29,9 @@ arguments. If a vector or unnamed list, \code{argname} is used.}
 
 \item{argname}{Name of \code{reps} argument in function to be called, used
 only when \code{reps} is a vector or unnamed list}
+
+\item{moreargs}{a named list of additional arguments to the called function,
+not vectorized over}
 
 \item{resources}{Named list of resources, overriding defaults in
 \code{batchtools.conf}}

@@ -4,10 +4,16 @@
 \alias{batch_test}
 \title{a test thingy}
 \usage{
-batch_test(rep, file = "/work/pi_cschweik_umass_edu/batch_test/btest/test_")
+batch_test(
+  rep,
+  wait = 0,
+  file = "/work/pi_cschweik_umass_edu/batch_test/btest/test_"
+)
 }
 \arguments{
 \item{rep}{Rep number}
+
+\item{wait}{Minutes to wait before doing anything}
 
 \item{file}{File to write to}
 }

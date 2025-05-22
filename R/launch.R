@@ -9,6 +9,8 @@
 #'    arguments. If a vector or unnamed list, `argname` is used.
 #' @param argname Name of `reps` argument in function to be called, used 
 #'    only when `reps` is a vector or unnamed list
+#' @param moreargs a named list of additional arguments to the called function,
+#'    not vectorized over
 #' @param resources Named list of resources, overriding defaults in 
 #'    `batchtools.conf`
 #' @param regdir Directory containing `batchtools` registries
@@ -23,7 +25,7 @@
 #' @export
 
 
-launch <- function(call, args, reps = 1, argname = 'rep', more.args = list(), 
+launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(), 
                    resources = list(), regdir = the$regdir, 
                    jobids = NULL, comment = '', finish = NA, replace = TRUE) {
    
@@ -58,7 +60,7 @@ launch <- function(call, args, reps = 1, argname = 'rep', more.args = list(),
                        conf.file = config)                                    # create batchtools registry
    
    # Note: might need to use get(call, envir = asNamespace('saltmarsh')), though this is working for now
-   jobs <- batchMap(fun = get(call), args = reps, more.args = more.args) |>
+   jobs <- batchMap(fun = get(call), args = reps, more.args = moreargs) |>
       submitJobs(resources = resources)                                       # definte and submit jobs
    
    
@@ -83,8 +85,8 @@ launch <- function(call, args, reps = 1, argname = 'rep', more.args = list(),
    i[is.na(i)] <- j
    
    the$jdb$jobid[i] <- jobids                                                 # add job ids to jobs database
-#   the$jdb$launch[i] <- with_tz(now(),  'America/New_York')                 # launch date and time                            *** should put time zone in pars, I guess 
-   the$jdb$launch[i] <- now()                                                 # launch date and time in UTC, leaving pretty formatting to info()
+   the$jdb$launched[i] <- now()                                               # launch date and time in UTC, leaving pretty formatting info() - use with_tz(now(),  'America/New_York') 
+   the$jdb$call[i] <- call                                                    # name of called function
    the$jdb$bjobid[i] <- jobs$job.id                                           # and add batchtools job ids to jobs database
    the$jdb$registry[i] <- regid
    the$jdb$done[i] <- FALSE

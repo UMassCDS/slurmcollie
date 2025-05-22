@@ -3,10 +3,13 @@
 #' Rep 2 will throw an error, and rep 4 will blow out memory
 #' 
 #' @param rep Rep number
+#' @param wait Minutes to wait before doing anything
 #' @param file File to write to
 #' @export
 
-batch_test <- function(rep, file = '/work/pi_cschweik_umass_edu/batch_test/btest/test_') {
+batch_test <- function(rep, wait = 0, file = '/work/pi_cschweik_umass_edu/batch_test/btest/test_') {
+   
+   Sys.sleep(wait * 60)
    
    item <- paste0('hello ', format(Sys.time()), '\nNode: ', Sys.info()[['nodename']], '\n')
    writeLines(item, f <- paste0(file, rep, '.txt'))
@@ -15,8 +18,9 @@ batch_test <- function(rep, file = '/work/pi_cschweik_umass_edu/batch_test/btest
       stop('We hate job #2')
    if(rep == 4) {
       cat('Time to blow out memory...\n')
-      x <- 1:1e9
+      x <- 1:1e10
       cat('We\'re now crashed\n')
    }
-   Sys.sleep(30)
+
+   Sys.sleep(60 * 5 * runif(5))              # random wait up to 5 minutes before finishing
 }
