@@ -23,7 +23,7 @@ new_db <- function(database, really = FALSE) {
           'jdb' = {
              the$jdb <- data.frame(
                 jobid = integer(),
-                jobname = character(),
+                launch = as.POSIXct(character()),
                 bjobid = integer(),
                 registry = character(),
                 sjobid = character(),
@@ -33,11 +33,12 @@ new_db <- function(database, really = FALSE) {
                 error = character(),
                 done = logical(),
                 finish  = character(),
-                cores = integer(0),
-                mem_gb = double(0),
-                walltime = character(0),
-                cpu = character(0),
-                cpu_pct = character(0)
+                cores = integer(),
+                mem_gb = double(),
+                walltime = character(),
+                cpu = character(),
+                cpu_pct = character(),
+                comment = character()
              )
           },
           stop('Database must be one of "db" or "jdb"')

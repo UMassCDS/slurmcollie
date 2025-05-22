@@ -1,10 +1,10 @@
-#' Get the status for Slurm jobs
+#' Get the state of Slurm jobs
 #' 
 #' Gets the Slurm State and Reason codes for a specific job or all jobs launched
 #' in the past n days.
 #'
-#' Either specify the `jobid` with the Slurm `JobID` to get the status for a
-#' single job, or `days` to get the status for all jobs run in the past `days`
+#' Either specify the `jobid` with the Slurm `JobID` to get the state for a
+#' single job, or `days` to get the state for all jobs run in the past `days`
 #' days. If you don't specify either, you'll get the Slurm default: jobs you
 #' launched today.
 #'
@@ -14,7 +14,8 @@
 #' Only the primary `JobID`s are returned; `_batch`, `_extern`, and other
 #' sidecar jobs are dropped.
 #'
-#' `get_job_status` uses the Slurm `sacct` command, and results differ slightly
+#' `get_job_
+#' state` uses the Slurm `sacct` command, and results differ slightly
 #' from those returned by `squeue`. Interacting with Slurm requires setting up
 #' `ssh` to connect to a login node.
 #' 
@@ -25,7 +26,7 @@
 #' @export
 
 
-get_job_status <- function(jobid = NULL, days = NULL) {
+get_job_state <- function(jobid = NULL, days = NULL) {
    
    
    cmd <- 'sacct -p -o JobID -o State -o Reason '

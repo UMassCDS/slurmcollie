@@ -5,27 +5,28 @@
 #' successful, how many failed, and how many are still outstanding. If all registries have been
 #' swept, we'll get to start over at reg001. Saves the database, of course!
 #' 
-#' @param registriesdir Directory containing `batchtools` registries
 #' @importFrom batchtools loadRegistry getStatus 
+#' @importFrom lubridate time_length interval now
 #' @export
 
 
-sweep <- function(registriesdir = the$registriesdir) {
+sweep <- function() {
+   
    
    load_database('jdb')
    
    noslurmid <- (1:nrow(the$jdb))[is.na(the$jdb$sjobid)]                                              # get Slurm job ids
    for(i in noslurmid)
-      the$jdb$sjobid[i] <- get_job_id(the$jdb$bjobid[i], suppressMessages(loadRegistry(file.path(the$regdir, the$jdb$registry[i]))))
+      the$jdb$sjobid[i] <- get_job_id(the$jdb$bjobid[i], suppressMessages(
+         loadRegistry(file.path(the$regdir, the$jdb$registry[i]))))
    
    
-   # find oldest outstanding job
-   # get_job_status(days = ...)
-   
-   x <- get_job_status()
+   oldest <- ceiling(time_length(interval(min(the$jdb$launch[!the$jdb$done]), now()), 'day'))         # oldest unfinished job in days
+   x <- get_job_state(days = oldest)                                                                  # get state for all jobs, reaching back far enough to get oldest unfinished job
    y <- merge(the$jdb[!the$jdb$done, 'sjobid', drop = FALSE], x, by.x = 'sjobid', by.y = 'JobID')
-   the$jdb[!the$jdb$done, c('status', 'reason')] <- y[, c('State', 'Reason')]
+   the$jdb[!the$jdb$done, c('state', 'reason')] <- y[, c('State', 'Reason')]                          # set state and reason
 
+   newdone <- (the$jdb$state == 'COMPLETED') & !the$jdb$done
    
 # for newly completed jobs, use getErrorMessages
 # update my status accordingly

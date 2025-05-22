@@ -83,7 +83,9 @@ launch <- function(call, args, reps = 1, argname = 'rep', more.args = list(),
    i[is.na(i)] <- j
    
    the$jdb$jobid[i] <- jobids                                                 # add job ids to jobs database
-   the$jdb$bjobid[i] <- jobs$job.id                                                   # and add batchtools job ids to jobs database
+#   the$jdb$launch[i] <- with_tz(now(),  'America/New_York')                 # launch date and time                            *** should put time zone in pars, I guess 
+   the$jdb$launch[i] <- now()                                                 # launch date and time in UTC, leaving pretty formatting to info()
+   the$jdb$bjobid[i] <- jobs$job.id                                           # and add batchtools job ids to jobs database
    the$jdb$registry[i] <- regid
    the$jdb$done[i] <- FALSE
    the$jdb$finish[i] <- finish

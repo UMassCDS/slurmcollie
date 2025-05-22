@@ -4,10 +4,7 @@
 \alias{sweep}
 \title{Sweep up finished batch jobs}
 \usage{
-sweep(registriesdir = the$registriesdir)
-}
-\arguments{
-\item{registriesdir}{Directory containing \code{batchtools} registries}
+sweep()
 }
 \description{
 Checks status of all jobs in all registries. Fills database with run stats, then deletes all
