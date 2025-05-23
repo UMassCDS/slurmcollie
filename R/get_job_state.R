@@ -14,8 +14,7 @@
 #' Only the primary `JobID`s are returned; `_batch`, `_extern`, and other
 #' sidecar jobs are dropped.
 #'
-#' `get_job_
-#' state` uses the Slurm `sacct` command, and results differ slightly
+#' `get_job_state` uses the Slurm `sacct` command, and results differ slightly
 #' from those returned by `squeue`. Interacting with Slurm requires setting up
 #' `ssh` to connect to a login node.
 #' 
@@ -37,6 +36,8 @@ get_job_state <- function(jobid = NULL, days = NULL) {
    if(!is.null(days))
       cmd <- paste0(cmd, '--start=now-', days, 'days')
   
+   print(cmd)
+   
    a <- batchtools::runOSCommand(cmd, nodename = 'login1')
    if(a$exit.code != 0)
       stop('Slurm sacct call failed with exit code ', a$exit.code)

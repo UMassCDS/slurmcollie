@@ -16,7 +16,6 @@
 
 sweep <- function(stats = TRUE) {
    
-   a <- Sys.time()
    
    load_database('jdb')
    
@@ -55,12 +54,12 @@ sweep <- function(stats = TRUE) {
    
    
    if(stats) {
-   for(i in newdone) {                                                                                   # get job stats
-      x <- get_job_efficiency(the$jdb$sjobid[i])
-      x$cpu_pct <- as.numeric(sub('%.*$', '', x$cpu_efficiency))
-      the$jdb[i, c('cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct')] <- 
-         x[c('cores', 'mem_gb', 'walltime', 'cpu_utilized', 'cpu_pct')]
-   }
+      for(i in newdone) {                                                                                   # get job stats
+         x <- get_job_efficiency(the$jdb$sjobid[i])
+         x$cpu_pct <- as.numeric(sub('%.*$', '', x$cpu_efficiency))
+         the$jdb[i, c('cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct')] <- 
+            x[c('cores', 'mem_gb', 'walltime', 'cpu_utilized', 'cpu_pct')]
+      }
    }
    
    notdone <- (1:nrow(the$jdb))[!the$jdb$done]                                                           # now, all jobs that aren't yet finished
@@ -93,7 +92,6 @@ sweep <- function(stats = TRUE) {
    
    the$jdb$done[newdone] <- TRUE                                                                         # mark newly-finished jobs as done
    
-   print(Sys.time() - a)
    
    #save_database('jdb')                                          # save the database before deleting registries!
    
