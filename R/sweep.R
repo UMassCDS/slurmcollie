@@ -8,6 +8,10 @@
 #' Getting run stats (memory, CPU time, etc.) take about 75% of the execution time, so if you
 #' don't need them and are impatient, use `stats = FALSE`.
 #' 
+#' SO...HMMM.....................since info calls sweep by default at the start (and sweep calls
+#' info('summary'), there's some redundancy. I think it means sweep is no longer a user-facing 
+#' command?
+#' 
 #' @param stats If TRUE, fills in run stats
 #' @importFrom batchtools loadRegistry getStatus getLog
 #' @importFrom lubridate time_length interval now
@@ -64,7 +68,7 @@ sweep <- function(stats = TRUE, quiet = FALSE) {
          if(is.na(the$jdb$sjobid[i])) 
             the$jdb$status[i] <- 'pending'
          else { 
-            if(the$jdb$state[i] == 'PENDING') 
+            if(the$jdb$state[i] == 'PENDING')                                                               # THIS WOULD PROBABLY BE BETTER AS A MATCH, THEN FILL IN FOR COMPLETED, PENDING, AND FAILED
                the$jdb$status[i] <- 'queued'
             else { 
                if(the$jdb$state[i] == 'TIMEOUT') 

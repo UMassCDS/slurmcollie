@@ -4,7 +4,7 @@
 \alias{sweep}
 \title{Sweep up finished batch jobs}
 \usage{
-sweep(stats = TRUE)
+sweep(stats = TRUE, quiet = FALSE)
 }
 \arguments{
 \item{stats}{If TRUE, fills in run stats}
@@ -18,4 +18,8 @@ swept, we'll get to start over at reg001. Saves the database, of course!
 \details{
 Getting run stats (memory, CPU time, etc.) take about 75\% of the execution time, so if you
 don't need them and are impatient, use \code{stats = FALSE}.
+
+SO...HMMM.....................since info calls sweep by default at the start (and sweep calls
+info('summary'), there's some redundancy. I think it means sweep is no longer a user-facing
+command?
 }
