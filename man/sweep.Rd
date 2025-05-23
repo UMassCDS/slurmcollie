@@ -4,7 +4,7 @@
 \alias{sweep}
 \title{Sweep up finished batch jobs}
 \usage{
-sweep(stats = TRUE)
+sweep(stats = TRUE, quiet = FALSE)
 }
 \arguments{
 \item{stats}{If TRUE, fills in run stats}
