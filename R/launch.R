@@ -2,6 +2,12 @@
 #' 
 #' Updates jobs database, `the$jdb` to track jobs.
 #' 
+#' Use `finish = 'function'` to name functions to, for example, update a parent database. 
+#' These are called by [sweep] for any newly-done jobs, whether they were successful or not.
+#' Finishing functions run in the user consolte, so they should be quick--they're intended
+#' to update databases, not do actual work. You can, of course, `launch` additional batch
+#' jobs from a finishing function. The finishing function will be passed the job id.
+#' 
 #' @param call Name of function to call
 #' @param args Named list of arguments to called function
 #' @param reps Vector, list, or data frame to vectorize call over. If a

@@ -8,6 +8,8 @@ sweep(stats = TRUE, quiet = FALSE)
 }
 \arguments{
 \item{stats}{If TRUE, fills in run stats}
+
+\item{quiet}{If TRUE, don't say anything; otherwise does info('summary') at the end}
 }
 \description{
 Checks status of all jobs in all registries. Fills database with run stats, then deletes all
@@ -16,10 +18,14 @@ successful, how many failed, and how many are still outstanding. If all registri
 swept, we'll get to start over at reg001. Saves the database, of course!
 }
 \details{
+Calls \code{finish} functions passed to \code{launch}, to, for example, update a parent database. These
+are called for any newly-done jobs, whether they were successful or not. See \link{launch} for
+details.
+
 Getting run stats (memory, CPU time, etc.) take about 75\% of the execution time, so if you
 don't need them and are impatient, use \code{stats = FALSE}.
 
-SO...HMMM.....................since info calls sweep by default at the start (and sweep calls
-info('summary'), there's some redundancy. I think it means sweep is no longer a user-facing
-command?
+Since \code{info} calls \code{sweep} by default, \code{info} is the normal user-facing function for updating
+the jobs database, though calling \code{sweep} is functionally equivalent to calling \code{info()}, so
+take your pick.
 }

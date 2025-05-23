@@ -5,15 +5,20 @@
 #' successful, how many failed, and how many are still outstanding. If all registries have been
 #' swept, we'll get to start over at reg001. Saves the database, of course!
 #' 
+#' Calls `finish` functions passed to `launch`, to, for example, update a parent database. These
+#' are called for any newly-done jobs, whether they were successful or not. See [launch] for 
+#' details.
+#' 
 #' Getting run stats (memory, CPU time, etc.) take about 75% of the execution time, so if you
 #' don't need them and are impatient, use `stats = FALSE`.
 #' 
-#' SO...HMMM.....................since info calls sweep by default at the start (and sweep calls
-#' info('summary'), there's some redundancy. I think it means sweep is no longer a user-facing 
-#' command?
+#' Since `info` calls `sweep` by default, `info` is the normal user-facing function for updating
+#' the jobs database, though calling `sweep` is functionally equivalent to calling `info()`, so 
+#' take your pick.
 #' 
 #' @param stats If TRUE, fills in run stats
-#' @importFrom batchtools loadRegistry getStatus getLog
+#' @param quiet If TRUE, don't say anything; otherwise does info('summary') at the end
+#' @importFrom batchtools loadRegistry getStatus getLog getErrorMessages
 #' @importFrom lubridate time_length interval now
 #' @export
 
@@ -91,25 +96,30 @@ sweep <- function(stats = TRUE, quiet = FALSE) {
          }
       }
       
+      
+      rows <- newdone[!is.na(the$jdb$finish[newdone])]                                                      # we'll call finish functions for these newly-completed jobs, which include errors and other failures
+
       the$jdb$done[newdone] <- TRUE                                                                         # mark newly-finished jobs as done
+      save_database('jdb')                                                                                  # save the database before calling finish functions or deleting registries
       
+      for(i in rows)                                                                                        # call finish functions
+         do.call(the$jdb$finish[i], list(the$jdb$jobid[i]))
       
-      save_database('jdb')                                          # save the database before deleting registries!
+   
+      x <- aggreg(the$jdb$done, the$jdb$registry, FUN = 'all', drop_by = FALSE)
+      dropreg <- x$Group.1[x$x]                                                                             # registries that we're done with
       
-      # for each registry,
-      # 	if all jobs are done,
-      # 	   copy log files to logsdir, renamed by joid   (*** new_db clears logs directory, I think)
-      # 		removeRegistry
-      # 		clear bjobid and registry fields for these!!
-      
-      #save_database('jdb')                                                                                 # save database
-      
-      # if we have finish_with, call the function with ids of newly-completed jobs  
-      
-      
+      if(length(dropreg) > 0) {                                                                             # if any registries to delete
+         rows <- the$jdb$registry %in% dropreg                                                              #    rows to drop bjobid and registry from 
+         the$jdb[rows, c('bjobid', 'registry')] <- NA                                                       #    we're done with these
+         
+         unlink(file.path(the$regdir, dropreg), recursive = TRUE)                                           #    nuke the registry directories
+         
+         save_database('jdb')                                                                               #    save the database again
+      }
    }
+   
    
    if(!quiet)
       info(what = 'summary', sweep = FALSE)                                                                 # display info
-   
 }

@@ -52,3 +52,10 @@ otherwise throw an error for existing jobs}
 \description{
 Updates jobs database, \code{the$jdb} to track jobs.
 }
+\details{
+Use \code{finish = 'function'} to name functions to, for example, update a parent database.
+These are called by \link{sweep} for any newly-done jobs, whether they were successful or not.
+Finishing functions run in the user consolte, so they should be quick--they're intended
+to update databases, not do actual work. You can, of course, \code{launch} additional batch
+jobs from a finishing function. The finishing function will be passed the job id.
+}
