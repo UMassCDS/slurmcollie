@@ -8,16 +8,16 @@
 #' (`slurm.tmpl`): \cr \cr
 #'    `echo $SLURM_JOB_ID > <%= log.file %>.slurmjobid`
 #'
-#' @param job.id The job.id of a `batchtools` job 
+#' @param bjobid The job.id of a `batchtools` job 
 #' @param reg `batchtools` registry object
 #' @importFrom batchtools getDefaultRegistry
 #' @export
 
 
-get_job_id <- function(job.id, reg = getDefaultRegistry()) {
+get_job_id <- function(bjobid, reg = getDefaultRegistry()) {
    
    
-   i <- reg$status$job.id == job.id
+   i <- reg$status$job.id == bjobid
    if(!any(i))
       stop('Job doesn\'t exist')
    
