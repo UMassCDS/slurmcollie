@@ -47,7 +47,7 @@
       
       if(file.exists(cname)) {                                                      #    if the file exists in the cache,
          if(gd$sourcedrive == 'google') {                                           #       if it's on the Google Drive,
-            sdate <- drive_reveal(sname, what = 'modified_time')$modified_time #          get last modified date 
+            sdate <- drive_reveal(sname, what = 'modified_time')$modified_time      #          get last modified date 
          }
          else {                                                                     #       else, it's on SFTP
             sdate <- gd$dir$date[gd$dir$name == name]                               #          last modified date on the server   ************** make sure time is in UTC when updating ****************
