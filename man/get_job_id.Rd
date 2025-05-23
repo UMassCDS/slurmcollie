@@ -4,10 +4,10 @@
 \alias{get_job_id}
 \title{Get Slurm job id for a \code{batchtools} job}
 \usage{
-get_job_id(job.id, reg = getDefaultRegistry())
+get_job_id(bjobid, reg = getDefaultRegistry())
 }
 \arguments{
-\item{job.id}{The job.id of a \code{batchtools} job}
+\item{bjobid}{The job.id of a \code{batchtools} job}
 
 \item{reg}{\code{batchtools} registry object}
 }

@@ -12,9 +12,11 @@ new_db(database, really = FALSE)
 \item{really}{If TRUE, creates database, \strong{destroying existing database}}
 }
 \description{
-Creates a new empty fits database (\code{db}) or jobs database (\code{jdb}). This is a drastic
-function, intended to be used only when initially creating a database or when an existing
-database is a hopeless mess. Use with great care--this
-function will destroy any existing database. It deletes the existing database and backups,
-as well as all logs, and saves an empty database to disk immediately.
+Creates a new empty fits database (\code{db}) or jobs database (\code{jdb}). This is a
+drastic function, intended to be used only when initially creating a database
+or when an existing database is a hopeless mess. Use with great care--this
+function will destroy any existing database and backups. When creating a new
+jobs database (\code{jdb}), it also deletes all logs and registries, and saves an
+empty database to disk immediately. \strong{This function is drastic and
+unrecoverable.}
 }

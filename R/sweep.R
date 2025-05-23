@@ -47,14 +47,14 @@ sweep <- function(stats = TRUE) {
       the$jdb[i, c('error', 'message')] <- getErrorMessages(the$jdb$bjobid[i], reg = suppressMessages(
          loadRegistry(file.path(the$regdir, the$jdb$registry[i]))))[, c('error', 'message')]             # get error messages
       
-      f <- paste0('job_', formatC(i, width = 4, format = 'd', flag = 0), '.log')
-      writeLines(getLog(the$jdb$bjobid[i]), file.path(the$logdir, f))                                                    # save log file
+      f <- paste0('job_', formatC(the$jdb$jobid[i], width = 4, format = 'd', flag = 0), '.log')
+      writeLines(getLog(the$jdb$bjobid[i]), file.path(the$logdir, f))                                    # save log file
    }
    the$jdb$message[newdone] <- sub('^.*: \\n  ', '', the$jdb$message[newdone])                           # we just want juicy part of error message
    
    
    if(stats) {
-      for(i in newdone) {                                                                                   # get job stats
+      for(i in newdone) {                                                                                # get job stats
          x <- get_job_efficiency(the$jdb$sjobid[i])
          x$cpu_pct <- as.numeric(sub('%.*$', '', x$cpu_efficiency))
          the$jdb[i, c('cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct')] <- 
@@ -93,7 +93,7 @@ sweep <- function(stats = TRUE) {
    the$jdb$done[newdone] <- TRUE                                                                         # mark newly-finished jobs as done
    
    
-   #save_database('jdb')                                          # save the database before deleting registries!
+   save_database('jdb')                                          # save the database before deleting registries!
    
    # for each registry,
    # 	if all jobs are done,

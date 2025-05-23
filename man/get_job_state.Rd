@@ -30,7 +30,7 @@ use an adequate value for days and pull info on your jobs from the result.
 Only the primary \code{JobID}s are returned; \verb{_batch}, \verb{_extern}, and other
 sidecar jobs are dropped.
 
-\verb{get_job_ state} uses the Slurm \code{sacct} command, and results differ slightly
+\code{get_job_state} uses the Slurm \code{sacct} command, and results differ slightly
 from those returned by \code{squeue}. Interacting with Slurm requires setting up
 \code{ssh} to connect to a login node.
 }

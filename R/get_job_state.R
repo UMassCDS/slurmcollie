@@ -36,7 +36,6 @@ get_job_state <- function(jobid = NULL, days = NULL) {
    if(!is.null(days))
       cmd <- paste0(cmd, '--start=now-', days, 'days')
   
-   print(cmd)
    
    a <- batchtools::runOSCommand(cmd, nodename = 'login1')
    if(a$exit.code != 0)
