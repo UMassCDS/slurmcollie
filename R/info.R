@@ -3,11 +3,15 @@
 #' This is a stub for now. See notes in Obsidian, and compare with Anthill INFO/info()
 #' 
 #' @param what One of `summary`, ...
+#' @param filter A named list to filter jobs by columns in the jobs database.
+#'   List items are `<field in jdb> = <value>`, where <value> is a regex for
+#'   character fields, or an actual value (or vector of values) for logical or
+#'   numeric fields.
 #' @param sweep If TRUE, call `sweep` to update jobs database first
 #' @export
 
 
-info <- function(what = 'summary', sweep = TRUE) {
+info <- function(what = 'summary', filter = NULL, sweep = TRUE) {
    
    if(sweep)
       sweep(quiet = TRUE)

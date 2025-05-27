@@ -63,12 +63,13 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
    
    config <- system.file('batchtools.conf.R', package = 'saltmarsh', 
                          lib.loc = .libPaths(), mustWork = TRUE)
-   reg <- makeRegistry(file.dir = file.path(regdir, regid), 
-                       conf.file = config)                                    # create batchtools registry
+   reg <- suppressMessages(makeRegistry(file.dir = file.path(regdir, regid), 
+                       conf.file = config))                                   # create batchtools registry
    
    # Note: might need to use get(call, envir = asNamespace('saltmarsh')), though this is working for now
-   jobs <- batchMap(fun = get(call), args = reps, more.args = moreargs) |>
-      submitJobs(resources = resources)                                       # definte and submit jobs
+   jobs <- suppressMessages(batchMap(fun = get(call), args = reps, 
+                                     more.args = moreargs))
+   jobs <- suppressMessages(submitJobs(jobs, resources = resources))          # define and submit jobs
    
    
    if(is.null(jobids))                                                        # Wrangle jobids
@@ -90,9 +91,6 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
    the$jdb$registry[i] <- regid
    the$jdb$sjobid[i] <- getJobTable(the$jdb$bjobid[i])$batch.id               # Slurm job id (it's easier than I thought!)
    the$jdb$status[i] <- 'queued'
-   
- #  print(get_job_state(the$jdb$sjobid[i]))
-   
    the$jdb$done[i] <- FALSE
    the$jdb$finish[i] <- finish
    the$jdb$comment[i] <- rep(comment, length = length(i))                     # job comment

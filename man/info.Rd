@@ -4,10 +4,15 @@
 \alias{info}
 \title{Give info on batch jobs}
 \usage{
-info(what = "summary", sweep = TRUE)
+info(what = "summary", filter = NULL, sweep = TRUE)
 }
 \arguments{
 \item{what}{One of \code{summary}, ...}
+
+\item{filter}{A named list to filter jobs by columns in the jobs database.
+List items are \verb{<field in jdb> = <value>}, where \if{html}{\out{<value>}} is a regex for
+character fields, or an actual value (or vector of values) for logical or
+numeric fields.}
 
 \item{sweep}{If TRUE, call \code{sweep} to update jobs database first}
 }
