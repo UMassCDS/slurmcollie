@@ -70,14 +70,6 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
       submitJobs(resources = resources)                                       # definte and submit jobs
    
    
-   
-   ########### CREATE DATA FOR TESTING
-   # the$jdb <- data.frame(jobid = 101:105, bid = c(paste0('reg001:', 1:3), paste0('reg002:', 1:2)))    # for testing
-   # jobids <- c(100, 102:104, 111:112)
-   # bid <- paste0('reg111:', 1:6)
-   ###########
-   
-   
    if(is.null(jobids))                                                        # Wrangle jobids
       jobids <- rep(NA, length(reps[[1]]))
    i <- match(jobids, the$jdb$jobid)                                          # find jobids that are already in the database--we'll replace those if replace = TRUE
@@ -95,11 +87,21 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
    the$jdb$call[i] <- call                                                    # name of called function
    the$jdb$bjobid[i] <- jobs$job.id                                           # and add batchtools job ids to jobs database
    the$jdb$registry[i] <- regid
+   the$jdb$sjobid[i] <- getJobTable(the$jdb$bjobid[i])$batch.id               # Slurm job id (it's easier than I thought!)
+   the$jdb$status[i] <- 'queued'
+   
+ #  print(get_job_state(the$jdb$sjobid[i]))
+   
    the$jdb$done[i] <- FALSE
    the$jdb$finish[i] <- finish
    the$jdb$comment[i] <- rep(comment, length = length(i))                     # job comment
    
+   
+   
    save_database('jdb')                                                       # save the database
    
-   message(dim(jobs)[1], ' jobs submitted to ', regid)
+   if(dim(jobs)[1] == 1)
+      message(dim(jobs)[1], ' job (jobid ', i, ') submitted to ', regid)
+   else
+      message(dim(jobs)[1], ' jobs (jobids ', paste(i, collapse = ', '), ') submitted to ', regid)
 }

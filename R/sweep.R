@@ -20,6 +20,7 @@
 #' @param quiet If TRUE, don't say anything; otherwise does info('summary') at the end
 #' @importFrom batchtools loadRegistry getStatus getLog getErrorMessages
 #' @importFrom lubridate time_length interval now
+#' @importFrom stringr word
 #' @export
 
 
@@ -33,19 +34,15 @@ sweep <- function(stats = TRUE, quiet = FALSE) {
          dir.create(the$logdir, recursive = TRUE)
       
       
-      noslurmid <- (1:nrow(the$jdb))[is.na(the$jdb$sjobid)]                                                 # get Slurm job ids
-      for(i in noslurmid)
-         the$jdb$sjobid[i] <- get_job_id(the$jdb$bjobid[i], suppressMessages(
-            loadRegistry(file.path(the$regdir, the$jdb$registry[i]))))
-      
-      
       trying <- (1:nrow(the$jdb))[!the$jdb$done & !is.na(the$jdb$sjobid)]                                   # jobs that aren't done yet, but did get a Slurm job id
-      oldest <- ceiling(time_length(interval(min(
-         the$jdb$launched[trying], na.rm = TRUE), now()), 'day'))                                           # oldest unfinished job in days
-      x <- get_job_state(days = oldest)                                                                     # get state for all jobs, reaching back far enough to get oldest unfinished job
-      y <- merge(the$jdb[trying, 'sjobid', drop = FALSE], x, 
-                 by.x = 'sjobid', by.y = 'JobID', all.x = TRUE)
-      the$jdb[trying, c('state', 'reason')] <- y[, c('State', 'Reason')]                                    # set state and reason
+      if(length(trying) > 0) {
+         oldest <- ceiling(time_length(interval(min(
+            the$jdb$launched[trying], na.rm = TRUE), now()), 'day'))                                        # oldest unfinished job in days
+         x <- get_job_state(days = oldest)                                                                  # get state for all jobs, reaching back far enough to get oldest unfinished job
+         y <- merge(the$jdb[trying, 'sjobid', drop = FALSE], x, 
+                    by.x = 'sjobid', by.y = 'JobID', all.x = TRUE)
+         the$jdb[trying, c('state', 'reason')] <- y[, c('State', 'Reason')]                                 # set state and reason
+      }
       
       
       newdone <- (1:nrow(the$jdb))[!the$jdb$done & !is.na(the$jdb$state) & (the$jdb$state == 'COMPLETED')]  # newly-completed jobs
@@ -70,42 +67,44 @@ sweep <- function(stats = TRUE, quiet = FALSE) {
       
       notdone <- (1:nrow(the$jdb))[!the$jdb$done]                                                           # now, all jobs that aren't yet finished
       for(i in notdone) {                                                                                   # for each unfinished job, put together status message
-         if(is.na(the$jdb$sjobid[i])) 
+         if(is.na(the$jdb$state[i]))
             the$jdb$status[i] <- 'pending'
-         else { 
-            if(the$jdb$state[i] == 'PENDING')                                                               # THIS WOULD PROBABLY BE BETTER AS A MATCH, THEN FILL IN FOR COMPLETED, PENDING, AND FAILED
-               the$jdb$status[i] <- 'queued'
-            else { 
-               if(the$jdb$state[i] == 'TIMEOUT') 
-                  the$jdb$status[i] <- 'timeout'
-               else {
-                  if(the$jdb$state[i] %in% c('RUNNING', 'COMPLETING')) 
-                     the$jdb$status[i] <- 'running'
-                  else {
-                     if(the$jdb$state[i] == 'COMPLETED') {
-                        if(the$jdb$error[i])
-                           the$jdb$status[i] <- 'error'
-                        else
-                           the$jdb$status[i] <- 'finished'
-                     }
-                     else 
-                        the$jdb$status[i] <- 'failed'
-                  }
-               }
-            }
-         }
+         else
+            switch(stringr::word(the$jdb$state[i]),
+                   'PENDING' = the$jdb$status[i] <- 'queued',
+                   'TIMEOUT' = the$jdb$status[i] <- 'timeout',
+                   'CANCELLED' = {
+                      the$jdb$status[i] <- 'killed'
+                      newdone <- c(newdone, i)
+                   },
+                   'RUNNING' = the$jdb$status[i] <- 'running',
+                   'COMPLETING' = the$jdb$status[i] <- 'running',
+                   'COMPLETED' = {
+                      if(the$jdb$error[i])
+                         the$jdb$status[i] <- 'error'
+                      else
+                         the$jdb$status[i] <- 'finished'
+                   },
+                   the$jdb$status[i] <- 'failed'
+            )
       }
       
       
       rows <- newdone[!is.na(the$jdb$finish[newdone])]                                                      # we'll call finish functions for these newly-completed jobs, which include errors and other failures
-
+      
       the$jdb$done[newdone] <- TRUE                                                                         # mark newly-finished jobs as done
       save_database('jdb')                                                                                  # save the database before calling finish functions or deleting registries
       
-      for(i in rows)                                                                                        # call finish functions
-         do.call(the$jdb$finish[i], list(the$jdb$jobid[i]))
       
-   
+      finrows <- rows[!is.na(the$jdb$finish[rows])]                                                         # if any of these jobs have finish functions,
+      if(length(finrows) > 0) {
+         for(i in rows)                                                                                     #    call finish functions
+            do.call(the$jdb$finish[i], list(jobid = the$jdb$jobid[i], status = the$jdb$status[i]))
+         the$jdb$finish[rows] <- 'done'
+         save_database('jdb')                                                                               #    set finish to 'done' and save the database, yet again
+      }
+      
+      
       x <- aggreg(the$jdb$done, the$jdb$registry, FUN = 'all', drop_by = FALSE)
       dropreg <- x$Group.1[x$x]                                                                             # registries that we're done with
       

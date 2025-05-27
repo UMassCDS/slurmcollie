@@ -4,10 +4,10 @@
 \alias{get_job_state}
 \title{Get the state of Slurm jobs}
 \usage{
-get_job_state(jobid = NULL, days = NULL)
+get_job_state(sjobid = NULL, days = NULL)
 }
 \arguments{
-\item{jobid}{Slurm \code{JobID}}
+\item{sjobid}{Slurm \code{JobID}}
 
 \item{days}{Number of days to look back}
 }
@@ -19,7 +19,7 @@ Gets the Slurm State and Reason codes for a specific job or all jobs launched
 in the past n days.
 }
 \details{
-Either specify the \code{jobid} with the Slurm \code{JobID} to get the state for a
+Either specify the \code{sjobid} with the Slurm \code{JobID} to get the state for a
 single job, or \code{days} to get the state for all jobs run in the past \code{days}
 days. If you don't specify either, you'll get the Slurm default: jobs you
 launched today.

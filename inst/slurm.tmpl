@@ -19,10 +19,10 @@ log.file = fs::path_expand(log.file)
 #SBATCH --cpus-per-task=<%= resources$ncpus %>
 #SBATCH --mem=<%= resources$memory %>G                ## memory is in GB, not MB
 #SBATCH --export=None
-##SBATCH --mail-type=END                               ## send an email when job finishes
+##SBATCH --mail-type=END                              ## send an email when job finishes
 
-## Write Slurm job id to a log file for retrieval by get_job_id()
-echo $SLURM_JOB_ID > <%= log.file %>.slurmjobid
+##   ## Write Slurm job id to a log file for retrieval by get_job_id()
+##   echo $SLURM_JOB_ID > <%= log.file %>.slurmjobid
 
 ## Export value of DEBUGME environemnt var
 export DEBUGME=<%= Sys.getenv("DEBUGME") %>

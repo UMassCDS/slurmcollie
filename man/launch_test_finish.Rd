@@ -4,7 +4,7 @@
 \alias{launch_test_finish}
 \title{a test finish function for launch and sweep}
 \usage{
-launch_test_finish(jobids)
+launch_test_finish(jobid, status)
 }
 \arguments{
 \item{jobids}{Job ids to finish for}
