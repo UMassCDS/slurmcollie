@@ -4,19 +4,21 @@
 \alias{kill}
 \title{Kill launched Slurm jobs}
 \usage{
-kill(jobids, quiet = FALSE)
+kill(jobids = NULL, filter = NULL, quiet = FALSE)
 }
 \arguments{
 \item{jobids}{One or more job ids}
 
-\item{quiet}{If TRUE, don't complain about jobs not found nor report on killed jobs}
+\item{filter}{A named list to filter jobs by columns in the jobs database.
+List items are \verb{<field in jdb> = <value>}, where \if{html}{\out{<value>}} is a regex for
+character fields, or an actual value (or vector of values) for logical or
+numeric fields.}
+
+\item{quiet}{If TRUE, don't complain about jobs not found nor report on
+killed jobs}
 }
 \description{
-Uses Slurm \code{scancel} to kill jobs. This won't work for jobs that haven't reported a Slurm JobID yet,
-so you'll need to run \code{sweep} before running this. It also fail for jobs that haven't reported back
-to batchtools.
-}
-\details{
-This can't be done via \code{batchtools}, as there may be registry conflicts between running jobs and
-attempts to load the registry for \code{killJobs}, so we're going directly to Slurm.
+Uses Slurm \code{scancel} to kill jobs. This can't be done via \code{batchtools}, as
+there may be registry conflicts between running jobs and attempts to load the
+registry for \code{killJobs}, so we're going directly to Slurm.
 }

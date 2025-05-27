@@ -1,24 +1,35 @@
 #' Kill launched Slurm jobs
-#' 
-#' Uses Slurm `scancel` to kill jobs. This won't work for jobs that haven't reported a Slurm JobID yet,
-#' so you'll need to run `sweep` before running this. It also fail for jobs that haven't reported back
-#' to batchtools.
-#' 
-#' This can't be done via `batchtools`, as there may be registry conflicts between running jobs and
-#' attempts to load the registry for `killJobs`, so we're going directly to Slurm.
-#' 
+#'
+#' Uses Slurm `scancel` to kill jobs. This can't be done via `batchtools`, as
+#' there may be registry conflicts between running jobs and attempts to load the
+#' registry for `killJobs`, so we're going directly to Slurm.
+#'
 #' @param jobids One or more job ids
-#' @param quiet If TRUE, don't complain about jobs not found nor report on killed jobs
+#' @param filter A named list to filter jobs by columns in the jobs database.
+#'   List items are `<field in jdb> = <value>`, where <value> is a regex for
+#'   character fields, or an actual value (or vector of values) for logical or
+#'   numeric fields.
+#' @param quiet If TRUE, don't complain about jobs not found nor report on
+#'   killed jobs
 #' @importFrom batchtools runOSCommand
 #' @export
 
 
-kill <- function(jobids, quiet = FALSE) {
+kill <- function(jobids = NULL, filter = NULL, quiet = FALSE) {
    
    
    load_database('jdb')
    
-   rows <- match(jobids, the$jdb$jobid)                                                            # get rows of jobids in database
+   
+   if(is.null(jobids) + is.null(filter) != 1)
+      stop('You must specify either jobids or filter (but not both)')
+   
+   if(!is.null(filter))                                                                            # get rows of jobids in database
+      rows <- (1:dim(the$jdb)[1])[filter_jobs(filter)]
+   else
+      rows <- match(jobids, the$jdb$jobid)                                                        
+   
+   
    if(!quiet & any(is.na(rows)))                                                                   # deal with missing jobs
       message('Jobids ', paste(jobids[is.na(rows)], collapse = ', '), ' don\'t exist')
    rows <- rows[!is.na(rows)]
@@ -43,7 +54,7 @@ kill <- function(jobids, quiet = FALSE) {
       stop("scancel command failed")
    }
    
- 
+   
    for(i in rows) {                                                                                # get log files for killed jobs
       suppressMessages(loadRegistry(file.path(the$regdir, the$jdb$registry[i])))
       f <- paste0('job_', formatC(the$jdb$jobid[i], width = 4, format = 'd', flag = 0), '.log')
