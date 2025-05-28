@@ -1,17 +1,35 @@
 #' Give info on batch jobs
-#' 
-#' This is a stub for now. See notes in Obsidian, and compare with Anthill INFO/info()
-#' 
-#' @param what One of `summary`, ...
-#' @param filter A named list to filter jobs by columns in the jobs database.
-#'   List items are `<field in jdb> = <value>`, where <value> is a regex for
-#'   character fields, or an actual value (or vector of values) for logical or
-#'   numeric fields.
+#'
+#' @param columns Specifies which columns to include in the jobs table. May be
+#'   one of
+#'   - *brief* (1) includes jobid, status, error, comment
+#'  - *normal* (2)  includes jobid, status, message, comment
+#'   - *long* (3) includes jobid, sjobid, status, state, reason, error, message, done, cores, gb, walltime, cpu, cpu_pct, log, comment
+#'   - *all* (4) includes all coumns
+#'   - 1, 2, 3, or 4 is a shortcut for the above column sets
+#'   - A vector of column names to include
+#' @param filter Specify jobs with one of:
+#'  - a vector of `jobids`
+#'  - 'all' for all jobs
+#'  - a named list to filter jobs
+#'   with. List items are `<field in jdb> = <value>`, where `<value>` is a regex
+#'   for character fields, or an actual value (or vector of values) for logical
+#'   or numeric fields.
+#' @param sort The name of the column to be used to sort the table
+#' @param decreasing If TRUE, sort in descending order
+#' @param nrows Number of rows to display in the jobs table. Positive numbers
+#'   display the first *n* rows, and negative numbers display the last *n* rows.
+#'   Use `nrows = NA` to display all rows.
+
+#' @param summary If TRUE, displays a jobs summary
+#' @param table If TRUE, displays a jobs table
 #' @param sweep If TRUE, call `sweep` to update jobs database first
+#' @returns The processed jobs table, invisibly
 #' @export
 
 
-info <- function(what = 'summary', filter = NULL, sweep = TRUE) {
+info <- function(columns = 'long', filter = 'all', sort = 'jobid', decreasing = FALSE, nrows = NA, 
+                 summary = TRUE, table = TRUE, sweep = TRUE) {
    
    if(sweep)
       sweep(quiet = TRUE)
@@ -23,18 +41,52 @@ info <- function(what = 'summary', filter = NULL, sweep = TRUE) {
       return(invisible())
    }
    
-   z <- switch(what,
-          summary = {
-             x <- data.frame(table(the$jdb$status))
-             x <- data.frame(cbind(status = as.character(x[, 1]), jobs = x[, 2]))
-             ordering <- data.frame(status = c('pending', 'queued', 'running', 'finished', 'error', 'killed', 'timeout', 'failed'), order = 1:8)
-             x[order(merge(x, ordering, by = 'status')$order), ]
-          })
    
-   if(any(!the$jdb$done))
-      message(sum(!the$jdb$done), ' jobs not yet done\n')
-   else
-      message('All jobs done\n')
+   if(summary) {
+      x <- data.frame(table(the$jdb$status))
+      x <- data.frame(cbind(status = as.character(x[, 1]), jobs = x[, 2]))
+      ordering <- data.frame(status = c('pending', 'queued', 'running', 'finished', 'error', 'killed', 'timeout', 'failed'), order = 1:8)
+      y <- x[order(merge(x, ordering, by = 'status')$order), ]
+      
+      if(any(!the$jdb$done))
+         message(sum(!the$jdb$done), ' jobs not yet done\n')
+      else
+         message('All jobs done\n')
+      
+      print(y, row.names = FALSE)
+   }
    
-   print(z, row.names = FALSE)
+   # Now put together jobs table, whether we print it or not, as it's also returned
+   
+   z <- the$jdb[filter_jobs(filter), ]                                                                # jobs database, filtered
+   z <- z[order(z[, sort], decreasing = decreasing), ]                                                # and sorted
+   
+   z$mem_gb <- round(z$mem_gb, 3)
+   
+   if(!is.na(nrows)) {                                                                                # display just selected rows
+      if(nrows > 0)
+         z <- z[1:nrows, ]
+      else
+         z <- z[(dim(z)[1] + nrows + 1):(dim(z)[1]), ] 
+   }
+   
+   if(is.numeric(columns))                                                                            # print only requested columns
+      if(columns %in% 1:4)
+         columns <- c('brief', 'normal', 'long', 'all')[columns]
+   if(columns != 'all') {
+      co <- switch(columns,
+                   brief = c('jobid', 'status', 'error', 'comment'),
+                   normal = c('jobid', 'status', 'error', 'message', 'cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'comment'),
+                   long = c('jobid', 'sjobid', 'status', 'state', 'reason', 'error', 'message', 'done', 'cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'log', 'comment')
+      )
+      z <- z[, co]
+   }
+   
+   if(summary & table)
+      cat('\n')
+   
+   if(table)
+      print(z, row.names = FALSE, na.print = '')
+   
+   return(invisible(z))
 }

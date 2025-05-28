@@ -4,18 +4,56 @@
 \alias{info}
 \title{Give info on batch jobs}
 \usage{
-info(what = "summary", filter = NULL, sweep = TRUE)
+info(
+  columns = "long",
+  filter = "all",
+  sort = "jobid",
+  decreasing = FALSE,
+  nrows = NA,
+  summary = TRUE,
+  table = TRUE,
+  sweep = TRUE
+)
 }
 \arguments{
-\item{what}{One of \code{summary}, ...}
+\item{columns}{Specifies which columns to include in the jobs table. May be
+one of
+\itemize{
+\item \emph{brief} (1) includes jobid, status, error, comment
+\item \emph{normal} (2)  includes jobid, status, message, comment
+\item \emph{long} (3) includes jobid, sjobid, status, state, reason, error, message, done, cores, gb, walltime, cpu, cpu_pct, log, comment
+\item \emph{all} (4) includes all coumns
+\item 1, 2, 3, or 4 is a shortcut for the above column sets
+\item A vector of column names to include
+}}
 
-\item{filter}{A named list to filter jobs by columns in the jobs database.
-List items are \verb{<field in jdb> = <value>}, where \if{html}{\out{<value>}} is a regex for
-character fields, or an actual value (or vector of values) for logical or
-numeric fields.}
+\item{filter}{Specify jobs with one of:
+\itemize{
+\item a vector of \code{jobids}
+\item 'all' for all jobs
+\item a named list to filter jobs
+with. List items are \verb{<field in jdb> = <value>}, where \verb{<value>} is a regex
+for character fields, or an actual value (or vector of values) for logical
+or numeric fields.
+}}
+
+\item{sort}{The name of the column to be used to sort the table}
+
+\item{decreasing}{If TRUE, sort in descending order}
+
+\item{nrows}{Number of rows to display in the jobs table. Positive numbers
+display the first \emph{n} rows, and negative numbers display the last \emph{n} rows.
+Use \code{nrows = NA} to display all rows.}
+
+\item{summary}{If TRUE, displays a jobs summary}
+
+\item{table}{If TRUE, displays a jobs table}
 
 \item{sweep}{If TRUE, call \code{sweep} to update jobs database first}
 }
+\value{
+The processed jobs table, invisibly
+}
 \description{
-This is a stub for now. See notes in Obsidian, and compare with Anthill INFO/info()
+Give info on batch jobs
 }
