@@ -52,6 +52,7 @@ sweep <- function(stats = TRUE, quiet = FALSE) {
          
          f <- paste0('job_', formatC(the$jdb$jobid[i], width = 4, format = 'd', flag = 0), '.log')
          writeLines(getLog(the$jdb$bjobid[i]), file.path(the$logdir, f))                                    # save log file
+         the$jdb$log[i] <- f
       }
       the$jdb$message[newdone] <- sub('^.*: \\n  ', '', the$jdb$message[newdone])                           # we just want juicy part of error message
       

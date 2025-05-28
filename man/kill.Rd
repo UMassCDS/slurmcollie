@@ -4,15 +4,13 @@
 \alias{kill}
 \title{Kill launched Slurm jobs}
 \usage{
-kill(jobids = NULL, filter = NULL, quiet = FALSE)
+kill(filter = NULL, quiet = FALSE)
 }
 \arguments{
-\item{jobids}{One or more job ids}
-
-\item{filter}{A named list to filter jobs by columns in the jobs database.
-List items are \verb{<field in jdb> = <value>}, where \if{html}{\out{<value>}} is a regex for
-character fields, or an actual value (or vector of values) for logical or
-numeric fields.}
+\item{filter}{Either a vector of \code{jobids} or a named list to filter jobs
+with. List items are \verb{<field in jdb> = <value>}, where \if{html}{\out{<value>}} is a regex
+for character fields, or an actual value (or vector of values) for logical
+or numeric fields.}
 
 \item{quiet}{If TRUE, don't complain about jobs not found nor report on
 killed jobs}

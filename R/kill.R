@@ -54,8 +54,10 @@ kill <- function(filter = NULL, quiet = FALSE) {
    for(i in rows) {                                                                                # get log files for killed jobs
       suppressMessages(loadRegistry(file.path(the$regdir, the$jdb$registry[i])))
       f <- paste0('job_', formatC(the$jdb$jobid[i], width = 4, format = 'd', flag = 0), '.log')
-      suppressWarnings(try(writeLines(getLog(the$jdb$bjobid[i]), 
+      x <- suppressWarnings(try(writeLines(getLog(the$jdb$bjobid[i]), 
                                       file.path(the$logdir, f)), silent = TRUE))                   # get log if it's available; it may not be for early kills
+      if(!inherits(x, "try-error"))
+         the$jdb$log[i] <- f
    }
    
    

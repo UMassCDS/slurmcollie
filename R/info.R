@@ -18,6 +18,11 @@ info <- function(what = 'summary', filter = NULL, sweep = TRUE) {
    else
       load_database('jdb')
    
+   if(dim(the$jdb)[1] == 0) {
+      message('No jobs in database')
+      return(invisible())
+   }
+   
    z <- switch(what,
           summary = {
              x <- data.frame(table(the$jdb$status))

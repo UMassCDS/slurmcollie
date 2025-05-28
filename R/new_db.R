@@ -45,6 +45,7 @@ new_db <- function(database, really = FALSE) {
                 walltime = character(),
                 cpu = character(),
                 cpu_pct = character(),
+                log = character(),
                 comment = character()
              )
              
