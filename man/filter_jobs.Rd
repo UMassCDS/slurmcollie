@@ -7,7 +7,7 @@
 filter_jobs(filter)
 }
 \arguments{
-\item{filter}{A named list to filter jobs with. List items are \verb{<field in jdb> = <value>}, where \if{html}{\out{<value>}} is a regex for character fields, or an
+\item{filter}{Either a vector of \code{jobids} or a named list to filter jobs with. List items are \verb{<field in jdb> = <value>}, where \if{html}{\out{<value>}} is a regex for character fields, or an
 actual value (or vector of values) for logical or numeric fields.}
 }
 \value{

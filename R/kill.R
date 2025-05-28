@@ -4,30 +4,26 @@
 #' there may be registry conflicts between running jobs and attempts to load the
 #' registry for `killJobs`, so we're going directly to Slurm.
 #'
-#' @param jobids One or more job ids
-#' @param filter A named list to filter jobs by columns in the jobs database.
-#'   List items are `<field in jdb> = <value>`, where <value> is a regex for
-#'   character fields, or an actual value (or vector of values) for logical or
-#'   numeric fields.
+#' @param filter Either a vector of `jobids` or a named list to filter jobs
+#'   with. List items are `<field in jdb> = <value>`, where <value> is a regex
+#'   for character fields, or an actual value (or vector of values) for logical
+#'   or numeric fields.
 #' @param quiet If TRUE, don't complain about jobs not found nor report on
 #'   killed jobs
 #' @importFrom batchtools runOSCommand
 #' @export
 
 
-kill <- function(jobids = NULL, filter = NULL, quiet = FALSE) {
+kill <- function(filter = NULL, quiet = FALSE) {
    
    
    load_database('jdb')
    
    
-   if(is.null(jobids) + is.null(filter) != 1)
-      stop('You must specify either jobids or filter (but not both)')
+   if(is.null(filter))
+      stop('You must supply jobids or a list of fields and values')
    
-   if(!is.null(filter))                                                                            # get rows of jobids in database
-      rows <- (1:dim(the$jdb)[1])[filter_jobs(filter)]
-   else
-      rows <- match(jobids, the$jdb$jobid)                                                        
+   rows <- filter_jobs(filter)
    
    
    if(!quiet & any(is.na(rows)))                                                                   # deal with missing jobs

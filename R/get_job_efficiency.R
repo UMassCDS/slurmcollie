@@ -22,10 +22,10 @@
 #' \item{`memory_efficiency`}{Memory efficiency.}
 #' \item{`mem_gb`}{Utilized memory in GiB (bytes * 1024^3)}
 #' \item{`wall_min`}{Job wall-clock time in decimal minutes}
-#' importsFrom batchtools runOSCommand
-#' importsFrom yaml read_yaml
-#' importsFrom fs fs_bytes
-#' importsFrom hms parse_hms
+#' @importFrom batchtools runOSCommand
+#' @importFrom yaml read_yaml
+#' @importFrom fs fs_bytes
+#' @importFrom hms parse_hms
 #' @export
 #' @seealso [batchtools::findJobs()]
 

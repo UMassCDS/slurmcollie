@@ -5,14 +5,14 @@
 #' Use `finish = 'function'` to name functions to, for example, update a parent
 #' database. The finish function must take two arguments, `jobid` and `status`.
 #' These functions are called by [sweep] for any newly-done jobs, whether they
-#' were successful or not. Finishing functions run in the user consolte, so they
+#' were successful or not. Finishing functions run in the user console, so they
 #' should be quick--they're intended to update databases, not do actual work.
 #' You can, of course, `launch` additional batch jobs from a finishing function.
 #' 
 #' @param call Name of function to call
 #' @param args Named list of arguments to called function
 #' @param reps Vector, list, or data frame to vectorize call over. If a
-#'    named list or data frame, the names must correspond to the fuction's
+#'    named list or data frame, the names must correspond to the function's
 #'    arguments. If a vector or unnamed list, `argname` is used.
 #' @param argname Name of `reps` argument in function to be called, used 
 #'    only when `reps` is a vector or unnamed list

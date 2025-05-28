@@ -24,7 +24,7 @@ launch(
 \item{args}{Named list of arguments to called function}
 
 \item{reps}{Vector, list, or data frame to vectorize call over. If a
-named list or data frame, the names must correspond to the fuction's
+named list or data frame, the names must correspond to the function's
 arguments. If a vector or unnamed list, \code{argname} is used.}
 
 \item{argname}{Name of \code{reps} argument in function to be called, used
@@ -56,7 +56,7 @@ Updates jobs database, \code{the$jdb} to track jobs.
 Use \code{finish = 'function'} to name functions to, for example, update a parent
 database. The finish function must take two arguments, \code{jobid} and \code{status}.
 These functions are called by \link{sweep} for any newly-done jobs, whether they
-were successful or not. Finishing functions run in the user consolte, so they
+were successful or not. Finishing functions run in the user console, so they
 should be quick--they're intended to update databases, not do actual work.
 You can, of course, \code{launch} additional batch jobs from a finishing function.
 }
