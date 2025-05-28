@@ -7,10 +7,15 @@
 purge(filter = NULL, quiet = FALSE)
 }
 \arguments{
-\item{filter}{Either a vector of \code{jobids} or a named list to filter jobs
+\item{filter}{Specify jobs with one of:
+\itemize{
+\item a vector of \code{jobids}
+\item 'all' for all jobs
+\item a named list to filter jobs
 with. List items are \verb{<field in jdb> = <value>}, where \if{html}{\out{<value>}} is a regex
 for character fields, or an actual value (or vector of values) for logical
-or numeric fields.}
+or numeric fields.
+}}
 
 \item{quiet}{If TRUE, don't chatter}
 }

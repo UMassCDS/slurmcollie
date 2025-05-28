@@ -4,10 +4,13 @@
 #' there may be registry conflicts between running jobs and attempts to load the
 #' registry for `killJobs`, so we're going directly to Slurm.
 #'
-#' @param filter Either a vector of `jobids` or a named list to filter jobs
-#'   with. List items are `<field in jdb> = <value>`, where <value> is a regex
-#'   for character fields, or an actual value (or vector of values) for logical
-#'   or numeric fields.
+#' @param filter Specify jobs with one of:
+#'  - a vector of `jobids`
+#'  - 'all' for all jobs
+#'  - a named list to filter jobs
+#'    with. List items are `<field in jdb> = <value>`, where <value> is a regex
+#'    for character fields, or an actual value (or vector of values) for logical
+#'    or numeric fields.
 #' @param quiet If TRUE, don't complain about jobs not found nor report on
 #'   killed jobs
 #' @importFrom batchtools runOSCommand
