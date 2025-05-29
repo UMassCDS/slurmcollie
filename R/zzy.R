@@ -3,9 +3,9 @@
 #' @param pkgname (required by R; not used)
 #' @keywords internal
 
-.onLoad <- function(libname, pkgname) {
-
-   
-   init_slurmcollie()
-   
-}
+# .onLoad <- function(libname, pkgname) {                                     # **************** activate this when splitting package
+# 
+#    
+#    init_slurmcollie()
+#    
+# }

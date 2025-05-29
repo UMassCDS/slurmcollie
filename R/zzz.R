@@ -7,5 +7,6 @@
    
    
    init()
+   init_slurmcollie()                                       # ************************** will drop this when I split packages
    
 }
