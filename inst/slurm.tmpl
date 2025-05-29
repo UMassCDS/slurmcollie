@@ -1,6 +1,7 @@
 ## Slurm template for launching batch jobs from RStudio on Unity
 ## Thanks to Georgia Stuart!
-## You may need to include the following in Override RStudio image location when launching RStudio OnDemand:
+## You may need to include the following in Override RStudio image location when 
+## launching RStudio OnDemand:
 ##    /modules/admin-resources/ood-dev/unity-r_4.4.0.sif
 ## 21 May 2025
 
@@ -19,7 +20,7 @@ log.file = fs::path_expand(log.file)
 #SBATCH --time=<%= resources$walltime %>
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=<%= resources$ncpus %>
-#SBATCH --mem=<%= resources$memory %>G                ## memory is in GB, not MB
+#SBATCH --mem=<%= resources$memory %>G                ## memory is reported in GB, not MB
 #SBATCH --export=None
 ##SBATCH --mail-type=END                              ## send an email when job finishes
 

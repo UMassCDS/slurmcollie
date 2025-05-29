@@ -64,7 +64,7 @@ set_up_slurmcollie <- function(directory = NULL, login_node = 'login1', replace 
    if(any(!x))
       stop('Failed to copy templates to ', slu$templatedir)
    
-   message('Created ', paste(templates, collapse = ' and '))
+   message(paste0('Created ', templates, '\n'))
    
    
    message('slurmcollie is good to go!')

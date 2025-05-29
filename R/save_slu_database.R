@@ -8,7 +8,7 @@
 #' @export
 
 
-save_database <- function(database) {
+save_slu_database <- function(database) {
    
    
    if(is.null(slu[[database]]))                                                              # if don't have the database, throw an error 

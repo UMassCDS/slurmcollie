@@ -7,6 +7,7 @@
 #' 
 #' @param id The Slurm job ID including an array suffix e.g. "_1" if
 #'  appropriate.
+#' @param login_node Name of a login_node with ssh access
 #'
 #' @return A list with items:
 #' \item{`job_id`}{Slurm job id - without array suffix}
@@ -28,12 +29,12 @@
 #' @seealso [batchtools::findJobs()]
 
 
-get_job_efficiency <- function(id) {
+get_job_efficiency <- function(id, login_node = slu$login_node) {
    
    
    stopifnot(length(id) == 1)
    cmd <- paste("seff ", id, sep = "")
-   a <- batchtools::runOSCommand(cmd, nodename = the$login_node)
+   a <- batchtools::runOSCommand(cmd, nodename = login_node)
    if(a$exit.code != 0) {
       stop("seff command failed")
    }

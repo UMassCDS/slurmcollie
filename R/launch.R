@@ -36,7 +36,7 @@
 
 
 launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(), 
-                   resources = list(), regdir = slu$regdir, 
+                   resources = list(), local = FALSE, regdir = slu$regdir, 
                    jobids = NULL, comment = '', finish = NA, replace = TRUE) {
    
    
@@ -76,7 +76,7 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
       }
       
 
-      config <- file.path(slu$template, 'batchtools.conf.R')
+      config <- file.path(slu$templatedir, 'batchtools.conf.R')
       reg <- suppressMessages(makeRegistry(file.dir = file.path(regdir, regid), 
                                            conf.file = config))               #    create batchtools registry
       

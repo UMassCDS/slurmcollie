@@ -59,7 +59,7 @@ sweep <- function(stats = TRUE, quiet = FALSE) {
       
       if(stats) {
          for(i in newdone) {                                                                                # get job stats
-            x <- get_job_efficiency(slu$jdb$sjobid[i])
+            x <- get_job_efficiency(slu$jdb$sjobid[i], slu$login_node)
             x$cpu_pct <- as.numeric(sub('%.*$', '', x$cpu_efficiency))
             slu$jdb[i, c('cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct')] <- 
                x[c('cores', 'mem_gb', 'walltime', 'cpu_utilized', 'cpu_pct')]
