@@ -20,6 +20,9 @@
 #'    not vectorized over
 #' @param resources Named list of resources, overriding defaults in 
 #'    `batchtools.conf`
+#' @param local If TRUE, launch job locally instead of as a batch job, tying
+#'    up the console while it runs. The jobs database will be updated on 
+#'    completion, so no information will be saved the job is interrupted.
 #' @param regdir Directory containing `batchtools` registries
 #' @param jobids ids for these jobs in jobs database. Supply existing
 #'    jobs to relaunch jobs; NA or NULL will create new jobs.
@@ -49,8 +52,19 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
       if(length(jobids) != length(reps[[1]]))
          stop('Supplied jobids must be the same length as reps')
    
-   if(!dir.exists(regdir))                                                    # create registries dir if need be
-      dir.create(regdir, recursive = TRUE)
+   if(is.null(jobids))                                                        # Wrangle jobids
+      jobids <- rep(NA, length(reps[[1]]))
+   i <- match(jobids, the$jdb$jobid)                                          # find jobids that are already in the database--we'll replace those if replace = TRUE
+   if(any(!is.na(i)) & !replace)
+      stop('Jobs are already in jobs database (and replace = FALSE) for job ids ', paste(jobids[!is.na(i)], collapse = ', '))
+   if(any(is.na(jobids)))
+      jobids[is.na(jobids)] <- max(the$jdb$jobid, 0) + 1:sum(is.na(jobids))   # come up with new jobids for those not supplied
+   
+   
+   
+   # if(!local) {                                                               # if running in batch mode,
+   #   if(!dir.exists(regdir))                                                  ..........................................................# create registries dir if need be
+   #    dir.create(regdir, recursive = TRUE)
    
    x <- list.files(regdir, pattern = 'reg\\d+')                               # find existing registries
    if(length(x) == 0)                                                         # build registry id
@@ -71,14 +85,6 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
                                      more.args = moreargs))
    jobs <- suppressMessages(submitJobs(jobs, resources = resources))          # define and submit jobs
    
-   
-   if(is.null(jobids))                                                        # Wrangle jobids
-      jobids <- rep(NA, length(reps[[1]]))
-   i <- match(jobids, the$jdb$jobid)                                          # find jobids that are already in the database--we'll replace those if replace = TRUE
-   if(any(!is.na(i)) & !replace)
-      stop('Jobs are already in jobs database (and replace = FALSE) for job ids ', paste(jobids[!is.na(i)], collapse = ', '))
-   if(any(is.na(jobids)))
-      jobids[is.na(jobids)] <- max(the$jdb$jobid, 0) + 1:sum(is.na(jobids))   # come up with new jobids for those not supplied
    
    
    the$jdb[j <- nrow(the$jdb) + (1:sum(is.na(i))), ] <- NA                    # add rows to database if need be

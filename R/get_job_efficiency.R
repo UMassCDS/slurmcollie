@@ -5,8 +5,6 @@
 #' node before running the command.  The resulting output is then parsed 
 #' into an R list.
 #' 
-#' Modified from `https://github.com/birdflow-science/BirdFlowPipeline`.
-#' 
 #' @param id The Slurm job ID including an array suffix e.g. "_1" if
 #'  appropriate.
 #'
