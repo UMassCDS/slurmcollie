@@ -62,45 +62,49 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
    
    
    
-   # if(!local) {                                                               # if running in batch mode,
-   #   if(!dir.exists(regdir))                                                  ..........................................................# create registries dir if need be
-   #    dir.create(regdir, recursive = TRUE)
-   
-   x <- list.files(regdir, pattern = 'reg\\d+')                               # find existing registries
-   if(length(x) == 0)                                                         # build registry id
-      regid <- 'reg001'
-   else {
-      regid <- (max(as.numeric(sub('reg', '', x))) + 1) |>
-         formatC(width = 3, format = 'd', flag = 0)
-      regid <- paste0('reg', regid)
+   if(!local) {                                                               # if running in batch mode, ----------
+      if(!dir.exists(regdir))                                                 #    create registries dir if need be
+         dir.create(regdir, recursive = TRUE)
+      
+      x <- list.files(regdir, pattern = 'reg\\d+')                            #    find existing registries
+      if(length(x) == 0)                                                      #    build registry id
+         regid <- 'reg001'
+      else {
+         regid <- (max(as.numeric(sub('reg', '', x))) + 1) |>
+            formatC(width = 3, format = 'd', flag = 0)
+         regid <- paste0('reg', regid)
+      }
+      
+      config <- system.file('batchtools.conf.R', package = 'saltmarsh', 
+                            lib.loc = .libPaths(), mustWork = TRUE)
+      reg <- suppressMessages(makeRegistry(file.dir = file.path(regdir, regid), 
+                                           conf.file = config))               #    create batchtools registry
+      
+      # Note: might need to use get(call, envir = asNamespace('saltmarsh')), though this is working for now
+      jobs <- suppressMessages(batchMap(fun = get(call), args = reps, 
+                                        more.args = moreargs))
+      jobs <- suppressMessages(submitJobs(jobs, resources = resources))       #    define and submit jobs
+      
+      
+      
+      the$jdb[j <- nrow(the$jdb) + (1:sum(is.na(i))), ] <- NA                 #    add rows to database if need be
+      i[is.na(i)] <- j
+      
+      the$jdb$jobid[i] <- jobids                                              #    add job ids to jobs database
+      the$jdb$launched[i] <- now()                                            #    launch date and time in UTC, leaving pretty formatting info() - use with_tz(now(),  'America/New_York') 
+      the$jdb$call[i] <- call                                                 #    name of called function
+      the$jdb$bjobid[i] <- jobs$job.id                                        #    and add batchtools job ids to jobs database
+      the$jdb$registry[i] <- regid
+      the$jdb$sjobid[i] <- getJobTable(the$jdb$bjobid[i])$batch.id            #    Slurm job id (it's easier than I thought!)
+      the$jdb$status[i] <- 'queued'
+      the$jdb$done[i] <- FALSE
+      the$jdb$finish[i] <- finish
+      the$jdb$comment[i] <- rep(comment, length = length(i))                  #    job comment
    }
-   
-   config <- system.file('batchtools.conf.R', package = 'saltmarsh', 
-                         lib.loc = .libPaths(), mustWork = TRUE)
-   reg <- suppressMessages(makeRegistry(file.dir = file.path(regdir, regid), 
-                       conf.file = config))                                   # create batchtools registry
-   
-   # Note: might need to use get(call, envir = asNamespace('saltmarsh')), though this is working for now
-   jobs <- suppressMessages(batchMap(fun = get(call), args = reps, 
-                                     more.args = moreargs))
-   jobs <- suppressMessages(submitJobs(jobs, resources = resources))          # define and submit jobs
-   
-   
-   
-   the$jdb[j <- nrow(the$jdb) + (1:sum(is.na(i))), ] <- NA                    # add rows to database if need be
-   i[is.na(i)] <- j
-   
-   the$jdb$jobid[i] <- jobids                                                 # add job ids to jobs database
-   the$jdb$launched[i] <- now()                                               # launch date and time in UTC, leaving pretty formatting info() - use with_tz(now(),  'America/New_York') 
-   the$jdb$call[i] <- call                                                    # name of called function
-   the$jdb$bjobid[i] <- jobs$job.id                                           # and add batchtools job ids to jobs database
-   the$jdb$registry[i] <- regid
-   the$jdb$sjobid[i] <- getJobTable(the$jdb$bjobid[i])$batch.id               # Slurm job id (it's easier than I thought!)
-   the$jdb$status[i] <- 'queued'
-   the$jdb$done[i] <- FALSE
-   the$jdb$finish[i] <- finish
-   the$jdb$comment[i] <- rep(comment, length = length(i))                     # job comment
-   
+   else                                                                       # else, launch in local mode ----------
+   {
+      cat('do local launch here')
+   }
    
    
    save_database('jdb')                                                       # save the database
