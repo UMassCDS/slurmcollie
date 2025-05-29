@@ -3,7 +3,7 @@
 #' Loads the database from directory `the$dbdir` into environment `the` if it hasn't 
 #' already been loaded or if `force = TRUE`.
 #' 
-#' @param database Name of database (`jdb` or `db`)
+#' @param database Name of database (should `db`)
 #' @param force If TRUE, always loads the database, replacing the current one if it exists
 #' @export
 

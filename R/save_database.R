@@ -3,7 +3,7 @@
 #' Saves the database in directory `the$dbdir`. Previous versions are renamed e.g., `jdb_1.RDS`,
 #' `jdb_2.RDS`, etc. Will need a mechanism to delete databases more than a week old (or something).
 #' 
-#' @param database Name of database (`jdb` or `db`)
+#' @param database Name of database (should `db`)
 #' @importFrom tools file_path_sans_ext
 #' @export
 

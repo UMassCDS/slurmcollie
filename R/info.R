@@ -38,7 +38,7 @@ info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing 
    if(sweep)
       sweep(quiet = TRUE)
    else
-      load_database('jdb')
+      load_slu_database('jdb')
    
    if(dim(slu$jdb)[1] == 0) {
       message('No jobs in database')

@@ -15,7 +15,7 @@
 purge <- function(filter = NULL, quiet = FALSE) {
    
    
-   load_database('jdb')
+   load_slu_database('jdb')
    
    
    if(is.null(filter))
@@ -36,7 +36,7 @@ purge <- function(filter = NULL, quiet = FALSE) {
    slu$jdb <- slu$jdb[-rows, ]                                          # drop purged rows of database
    
    
-   save_database('jdb')
+   save_slu_database('jdb')
    
    if(!quiet)
       message('Purged ', length(rows), ' jobs')

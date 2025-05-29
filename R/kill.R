@@ -19,7 +19,7 @@
 kill <- function(filter = NULL, quiet = FALSE) {
    
    
-   load_database('jdb')
+   load_slu_database('jdb')
    
    
    if(is.null(filter))
@@ -63,7 +63,7 @@ kill <- function(filter = NULL, quiet = FALSE) {
    }
    
    
-   save_database('jdb')
+   save_slu_database('jdb')
    
    if(!quiet)
       message('Killed ', length(rows), ' jobs (jobs ', paste(slu$jdb$jobid[rows], collapse = ', '), ')')

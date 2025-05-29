@@ -40,7 +40,7 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
                    jobids = NULL, comment = '', finish = NA, replace = TRUE) {
    
    
-   load_database('jdb')                                                       # load the jobs database if we don't already have it
+   load_slu_database('jdb')                                                       # load the jobs database if we don't already have it
    
    
    if(!is.list(reps))                                                         # process reps (and argname) so we end up with a named list or data frame
@@ -107,7 +107,7 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
    }
    
    
-   save_database('jdb')                                                       # save the database
+   save_slu_database('jdb')                                                       # save the database
    
    if(dim(jobs)[1] == 1)
       message(dim(jobs)[1], ' job (jobid ', i, ') submitted to ', regid)
