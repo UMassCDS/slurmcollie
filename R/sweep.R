@@ -121,5 +121,5 @@ sweep <- function(stats = TRUE, quiet = FALSE) {
    
    
    if(!quiet)
-      info(what = 'summary', sweep = FALSE)                                                                 # display info
+      info(sweep = FALSE)                                                                 # display info
 }

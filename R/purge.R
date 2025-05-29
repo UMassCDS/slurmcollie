@@ -5,10 +5,9 @@
 #' @param filter Specify jobs with one of:
 #'  - a vector of `jobids`
 #'  - 'all' for all jobs
-#'  - a named list to filter jobs
-#'    with. List items are `<field in jdb> = <value>`, where `<value>` is a regex
-#'    for character fields, or an actual value (or vector of values) for logical
-#'    or numeric fields.
+#'  - a named list to filter jobs with. List items are `<field in jdb> = <value>`, 
+#'    where `<value>` is a regex for character fields, or an actual value (or vector of 
+#'    values) for logical or numeric fields.
 #' @param quiet If TRUE, don't chatter
 #' @export
 

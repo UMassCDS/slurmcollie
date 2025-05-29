@@ -1,34 +1,38 @@
 #' Give info on batch jobs
 #'
+#' Provides information on jobs in the batch jobs database. Options allow for
+#' selecting columns, filtering, sorting, and displaying a brief summary or a
+#' complete table. Normally, `sweep` is called up front to update the database,
+#' so there may be a delay of a second or two.
+#'
 #' @param columns Specifies which columns to include in the jobs table. May be
 #'   one of
 #'   - *brief* (1) includes jobid, status, error, comment
-#'  - *normal* (2)  includes jobid, status, message, comment
-#'   - *long* (3) includes jobid, sjobid, status, state, reason, error, message, done, cores, gb, walltime, cpu, cpu_pct, log, comment
+#'   - *normal* (2)  includes jobid, status, message, comment
+#'   - *long* (3) includes jobid, sjobid, status, state, reason, error, message,
+#'      done, cores, gb, walltime, cpu, cpu_pct, log, comment
 #'   - *all* (4) includes all coumns
 #'   - 1, 2, 3, or 4 is a shortcut for the above column sets
 #'   - A vector of column names to include
 #' @param filter Specify jobs with one of:
 #'  - a vector of `jobids`
 #'  - 'all' for all jobs
-#'  - a named list to filter jobs
-#'   with. List items are `<field in jdb> = <value>`, where `<value>` is a regex
-#'   for character fields, or an actual value (or vector of values) for logical
-#'   or numeric fields.
+#'  - a named list to filter jobs with. List items are `<field in jdb> = <value>`, 
+#'    where `<value>` is a regex for character fields, or an actual value (or vector of 
+#'    values) for logical or numeric fields.
 #' @param sort The name of the column to be used to sort the table
 #' @param decreasing If TRUE, sort in descending order
 #' @param nrows Number of rows to display in the jobs table. Positive numbers
 #'   display the first *n* rows, and negative numbers display the last *n* rows.
 #'   Use `nrows = NA` to display all rows.
-
-#' @param summary If TRUE, displays a jobs summary
-#' @param table If TRUE, displays a jobs table
+#' @param summary If TRUE, displays jobs summary
+#' @param table If TRUE, displays jobs table
 #' @param sweep If TRUE, call `sweep` to update jobs database first
 #' @returns The processed jobs table, invisibly
 #' @export
 
 
-info <- function(columns = 'long', filter = 'all', sort = 'jobid', decreasing = FALSE, nrows = NA, 
+info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing = FALSE, nrows = NA, 
                  summary = TRUE, table = TRUE, sweep = TRUE) {
    
    if(sweep)
@@ -49,7 +53,7 @@ info <- function(columns = 'long', filter = 'all', sort = 'jobid', decreasing = 
       y <- x[order(merge(x, ordering, by = 'status')$order), ]
       
       if(any(!the$jdb$done))
-         message(sum(!the$jdb$done), ' jobs not yet done\n')
+         message(sum(!the$jdb$done), ' job', ifelse(sum(!the$jdb$done) != 1, 's', ''), ' not done\n')
       else
          message('All jobs done\n')
       

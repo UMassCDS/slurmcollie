@@ -11,10 +11,9 @@ filter_jobs(filter)
 \itemize{
 \item a vector of \code{jobids}
 \item 'all' for all jobs
-\item a named list to filter jobs
-with. List items are \verb{<field in jdb> = <value>}, where \verb{<value>} is a regex
-for character fields, or an actual value (or vector of values) for logical
-or numeric fields.
+\item a named list to filter jobs with. List items are \verb{<field in jdb> = <value>},
+where \verb{<value>} is a regex for character fields, or an actual value (or vector of
+values) for logical or numeric fields.
 }}
 }
 \value{

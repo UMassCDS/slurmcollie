@@ -3,10 +3,9 @@
 #' @param filter Specify jobs with one of:
 #'  - a vector of `jobids`
 #'  - 'all' for all jobs
-#'  - a named list to filter jobs
-#'    with. List items are `<field in jdb> = <value>`, where `<value>` is a regex
-#'    for character fields, or an actual value (or vector of values) for logical
-#'    or numeric fields.
+#'  - a named list to filter jobs with. List items are `<field in jdb> = <value>`, 
+#'    where `<value>` is a regex for character fields, or an actual value (or vector of 
+#'    values) for logical or numeric fields.
 #' @returns A vector of rows numbers in `the$jdb`
 
 
@@ -26,10 +25,10 @@ filter_jobs <- function(filter) {
    if(any(n <- !names(filter) %in% names(the$jdb)))               # else, it's a named list of field = value
       stop('Fields not in jobs database: ', paste(names(filter)[n], collapse = ', '))
    z <- rep(TRUE, dim(the$jdb)[1])
-   for(i in length(filter)) {
+   for(i in 1:length(filter)) {
       col <- the$jdb[, names(filter)[i]]
       val <- filter[[i]]
-      if(is.character(col[1]))
+      if(is.character(col[i]))
          z <- z & ((1:length(col)) %in% grep(val, col))
       else
          z <- z & (col == val)
