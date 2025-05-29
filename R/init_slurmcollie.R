@@ -17,23 +17,26 @@
 #' @export
 
 
-init <- function() {
+init_slurmcollie <- function() {
    
    
    # Note: 'slu' is created as an environment by aab.R
    
    f <- file.path(path.expand('~'), 'slurmcollie.yml')
-   if(!file.exists(f))
-      stop('User parameter file ', f, ' not found. Run set_up_slurmcollie() to initialize this package.')
+   if(!file.exists(f)) {
+      message('User parameter file ', f, ' not found. Run set_up_slurmcollie() to initialize this package.')
+      return(invisible())
+   }
+      
    x <- yaml::read_yaml(f)
    for(i in 1:length(x)) 
       slu[[names(x)[i]]] <- x[[i]]
    
    
-   slu$dbdir <- file.path(slu$slurmcollie_dir, databases)
-   slu$template <- file.path(slu$slurmcollie_dir, template)
-   slu$regdir <- file.path(slu$slurmcollie_dir, registries)
-   slu$logdir <- file.path(slu$slurmcollie_dir, logs)
+   slu$dbdir <- file.path(slu$slurmcollie_dir, 'databases')
+   slu$templatedir <- file.path(slu$slurmcollie_dir, 'template')
+   slu$regdir <- file.path(slu$slurmcollie_dir, 'registries')
+   slu$logdir <- file.path(slu$slurmcollie_dir, 'logs')
 
     
    packageStartupMessage('slurmcollie parameters initialized\n')

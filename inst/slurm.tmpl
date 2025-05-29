@@ -1,5 +1,7 @@
 ## Slurm template for launching batch jobs from RStudio on Unity
-## Authors: https://github.com/birdflow-science/BirdFlowPipeline/blob/main/inst/batchtools.conf.R, Georgia Stuart, Bradley Compton
+## Thanks to Georgia Stuart!
+## You may need to include the following in Override RStudio image location when launching RStudio OnDemand:
+##    /modules/admin-resources/ood-dev/unity-r_4.4.0.sif
 ## 21 May 2025
 
 
@@ -21,8 +23,6 @@ log.file = fs::path_expand(log.file)
 #SBATCH --export=None
 ##SBATCH --mail-type=END                              ## send an email when job finishes
 
-##   ## Write Slurm job id to a log file for retrieval by get_job_id()
-##   echo $SLURM_JOB_ID > <%= log.file %>.slurmjobid
 
 ## Export value of DEBUGME environemnt var
 export DEBUGME=<%= Sys.getenv("DEBUGME") %>

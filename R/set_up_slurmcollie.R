@@ -24,47 +24,48 @@
 
 
 set_up_slurmcollie <- function(directory = NULL, login_node = 'login1', replace = FALSE) {
-
-
-if(is.null(directory))
-stop('A directory must be supplied')
-
-yml <- file.path(path.expand('~'), 'slurmcollie.yml')
-
-tocheck <- c(yml, file.path(slurmcollie_dir, 'templates', 'batchtools.conf.R'),
-file.path(slurmcollie_dir, 'templates', 'slrum.tmpl'))
-
-if(any(e <- file.exists(tocheck)) & !replace)
-   stop(paste(tocheck[e], sep = ', '), ' already exist', ifelse(sum(e) != 1, 's', ''), 
-   '. Use replace = TRUE to start fresh.')
-
+   
+   
+   if(is.null(directory))
+      stop('A directory must be supplied')
+   
+   
+   yml <- file.path(path.expand('~'), 'slurmcollie.yml')
+   
+   tocheck <- c(yml, file.path(directory, 'templates', 'batchtools.conf.R'),
+                file.path(directory, 'templates', 'slrum.tmpl'))
+   
+   
+   if(any(e <- file.exists(tocheck)) & !replace)
+      stop(paste(tocheck[e], sep = ', '), ' already exist', ifelse(sum(e) == 1, 's', ''), 
+           '. Use replace = TRUE to start fresh.')
+   
    x <- c('# Parameter files for R package slurmcollie', '', 
-   paste0('slurmcollie_dir: ', directory), 
-   paste0('login_node: ', login_node))
+          paste0('slurmcollie_dir: ', directory), 
+          paste0('login_node: ', login_node))
    writeLines(x, yml)
    message('Created ', yml)
    
    
-   slu$dbdir <- file.path(slu$slurmcollie_dir, databases)
-   slu$template <- file.path(slu$slurmcollie_dir, template)
-   slu$regdir <- file.path(slu$slurmcollie_dir, registries)
-   slu$logdir <- file.path(slu$slurmcollie_dir, logs)
+   init_slurmcollie()
    
    
-   dirs <- c(directory, file.dir(directory, slu$dbdir, slu$regdir, slu$logdir)
+   dirs <- c(directory, slu$dbdir, slu$templatedir, slu$regdir, slu$logdir)
    
    for(i in dirs)
-   if(!dir.exists(i)) {
-   dir.create(i, recursive = TRUE)
-   message('Created ', i)
-   }
+      if(!dir.exists(i)) {
+         dir.create(i, recursive = TRUE)
+         message('Created ', i)
+      }
    
-   templates <- system.file(c('batchtools.conf.R', 'slurm.tmpl'), package = 'saltmarsh')
-   x <- file.copy(templates, slu$template, overwrite = TRUE)
+   templates <- system.file(c('batchtools.conf.R', 'slurm.tmpl'), package = 'saltmarsh', 
+                            lib.loc = .libPaths(), mustWork = TRUE)
+   x <- file.copy(templates, slu$templatedir, overwrite = TRUE)
    if(any(!x))
-   stop('Failed to copy templates to ', slu$template)
+      stop('Failed to copy templates to ', slu$templatedir)
    
-   message('Created ', templates)
+   message('Created ', paste(templates, collapse = ' and '))
+   
    
    message('slurmcollie is good to go!')
 }

@@ -75,8 +75,8 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
          regid <- paste0('reg', regid)
       }
       
-      config <- system.file('batchtools.conf.R', package = 'saltmarsh', 
-                            lib.loc = .libPaths(), mustWork = TRUE)
+
+      config <- file.path(slu$template, 'batchtools.conf.R')
       reg <- suppressMessages(makeRegistry(file.dir = file.path(regdir, regid), 
                                            conf.file = config))               #    create batchtools registry
       

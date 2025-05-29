@@ -6,7 +6,7 @@
 
 
 cluster.functions <- makeClusterFunctionsSlurm(
-   template = system.file('slurm.tmpl', package = 'saltmarsh', lib.loc = .libPaths(), mustWork = TRUE))
+   template = file.path(slu$template, 'slurm.tmpl'))
 
 
 default.resources <- list(                # Set defaults. These may be overridden by passing resources to submitJobs.
