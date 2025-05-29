@@ -1,6 +1,6 @@
 #' Launch batch jobs via Slurm on Unity
 #' 
-#' Updates jobs database, `the$jdb` to track jobs.
+#' Updates jobs database, `slu$jdb` to track jobs.
 #' 
 #' Use `finish = 'function'` to name functions to, for example, update a parent
 #' database. The finish function must take two arguments, `jobid` and `status`.
@@ -36,7 +36,7 @@
 
 
 launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(), 
-                   resources = list(), regdir = the$regdir, 
+                   resources = list(), regdir = slu$regdir, 
                    jobids = NULL, comment = '', finish = NA, replace = TRUE) {
    
    
@@ -54,11 +54,11 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
    
    if(is.null(jobids))                                                        # Wrangle jobids
       jobids <- rep(NA, length(reps[[1]]))
-   i <- match(jobids, the$jdb$jobid)                                          # find jobids that are already in the database--we'll replace those if replace = TRUE
+   i <- match(jobids, slu$jdb$jobid)                                          # find jobids that are already in the database--we'll replace those if replace = TRUE
    if(any(!is.na(i)) & !replace)
       stop('Jobs are already in jobs database (and replace = FALSE) for job ids ', paste(jobids[!is.na(i)], collapse = ', '))
    if(any(is.na(jobids)))
-      jobids[is.na(jobids)] <- max(the$jdb$jobid, 0) + 1:sum(is.na(jobids))   # come up with new jobids for those not supplied
+      jobids[is.na(jobids)] <- max(slu$jdb$jobid, 0) + 1:sum(is.na(jobids))   # come up with new jobids for those not supplied
    
    
    
@@ -87,19 +87,19 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
       
       
       
-      the$jdb[j <- nrow(the$jdb) + (1:sum(is.na(i))), ] <- NA                 #    add rows to database if need be
+      slu$jdb[j <- nrow(slu$jdb) + (1:sum(is.na(i))), ] <- NA                 #    add rows to database if need be
       i[is.na(i)] <- j
       
-      the$jdb$jobid[i] <- jobids                                              #    add job ids to jobs database
-      the$jdb$launched[i] <- now()                                            #    launch date and time in UTC, leaving pretty formatting info() - use with_tz(now(),  'America/New_York') 
-      the$jdb$call[i] <- call                                                 #    name of called function
-      the$jdb$bjobid[i] <- jobs$job.id                                        #    and add batchtools job ids to jobs database
-      the$jdb$registry[i] <- regid
-      the$jdb$sjobid[i] <- getJobTable(the$jdb$bjobid[i])$batch.id            #    Slurm job id (it's easier than I thought!)
-      the$jdb$status[i] <- 'queued'
-      the$jdb$done[i] <- FALSE
-      the$jdb$finish[i] <- finish
-      the$jdb$comment[i] <- rep(comment, length = length(i))                  #    job comment
+      slu$jdb$jobid[i] <- jobids                                              #    add job ids to jobs database
+      slu$jdb$launched[i] <- now()                                            #    launch date and time in UTC, leaving pretty formatting info() - use with_tz(now(),  'America/New_York') 
+      slu$jdb$call[i] <- call                                                 #    name of called function
+      slu$jdb$bjobid[i] <- jobs$job.id                                        #    and add batchtools job ids to jobs database
+      slu$jdb$registry[i] <- regid
+      slu$jdb$sjobid[i] <- getJobTable(slu$jdb$bjobid[i])$batch.id            #    Slurm job id (it's easier than I thought!)
+      slu$jdb$status[i] <- 'queued'
+      slu$jdb$done[i] <- FALSE
+      slu$jdb$finish[i] <- finish
+      slu$jdb$comment[i] <- rep(comment, length = length(i))                  #    job comment
    }
    else                                                                       # else, launch in local mode ----------
    {
