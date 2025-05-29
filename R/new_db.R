@@ -26,7 +26,7 @@ new_db <- function(database, really = FALSE) {
           },
           
           'jdb' = {
-             the$jdb <- data.frame(
+             slu$jdb <- data.frame(
                 jobid = integer(),
                 launched = as.POSIXct(character()),
                 call = character(),
@@ -49,9 +49,9 @@ new_db <- function(database, really = FALSE) {
                 comment = character()
              )
              
-             unlink(file.path(the$dbdir, paste0(database, '*.RDS')))             # delete old database and backups
-             unlink(file.path(the$logdir, 'job_*.log'))                          # delete abandoned logs
-             unlink(file.path(the$regdir, '*'), recursive = TRUE)                # delete all batchtools registries
+             unlink(file.path(slu$dbdir, paste0(database, '*.RDS')))             # delete old database and backups
+             unlink(file.path(slu$logdir, 'job_*.log'))                          # delete abandoned logs
+             unlink(file.path(slu$regdir, '*'), recursive = TRUE)                # delete all batchtools registries
           },
           stop('Database must be one of "db" or "jdb"')
    )

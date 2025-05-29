@@ -38,7 +38,7 @@
 #' `parsdir`). It allows multiple users on a shared machine (such as Unity cluster)
 #' to set user-specific parameters if need be, while sharing other parameters.
 #' 
-#' This function reads the user parameters and sets a local environment `the` with 
+#' This function reads the user parameters and adds them to the environment `the` with 
 #' all parameters. It is automatically run upon loading the package, and may be 
 #' rerun by the user if parameter files are changed.
 #' 
@@ -86,13 +86,13 @@ init <- function() {
    if(any(t <- !p %in% names(the)))
       stop('Parameters ', paste0(p[t], collapse = ', ') , ' are missing from ', f)
    
-   the$parsdir <- file.path(the$basedir, the$parsdir)                                                    # path to parameter files
+   the$parsdir <- file.path(the$basedir, the$parsdir)                                 # path to parameter files
    
    x <- yaml::read_yaml(file.path(the$parsdir, the$parsfile))
    for(i in 1:length(x)) 
       the[[names(x)[i]]] <- x[[i]]
    
-   set_dirs()                                                                                            # and create all full paths
+   set_dirs()                                                                         # and create all full paths
    
    packageStartupMessage('User parameters initialized\n')
 }

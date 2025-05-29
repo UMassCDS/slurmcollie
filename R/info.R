@@ -40,20 +40,20 @@ info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing 
    else
       load_database('jdb')
    
-   if(dim(the$jdb)[1] == 0) {
+   if(dim(slu$jdb)[1] == 0) {
       message('No jobs in database')
       return(invisible())
    }
    
    
    if(summary) {
-      x <- data.frame(table(the$jdb$status))
+      x <- data.frame(table(slu$jdb$status))
       x <- data.frame(cbind(status = as.character(x[, 1]), jobs = x[, 2]))
       ordering <- data.frame(status = c('pending', 'queued', 'running', 'finished', 'error', 'killed', 'timeout', 'failed'), order = 1:8)
       y <- x[order(merge(x, ordering, by = 'status')$order), ]
       
-      if(any(!the$jdb$done))
-         message(sum(!the$jdb$done), ' job', ifelse(sum(!the$jdb$done) != 1, 's', ''), ' not done\n')
+      if(any(!slu$jdb$done))
+         message(sum(!slu$jdb$done), ' job', ifelse(sum(!slu$jdb$done) != 1, 's', ''), ' not done\n')
       else
          message('All jobs done\n')
       
@@ -62,7 +62,7 @@ info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing 
    
    # Now put together jobs table, whether we print it or not, as it's also returned
    
-   z <- the$jdb[filter_jobs(filter), ]                                                                # jobs database, filtered
+   z <- slu$jdb[filter_jobs(filter), ]                                                                # jobs database, filtered
    z <- z[order(z[, sort], decreasing = decreasing), ]                                                # and sorted
    
    z$mem_gb <- round(z$mem_gb, 3)

@@ -23,17 +23,17 @@ purge <- function(filter = NULL, quiet = FALSE) {
    
    rows <- filter_jobs(filter)
    
-   x <- the$jdb$status[rows] %in% c('pending', 'queued', 'running')
+   x <- slu$jdb$status[rows] %in% c('pending', 'queued', 'running')
    if(any(x))
-      stop('You may not purge jobs that are pending, queued, or running--kill them first (jobs ', paste(the$jdb$jobid[rows[x]], collapse = ', '), ')')
+      stop('You may not purge jobs that are pending, queued, or running--kill them first (jobs ', paste(slu$jdb$jobid[rows[x]], collapse = ', '), ')')
    
    
    for(i in rows)                                                       # delete logs
-      if(!is.na(the$jdb$log[i]))
-         unlink(file.path(the$logdir, the$jdb$log[i]))
+      if(!is.na(slu$jdb$log[i]))
+         unlink(file.path(slu$logdir, slu$jdb$log[i]))
    
    
-   the$jdb <- the$jdb[-rows, ]                                          # drop purged rows of database
+   slu$jdb <- slu$jdb[-rows, ]                                          # drop purged rows of database
    
    
    save_database('jdb')
