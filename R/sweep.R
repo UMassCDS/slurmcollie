@@ -94,7 +94,7 @@ sweep <- function(stats = TRUE, quiet = FALSE) {
       rows <- newdone[!is.na(slu$jdb$finish[newdone])]                                                      # we'll call finish functions for these newly-completed jobs, which include errors and other failures
       
       slu$jdb$done[newdone] <- TRUE                                                                         # mark newly-finished jobs as done
-      save_slu_database('jdb')                                                                                  # save the database before calling finish functions or deleting registries
+      save_slu_database('jdb')                                                                              # save the database before calling finish functions or deleting registries
       
       
       finrows <- rows[!is.na(slu$jdb$finish[rows])]                                                         # if any of these jobs have finish functions,
@@ -102,7 +102,7 @@ sweep <- function(stats = TRUE, quiet = FALSE) {
          for(i in rows)                                                                                     #    call finish functions
             do.call(slu$jdb$finish[i], list(jobid = slu$jdb$jobid[i], status = slu$jdb$status[i]))
          slu$jdb$finish[rows] <- 'done'
-         save_slu_database('jdb')                                                                               #    set finish to 'done' and save the database, yet again
+         save_slu_database('jdb')                                                                           #    set finish to 'done' and save the database, yet again
       }
       
       
@@ -115,11 +115,11 @@ sweep <- function(stats = TRUE, quiet = FALSE) {
          
          unlink(file.path(slu$regdir, dropreg), recursive = TRUE)                                           #    nuke the registry directories
          
-         save_slu_database('jdb')                                                                               #    save the database again
+         save_slu_database('jdb')                                                                           #    save the database again
       }
    }
    
    
    if(!quiet)
-      info(sweep = FALSE)                                                                 # display info
+      info(sweep = FALSE)                                                                                   # display info
 }

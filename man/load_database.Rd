@@ -7,7 +7,7 @@
 load_database(database, force = FALSE)
 }
 \arguments{
-\item{database}{Name of database (\code{jdb} or \code{db})}
+\item{database}{Name of database (should \code{db})}
 
 \item{force}{If TRUE, always loads the database, replacing the current one if it exists}
 }

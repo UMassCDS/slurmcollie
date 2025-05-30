@@ -15,7 +15,7 @@
 #' these directories with other R code; for instance, the `saltmarsh` package also uses
 #' `databases`.
 #'
-#' See README for details on how to set up ssh access to the login node, which is required
+#' See `README` for details on how to set up ssh access to the login node, which is required
 #' for launching batch jobs in Slurm from R.
 #' @param directory The user directory for slurmcollie files
 #' @param login_node The name of a login node with ssh access

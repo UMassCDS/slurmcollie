@@ -12,18 +12,19 @@ info(
   nrows = NA,
   summary = TRUE,
   table = TRUE,
-  sweep = TRUE
+  sweep = TRUE,
+  timezone = "America/New_York"
 )
 }
 \arguments{
 \item{columns}{Specifies which columns to include in the jobs table. May be
 one of
 \itemize{
-\item \emph{brief} (1) includes jobid, status, error, comment
-\item \emph{normal} (2)  includes jobid, status, message, comment
-\item \emph{long} (3) includes jobid, sjobid, status, state, reason, error, message,
-done, cores, gb, walltime, cpu, cpu_pct, log, comment
-\item \emph{all} (4) includes all coumns
+\item \emph{brief} (1) includes \code{jobid}, \code{status}, \code{error}, \code{comment}
+\item \emph{normal} (2)  includes \code{jobid}, \code{status}, \code{message}, \code{comment}
+\item \emph{long} (3) includes \code{jobid}, \code{sjobid}, \code{status}, \code{state}, \code{reason}, \code{error}, \code{message},
+\code{done}, \code{cores}, \code{gb}, \code{walltime}, \code{cpu}, \code{cpu_pct}, \code{log}, \code{comment}
+\item \emph{all} (4) includes all columns
 \item 1, 2, 3, or 4 is a shortcut for the above column sets
 \item A vector of column names to include
 }}
@@ -50,6 +51,8 @@ Use \code{nrows = NA} to display all rows.}
 \item{table}{If TRUE, displays jobs table}
 
 \item{sweep}{If TRUE, call \code{sweep} to update jobs database first}
+
+\item{timezone}{Time zone for launch time; use NULL to leave times in native UTC}
 }
 \value{
 The processed jobs table, invisibly

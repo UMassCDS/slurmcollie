@@ -12,7 +12,7 @@
 #' automatically run upon loading the package, and may be rerun by the user if parameter 
 #' files are changed.
 #'
-#' See README for details on how to set up ssh access to the login node, which is required
+#' See `README` for details on how to set up ssh access to the login node, which is required
 #' for launching batch jobs in Slurm from R.
 #' @export
 

@@ -11,8 +11,8 @@ launch(
   argname = "rep",
   moreargs = list(),
   resources = list(),
-  regdir = the$regdir,
-  jobids = NULL,
+  local = FALSE,
+  regdir = slu$regdir,
   comment = "",
   finish = NA,
   replace = TRUE
@@ -23,40 +23,40 @@ launch(
 
 \item{args}{Named list of arguments to called function}
 
-\item{reps}{Vector, list, or data frame to vectorize call over. If a
-named list or data frame, the names must correspond to the function's
-arguments. If a vector or unnamed list, \code{argname} is used.}
+\item{reps}{Vector, list, or data frame to vectorize call over. If a named list or data frame,
+the names must correspond to the function's arguments. If a vector or unnamed list, \code{argname}
+is used.}
 
-\item{argname}{Name of \code{reps} argument in function to be called, used
-only when \code{reps} is a vector or unnamed list}
+\item{argname}{Name of \code{reps} argument in function to be called, used only when \code{reps} is a
+vector or unnamed list}
 
-\item{moreargs}{a named list of additional arguments to the called function,
-not vectorized over}
+\item{moreargs}{a named list of additional arguments to the called function, not vectorized over}
 
-\item{resources}{Named list of resources, overriding defaults in
-\code{batchtools.conf}}
+\item{resources}{Named list of resources, overriding defaults in \code{batchtools.conf}}
+
+\item{local}{If TRUE, launch job locally instead of as a batch job, tying up the console while it
+runs. The jobs database will be updated on completion, so no information will be saved to the
+jobs database if the job is interrupted.}
 
 \item{regdir}{Directory containing \code{batchtools} registries}
 
-\item{jobids}{ids for these jobs in jobs database. Supply existing
-jobs to relaunch jobs; NA or NULL will create new jobs.}
-
 \item{comment}{Optional comment; will be recycled for multiple reps}
 
-\item{finish}{Optional name of a function to run for completed jobs,
-for example \code{finish = 'sweep_fit'} to gather fit stats}
+\item{finish}{Optional name of a function to run for completed jobs, for example \code{finish = 'sweep_fit'} to gather fit stats}
 
-\item{replace}{If TRUE, replace existing job ids in jobs database;
-otherwise throw an error for existing jobs}
+\item{replace}{If TRUE, replace existing job ids in jobs database; otherwise throw an error for
+existing jobs}
 }
 \description{
-Updates jobs database, \code{the$jdb} to track jobs.
+Updates jobs database, \code{slu$jdb} to track jobs.
 }
 \details{
-Use \code{finish = 'function'} to name functions to, for example, update a parent
-database. The finish function must take two arguments, \code{jobid} and \code{status}.
-These functions are called by \link{sweep} for any newly-done jobs, whether they
-were successful or not. Finishing functions run in the user console, so they
-should be quick--they're intended to update databases, not do actual work.
-You can, of course, \code{launch} additional batch jobs from a finishing function.
+Use \code{finish = 'function'} to name functions to, for example, update a parent database. The finish
+function must take two arguments, \code{jobid} and \code{status}. These functions are called by \link{sweep} for
+any newly-done jobs, whether they were successful or not. Finishing functions run in the user
+console, so they should be quick--they're intended to update databases, not do actual work. You
+can, of course, \code{launch} additional batch jobs from a finishing function.
+
+Normally, jobs are launched via Slurm, but you can use \code{local = TRUE} to run them in the console,
+which means you'll have to wait for them to complete.
 }

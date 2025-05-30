@@ -7,11 +7,11 @@
 #'
 #' @param columns Specifies which columns to include in the jobs table. May be
 #'   one of
-#'   - *brief* (1) includes jobid, status, error, comment
-#'   - *normal* (2)  includes jobid, status, message, comment
-#'   - *long* (3) includes jobid, sjobid, status, state, reason, error, message,
-#'      done, cores, gb, walltime, cpu, cpu_pct, log, comment
-#'   - *all* (4) includes all coumns
+#'   - *brief* (1) includes `jobid`, `status`, `error`, `comment`
+#'   - *normal* (2)  includes `jobid`, `status`, `message`, `comment`
+#'   - *long* (3) includes `jobid`, `sjobid`, `status`, `state`, `reason`, `error`, `message`,
+#'      `done`, `cores`, `gb`, `walltime`, `cpu`, `cpu_pct`, `log`, `comment`
+#'   - *all* (4) includes all columns
 #'   - 1, 2, 3, or 4 is a shortcut for the above column sets
 #'   - A vector of column names to include
 #' @param filter Specify jobs with one of:

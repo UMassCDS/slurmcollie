@@ -4,11 +4,13 @@
 \alias{get_job_efficiency}
 \title{get the job efficiency of a completed job from Slurm}
 \usage{
-get_job_efficiency(id)
+get_job_efficiency(id, login_node = slu$login_node)
 }
 \arguments{
 \item{id}{The Slurm job ID including an array suffix e.g. "_1" if
 appropriate.}
+
+\item{login_node}{Name of a login_node with ssh access}
 }
 \value{
 A list with items:
@@ -29,9 +31,6 @@ A list with items:
 via \code{\link[batchtools:runOSCommand]{batchtools::runOSCommand()}}, which uses ssh to connect to a login
 node before running the command.  The resulting output is then parsed
 into an R list.
-}
-\details{
-Modified from \verb{https://github.com/birdflow-science/BirdFlowPipeline}.
 }
 \seealso{
 \code{\link[batchtools:findJobs]{batchtools::findJobs()}}

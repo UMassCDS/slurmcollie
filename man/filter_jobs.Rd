@@ -17,7 +17,7 @@ values) for logical or numeric fields.
 }}
 }
 \value{
-A vector of rows numbers in \code{the$jdb}
+A vector of rows numbers in \code{slu$jdb}
 }
 \description{
 Filter jobs database

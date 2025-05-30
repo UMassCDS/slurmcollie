@@ -7,7 +7,7 @@
 save_database(database)
 }
 \arguments{
-\item{database}{Name of database (\code{jdb} or \code{db})}
+\item{database}{Name of database (should \code{db})}
 }
 \description{
 Saves the database in directory \code{the$dbdir}. Previous versions are renamed e.g., \code{jdb_1.RDS},

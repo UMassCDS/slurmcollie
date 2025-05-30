@@ -47,7 +47,7 @@ from parameters that are likely to be shared among users and across platforms (t
 \code{parsdir}). It allows multiple users on a shared machine (such as Unity cluster)
 to set user-specific parameters if need be, while sharing other parameters.
 
-This function reads the user parameters and sets a local environment \code{the} with
+This function reads the user parameters and adds them to the environment \code{the} with
 all parameters. It is automatically run upon loading the package, and may be
 rerun by the user if parameter files are changed.
 

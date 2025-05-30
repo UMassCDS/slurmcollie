@@ -22,5 +22,5 @@ batch_test <- function(rep, wait = 0, file = '/work/pi_cschweik_umass_edu/batch_
       cat('We\'re now crashed\n')
    }
 
-   Sys.sleep(60 * 5 * runif(5))              # random wait up to 5 minutes before finishing
+   Sys.sleep(10 * 6 * runif(6))              # random wait up to 1 minute before finishing
 }
