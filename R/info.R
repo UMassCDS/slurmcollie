@@ -28,12 +28,13 @@
 #' @param summary If TRUE, displays jobs summary
 #' @param table If TRUE, displays jobs table
 #' @param sweep If TRUE, call `sweep` to update jobs database first
+#' @param timezone Time zone for launch time; use NULL to leave times in native UTC
 #' @returns The processed jobs table, invisibly
 #' @export
 
 
 info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing = FALSE, nrows = NA, 
-                 summary = TRUE, table = TRUE, sweep = TRUE) {
+                 summary = TRUE, table = TRUE, sweep = TRUE, timezone = 'America/New_York') {
    
    if(sweep)
       sweep(quiet = TRUE)
@@ -73,6 +74,11 @@ info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing 
       else
          z <- z[(dim(z)[1] + nrows + 1):(dim(z)[1]), ] 
    }
+   
+   
+   if(!is.null(timezone))                                                                             # if time zone supplied,
+      z$launched <- with_tz(z$launched, timezone)                                                     #    format launch time in eastern time zone
+   
    
    if(is.numeric(columns))                                                                            # print only requested columns
       if(columns %in% 1:4)
