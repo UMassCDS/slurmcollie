@@ -29,7 +29,7 @@ kill <- function(filter = NULL, quiet = FALSE) {
    
    
    if(!quiet & any(is.na(rows)))                                                                   # deal with missing jobs
-      message('Jobids ', paste(jobids[is.na(rows)], collapse = ', '), ' don\'t exist')
+      message('Jobids ', paste(slu$jdb$jobids[is.na(rows)], collapse = ', '), ' don\'t exist')
    rows <- rows[!is.na(rows)]
    if(length(rows) == 0)
       return(invisible())

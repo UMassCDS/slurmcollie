@@ -1,36 +1,29 @@
-Package: saltmarsh
+Package: slurmcollie
 Type: Package
-Title: UMass UAS Salt Marsh Project salt marsh land cover mapping
-Description: Predictive model of salt marsh land cover from drone-based imagery. 
+Title: A Lightweight Border Collie Eager to Herd Your R Slurm Jobs 
+Description: A simple and powerful Slurm job manager for R, slurmcollie makes it easy
+    to launch R code as Slurm jobs. It manages many heterogeneous runs, tracking run
+    status, errors, logs, and status such as memory and CPU used. Instead of mucking
+    around in the depths of Slurm, you should be able to get R jobs running within
+    an hour.
 Version: 0.0.0.9000
 Authors@R: 
-    person('Bradley', 'Compton', email = 'bcompton@umass.edu', role = c('aut', 'cre'), 
-       comment = c(ORCID = '0009-0002-2375-8116'))
-URL: https://github.com/UMass-UAS-Salt-Marsh/salt-marsh-mapping
-BugReports: https://github.com/UMass-UAS-Salt-Marsh/salt-marsh-mapping/issues
+    c(person('Bradley', 'Compton', email = 'bcompton@umass.edu', role = c('aut', 'cre'), 
+         comment = c(ORCID = '0009-0002-2375-8116')), 
+      person("Ethan", "Plunkett",  email = "plunkett@umass.edu", role = c('ctb'),
+         comment = c(ORCID = "0000-0003-4405-2251")))
+URL: https://github.com/UMass-UAS-Salt-Marsh/slurmcollie
+BugReports: https://github.com/UMass-UAS-Salt-Marsh/slurmcollie/issues
 Imports:
-    terra,
-    sf,
-    RCurl,
     lubridate,
-    googledrive,
     yaml,
-    pkgcond,
     tools,
     stats,
-    dplyr,
-    progressr,
-    caret, 
     stringr,
-    pROC,
-    paletteer,
-    rasterPrep,
     peakRAM,
-    batchtools,
     fs,
+    batchtools,
     hms
-Suggests: 
-    ranger
 Encoding: UTF-8
 Language: en-US
 LazyData: trued

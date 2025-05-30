@@ -30,6 +30,7 @@
 #' @param sweep If TRUE, call `sweep` to update jobs database first
 #' @param timezone Time zone for launch time; use NULL to leave times in native UTC
 #' @returns The processed jobs table, invisibly
+#' @importFrom lubridate with_tz
 #' @export
 
 

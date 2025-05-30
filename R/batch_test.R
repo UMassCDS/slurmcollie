@@ -5,6 +5,7 @@
 #' @param rep Rep number
 #' @param wait Minutes to wait before doing anything
 #' @param file File to write to
+#' @importFrom stats runif
 #' @export
 
 batch_test <- function(rep, wait = 0, file = '/work/pi_cschweik_umass_edu/batch_test/btest/test_') {

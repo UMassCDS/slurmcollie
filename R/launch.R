@@ -31,7 +31,7 @@
 #'   existing jobs
 #' @importFrom batchtools makeRegistry batchMap submitJobs getJobTable
 #' @importFrom peakRAM peakRAM
-#' @importFrom lubridate seconds_to_period
+#' @importFrom lubridate seconds_to_period minute second
 #' @export
 
 

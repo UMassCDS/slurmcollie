@@ -6,7 +6,6 @@
 .onLoad <- function(libname, pkgname) {
    
    
-   init()
-   init_slurmcollie()                                       # ************************** will drop this when I split packages
+   init_slurmcollie()
    
 }
