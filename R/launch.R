@@ -88,6 +88,7 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
       slu$jdb$finish[i] <- finish
       slu$jdb$comment[i] <- rep(comment, length = length(i))                  #    job comment
       
+      save_slu_database('jdb')
       
       if(dim(jobs)[1] == 1)
          message(dim(jobs)[1], ' job (jobid ', slu$jdb$jobid[i], ') submitted to ', regid)
