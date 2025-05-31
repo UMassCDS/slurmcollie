@@ -80,7 +80,9 @@ triggered by `info()`. This is intended to support updating databases in the cal
 
 ## Installing `slurmcollie`
 
-### 1. Set up ssh connection to Unity login node This painful process only needs to be done once. It
+### 1. Set up ssh connection to Unity login node 
+
+This painful process only needs to be done once. It
 is necessary for automated submission of sbatch jobs to Unity from within R, when R is running on a
 compute node (e.g., in RStudio onDemand)
 
@@ -215,39 +217,75 @@ First, we launch 3 reps of `batch_test()` and call `info()` immediately. The job
 by `Slurm` when we call info.
 
 ```
-launch('batch_test', reps = 1:5, comment = 'Five reps of batch_test')
-info()
+> launch('batch_test', reps = 1:5, comment = 'Five reps of batch_test')
+5 jobs (jobids 1, 2, 3, 4, 5) submitted to reg001
+> info()
+5 jobs not done
+
+  status jobs
+ pending    5
+
+ jobid  status error message cores mem_gb walltime cpu cpu_pct                 comment
+     1 pending                  NA     NA                      Five reps of batch_test
+     2 pending                  NA     NA                      Five reps of batch_test
+     3 pending                  NA     NA                      Five reps of batch_test
+     4 pending                  NA     NA                      Five reps of batch_test
+     5 pending                  NA     NA                      Five reps of batch_test
+> 
 ```
 
 We realize that we don't really want to run the 3rd rep, so we kill it:
 
 ```
-kill(3)
+> kill(3)
+Killed 1 jobs (jobs 3)
 ```
 
 Note that if you wait too long here, the job may have finished before you kill it.
 Let's wait a little while for the jobs to launch and call `info()` again. Note that jobs may sit in
 the queue for varying lengths of time, depending on how busy the cluster is.
-```
-info()
-```
-Now jobs are running. Note that we got an error on job #2. That's because batch_test throws an error
-by design for job #2.
-Now we'll launch a different job, one that will take longer. This job doesn't have any reps.
-
-```
-launch('big_test', 'This one will take longer')
-```
-
-Let's wait until the jobs are all done and call `info()` again.
 
 ```
 > info()
-All jobs done
+3 jobs not done
+
+  status jobs
+ running    3
+   error    1
+  killed    1
+
+ jobid  status error        message cores mem_gb walltime      cpu cpu_pct                 comment
+     1 running                         NA     NA                           Five reps of batch_test
+     2   error  TRUE We hate job #2     1  0.002 00:00:03 00:00:02   66.67 Five reps of batch_test
+     3  killed                         NA     NA                           Five reps of batch_test
+     4 running                         NA     NA                           Five reps of batch_test
+     5 running                         NA     NA                           Five reps of batch_test
+```
+
+Now jobs are running. Note that we got an error on job #2. That's because batch_test throws an error
+by design for job #2.
+
+Now we'll launch a different job, one that will take longer. This job doesn't have any reps.
+
+```
+> launch('big_test', comment = 'this will take longer')
+1 job (jobid 6) submitted to reg002
+> info()
+1 job not done
+
    status jobs
- finished    1
- jobid   status error message cores mem_gb walltime      cpu cpu_pct comment
-     1 finished FALSE             1  0.001 00:00:09 00:00:02   22.22
+  running    1
+ finished    3
+    error    1
+   killed    1
+
+ jobid   status error        message cores mem_gb walltime      cpu cpu_pct                 comment
+     1 finished FALSE                    1  0.009 00:00:16 00:00:02    12.5 Five reps of batch_test
+     2    error  TRUE We hate job #2     1  0.015 00:00:04 00:00:02      50 Five reps of batch_test
+     3   killed                         NA     NA                           Five reps of batch_test
+     4 finished FALSE                    1  0.140 00:01:00 00:00:02    3.33 Five reps of batch_test
+     5 finished FALSE                    1  0.141 00:00:50 00:00:02       4 Five reps of batch_test
+     6  running                         NA     NA                             this will take longer
 ```
 
 We now see the final status for each job: jobs #1, 4, and 5 finished without error. Job #2 threw an
@@ -261,8 +299,16 @@ When we're all done, we can purge the completed jobs from the database. This wil
 this information longer-term, it's good practice to write a finishing function to capture them.
 
 ```
-purge(list(done = TRUE))
-info()
+> purge(list(done = TRUE))
+Purged 5 jobs
+> info()
+1 job not done
+
+  status jobs
+ running    1
+
+ jobid  status error message cores mem_gb walltime cpu cpu_pct               comment
+     6 running                  NA     NA                      this will take longer
 ```
 
 ## Support If you run into trouble, please try to determine whether the problem is related to the R
