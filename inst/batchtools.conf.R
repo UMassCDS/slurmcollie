@@ -1,7 +1,7 @@
 # Set up Slurm template. Pass this file to makeRegistry as conf.file.
 # To run properly on Unity, you must include the following line in the "Override Rstudio image location" field
 #    /modules/admin-resources/ood-dev/unity-r_4.4.0.sif
-# Authors: https://github.com/birdflow-science/BirdFlowPipeline/blob/main/inst/batchtools.conf.R, Georgia Stuart, Bradley Compton
+# Authors: Ehtan Plunkett, Georgia Stuart, Bradley Compton
 # 21 May 2025
 
 
