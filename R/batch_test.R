@@ -19,7 +19,7 @@ batch_test <- function(rep, wait = 0, file = '/work/pi_cschweik_umass_edu/batch_
       stop('We hate job #2')
    if(rep == 4) {
       cat('Time to blow out memory...\n')
-      x <- 1:1e10
+      x <- sum(1:1e12)
       cat('We\'re now crashed\n')
    }
 
