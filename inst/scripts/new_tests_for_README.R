@@ -14,4 +14,7 @@ sweep()
 purge('all')
 
 
+launch('big_test', comment = 'this will take longer')
 
+purge(list(done = TRUE))
+info()
