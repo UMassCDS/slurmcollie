@@ -328,7 +328,7 @@ code in `slurmcollie` (if so, [file an issue](https://github.com/UMass-UAS-Salt-
 or with Slurm or Unity (in which case, contact [Unity](https://docs.unity.rc.umass.edu/contact/)).
 If you're using a cluster other than Unity, the system's administrators may be able to help you. We have 
 limited ability to support users, but will attempt to fix all package bugs promptly. We'll also entertain 
-suggestions for improvements and extensions, though want to stick to the package's goal of simplicity.
+suggestions for improvements and extensions, though we want to stick to the package's goal of simplicity.
 
 [^1]: `batchtools` works with several batch schedulers including Slurm, but `slurmcollie` is
 Slurm-specific.
