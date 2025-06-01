@@ -1,4 +1,5 @@
-# slurmcollie 
+# slurmcollie <a href="https://github.com/UMass-UAS-Salt-Marsh/slurmcollie/"><img src="man/figures/hexsticker.png" align="right" height="139" /></a>
+
 A lightweight border collie eager to herd your R Slurm jobs
 
 ## What is slurmcollie? 
