@@ -1,6 +1,6 @@
 #' Launch batch jobs via Slurm on Unity
 #'
-#' Updates jobs database, `slu$jdb` to track jobs.
+#' Launches one or more reps of an R function as batch jobs and updates jobs database to track jobs.
 #' 
 #' Use `finish = 'function'` to name functions to, for example, update a parent database. The finish
 #' function must take two arguments, `jobid` and `status`. These functions are called by [sweep] for
@@ -14,10 +14,12 @@
 #' @param call Name of function to call
 #' @param args Named list of arguments to called function
 #' @param reps Vector, list, or data frame to vectorize call over. If a named list or data frame,
-#'   the names must correspond to the function's arguments. If a vector or unnamed list, `argname`
+#'   the names must correspond to the function's arguments. If a vector or unnamed list, `repname`
 #'   is used.
-#' @param argname Name of `reps` argument in function to be called, used only when `reps` is a
+#' @param repname Name of `reps` argument in function to be called, used only when `reps` is a
 #'   vector or unnamed list
+#' @param jobid If TRUE, the current `slurmcollie` job id is passed as `jobid`. You'll need to include
+#'   `jobid` as an argument to your function if you include this.
 #' @param moreargs a named list of additional arguments to the called function, not vectorized over
 #' @param resources Named list of resources, overriding defaults in `batchtools.conf`
 #' @param local If TRUE, launch job locally instead of as a batch job, tying up the console while it
@@ -35,7 +37,7 @@
 #' @export
 
 
-launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(), 
+launch <- function(call, args, reps = 1, repname = 'rep', jobid = FALSE, moreargs = list(), 
                    resources = list(), local = FALSE, regdir = slu$regdir, 
                    comment = '', finish = NA, replace = TRUE) {
    
@@ -43,17 +45,18 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
    load_slu_database('jdb')                                                   # load the jobs database if we don't already have it
    
    
-   if(!is.list(reps))                                                         # process reps (and argname) so we end up with a named list or data frame
+   if(!is.list(reps))                                                         # process reps (and repname) so we end up with a named list or data frame
       reps <- list(reps)
    if(is.null(names(reps)))
-      names(reps) <- argname
+      names(reps) <- repname
    
    
    jobids <- max(slu$jdb$jobid, 0, na.rm = TRUE) + 1:length(reps[[1]])        # come up with new jobids
    
    
    if(!local) {                                                               # if running in batch mode, ----------
-      reps <- c(reps, list(jobid = jobids))                                   # add jobid to reps so called function can see it
+      if(jobid)                                                               # if jobid,
+         reps <- c(reps, list(jobid = jobids))                                #    add jobid to reps so called function can see it
       
       if(!dir.exists(regdir))                                                 #    create registries dir if need be
          dir.create(regdir, recursive = TRUE)
@@ -109,14 +112,15 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
       for(j in 1:length(reps[[1]])) {                                         #    For each rep,
          r <- list(reps[[1]][j])
          names(r) <- names(reps)                                              #       named list of current rep
-         
+         if(jobid)                                                            #       if jobid,
+            r <- c(r, list(jobid = jobids[j]))                                #          add jobid to reps so called function can see it
          
          if(length(reps[[1]] > 1))
             message('   Running rep ', reps[[1]][j], '...')
          
          mem <- peakRAM(                                                      #       Capture walltime and peak RAM used
             err <- tryCatch({                                                 #          trap any errors
-               do.call(call, c(r, list(jobid = jobids[j]), moreargs))         #             call the function with rep, jobid, and more args
+               do.call(call, c(r, moreargs))                                  #             call the function with rep, jobid, and more args
             },
             error = function(cond)                                            #          if there was an error
                return(cond[[1]])                                              #             capture error message
@@ -139,7 +143,7 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
          
          slu$jdb$mem_gb[i] <- mem$Peak_RAM_Used_MiB / 1000                    #     peak RAM used (GB)
          t <- seconds_to_period(mem$Elapsed_Time_sec)
-
+         
          slu$jdb$walltime[i] <- sprintf('%02d:%02d:%02d', t@hour, 
                                         minute(t), round(second(t)))          #    and wall time
          
