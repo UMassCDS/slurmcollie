@@ -43,13 +43,13 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
    load_slu_database('jdb')                                                   # load the jobs database if we don't already have it
    
    
-   jobids <- max(slu$jdb$jobid, 0) + 1:length(reps[[1]])                      # come up with new jobids
-   
-   
    if(!is.list(reps))                                                         # process reps (and argname) so we end up with a named list or data frame
       reps <- list(reps)
    if(is.null(names(reps)))
       names(reps) <- argname
+   
+   
+   jobids <- max(slu$jdb$jobid, 0, na.rm = TRUE) + 1:length(reps[[1]])        # come up with new jobids
    
    
    if(!local) {                                                               # if running in batch mode, ----------
@@ -106,13 +106,13 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
               ifelse(length(reps) > 1, paste0(' (', length(reps), ' reps)'), ''))
       launched <- now()
       
-      for(j in reps[[1]]) {                                                   #    For each rep,
-         r <- list(j)
+      for(j in 1:length(reps[[1]])) {                                         #    For each rep,
+         r <- list(reps[[1]][j])
          names(r) <- names(reps)                                              #       named list of current rep
          
          
          if(length(reps[[1]] > 1))
-            message('   Running rep ', j, '...')
+            message('   Running rep ', reps[[1]][j], '...')
          
          mem <- peakRAM(                                                      #       Capture walltime and peak RAM used
             err <- tryCatch({                                                 #          trap any errors
@@ -150,7 +150,7 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
          
          save_slu_database('jdb')                                             #    save the database after each rep
          
-         if(!is.null(finish)) {                                               #    if we have a finish function
+         if(!is.na(finish)) {                                                 #    if we have a finish function
             message('   Finishing with ', finish)
             do.call(finish, list(jobid = slu$jdb$jobid[i], 
                                  status = slu$jdb$status[i]))                 #       run the finish function
