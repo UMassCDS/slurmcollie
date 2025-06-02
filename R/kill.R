@@ -35,6 +35,9 @@ kill <- function(filter = NULL, quiet = FALSE) {
       return(invisible())
    
    
+   sweep(quiet = TRUE)                                                                             # make sure we're up to date
+   
+   
    alreadydone <- rows[slu$jdb$done[rows]]
    if(!quiet & any(alreadydone))                                                                   # are any of these jobs already done?
       message('Job ', paste(alreadydone, collapse = ', '), ' already done')
