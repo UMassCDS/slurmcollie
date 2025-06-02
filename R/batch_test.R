@@ -8,13 +8,14 @@
 #' @importFrom stats runif
 #' @export
 
-batch_test <- function(rep, wait = 0, file = '/work/pi_cschweik_umass_edu/batch_test/btest/test_') {
+batch_test <- function(rep, wait = 0, file = '/work/pi_cschweik_umass_edu/batch_test/btest/test_', jobid = 'none') {
    
    Sys.sleep(wait * 60)
    
-   item <- paste0('hello ', format(Sys.time()), '\nNode: ', Sys.info()[['nodename']], '\n')
+   item <- paste0('hello ', format(Sys.time()), '\nNode: ', Sys.info()[['nodename']], '\nJob id: ', jobid, '\n')
    writeLines(item, f <- paste0(file, rep, '.txt'))
    cat('Stuff written to ', f, '\n', sep = '')
+   print(item)
    if(rep == 2)
       stop('We hate job #2')
    if(rep == 4) {
