@@ -168,9 +168,6 @@ image location` field on the launching page:
 /modules/admin-resources/ood-dev/unity-r_4.4.0.sif
 ```
 
-For the command line interface to R, you'll probably need to do something............Ask Georgia if
-this is still necessary.....
-
 Now you can launch R. You can do one more test of your ssh connection from R if you want:
 
 ```
@@ -205,11 +202,7 @@ Two configuration files will be copied to `templates` within your base directory
 modify these, if, for instance you need to call GPUs, or if you're using a cluster other than Unity.
 
 1. `batchtools.conf.R` sets the default resources for runs. You can override these resources in each
-`launch()` call, but it'll be easier to set commonly-used resources here. ******I cannot for the life of
-me find a nice list of the resources you can assign here. For a start, look at [ClusterFunctions for
-Slurm Systems](https://batchtools.mlr-org.com/reference/makeRegistry.html)and [ClusterFunctions for
-Slurm Systems](https://batchtools.mlr-org.com/reference/makeClusterFunctionsSlurm.html). ***I need
-to find decent doc for this!*** 
+`launch()` call, but it'll be easier to set commonly-used resources here. 
 
 2. `slurm.tmpl` is a Bash script that provides the interface between `batchtools` and Slurm. If 
 fortune smiles on you, you won't even need to look at it. You can add some ~~cool~~ annoying things 
