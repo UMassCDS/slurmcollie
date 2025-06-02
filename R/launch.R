@@ -43,16 +43,18 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
    load_slu_database('jdb')                                                   # load the jobs database if we don't already have it
    
    
+   jobids <- max(slu$jdb$jobid, 0) + 1:length(reps[[1]])                      # come up with new jobids
+   
+   
    if(!is.list(reps))                                                         # process reps (and argname) so we end up with a named list or data frame
       reps <- list(reps)
    if(is.null(names(reps)))
       names(reps) <- argname
    
    
-   jobids <- max(slu$jdb$jobid, 0) + 1:length(reps[[1]])                      # come up with new jobids
-   
-   
    if(!local) {                                                               # if running in batch mode, ----------
+      reps <- c(reps, list(jobid = jobids))                                   # add jobid to reps so called function can see it
+      
       if(!dir.exists(regdir))                                                 #    create registries dir if need be
          dir.create(regdir, recursive = TRUE)
       
@@ -108,12 +110,13 @@ launch <- function(call, args, reps = 1, argname = 'rep', moreargs = list(),
          r <- list(j)
          names(r) <- names(reps)                                              #       named list of current rep
          
+         
          if(length(reps[[1]] > 1))
             message('   Running rep ', j, '...')
          
          mem <- peakRAM(                                                      #       Capture walltime and peak RAM used
             err <- tryCatch({                                                 #          trap any errors
-               do.call(call, c(r, moreargs))                                  #             call the function
+               do.call(call, c(r, list(jobid = jobids[j]), moreargs))         #             call the function with rep, jobid, and more args
             },
             error = function(cond)                                            #          if there was an error
                return(cond[[1]])                                              #             capture error message
