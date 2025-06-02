@@ -21,3 +21,6 @@ launch('batch_test', reps = 20:21, comment = '20 and 21')
 
 
 launch('batch_test', reps = 30:32, comment = 'A test using slurmcollie')
+
+
+
