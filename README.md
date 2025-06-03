@@ -4,7 +4,7 @@ A lightweight border collie eager to herd your R Slurm jobs
 
 ## What is slurmcollie? 
 A simple Slurm job manager for R, `slurmcollie` makes it easy to launch R code as Slurm jobs. It 
-manages many heterogeneous runs, tracking run status, errors, logs, and status such as memory and 
+manages many heterogeneous runs, tracking run status, errors, logs, and run statistics such as memory and 
 CPU used. Instead of mucking around in the depths of Slurm, you should be able to get R jobs running 
 within an hour of reading this.
 
