@@ -24,12 +24,10 @@
 #' @param local If TRUE, launch job locally instead of as a batch job, tying up the console while it
 #'   runs. The jobs database will be updated on completion, so no information will be saved to the
 #'   jobs database if the job is interrupted.
-#' @param regdir Directory containing `batchtools` registries
+#' @param regdir Directory containing `batchtools` registries; defaults to the `slurmcollie` `regdir` setting
 #' @param comment Optional comment; will be recycled for multiple reps
 #' @param finish Optional name of a function to run for completed jobs, for example `finish =
 #'   'sweep_fit'` to gather fit stats
-#' @param replace If TRUE, replace existing job ids in jobs database; otherwise throw an error for
-#'   existing jobs
 #' @importFrom batchtools makeRegistry batchMap submitJobs getJobTable
 #' @importFrom peakRAM peakRAM
 #' @importFrom lubridate seconds_to_period minute second
@@ -38,7 +36,7 @@
 
 launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = FALSE, 
                    resources = list(), local = FALSE, regdir = slu$regdir, 
-                   comment = '', finish = NA, replace = TRUE) {
+                   comment = '', finish = NA) {
    
    
    load_slu_database('jdb')                                                   # load the jobs database if we don't already have it

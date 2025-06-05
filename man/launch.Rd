@@ -14,8 +14,7 @@ launch(
   local = FALSE,
   regdir = slu$regdir,
   comment = "",
-  finish = NA,
-  replace = TRUE
+  finish = NA
 )
 }
 \arguments{
@@ -39,14 +38,11 @@ vector or unnamed list}
 runs. The jobs database will be updated on completion, so no information will be saved to the
 jobs database if the job is interrupted.}
 
-\item{regdir}{Directory containing \code{batchtools} registries}
+\item{regdir}{Directory containing \code{batchtools} registries; defaults to the \code{slurmcollie} \code{regdir} setting}
 
 \item{comment}{Optional comment; will be recycled for multiple reps}
 
 \item{finish}{Optional name of a function to run for completed jobs, for example \code{finish = 'sweep_fit'} to gather fit stats}
-
-\item{replace}{If TRUE, replace existing job ids in jobs database; otherwise throw an error for
-existing jobs}
 }
 \description{
 Launches one or more reps of an R function as batch jobs and updates jobs database to track jobs.
