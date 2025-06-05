@@ -22,7 +22,7 @@ purge <- function(filter = NULL, quiet = FALSE) {
       stop('You must supply jobids or a list of fields and values')
    
    
-   sweep(quiet = TRUE)                                                                             # make sure we're up to date
+   sweep_jobs(quiet = TRUE)                                             # make sure we're up to date
    
    
    rows <- filter_jobs(filter)

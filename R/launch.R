@@ -3,7 +3,7 @@
 #' Launches one or more reps of an R function as batch jobs and updates jobs database to track jobs.
 #' 
 #' Use `finish = 'function'` to name functions to, for example, update a parent database. The finish
-#' function must take two arguments, `jobid` and `status`. These functions are called by [sweep] for
+#' function must take two arguments, `jobid` and `status`. These functions are called by [sweep_jobs] for
 #' any newly-done jobs, whether they were successful or not. Finishing functions run in the user
 #' console, so they should be quick--they're intended to update databases, not do actual work. You
 #' can, of course, `launch` additional batch jobs from a finishing function.

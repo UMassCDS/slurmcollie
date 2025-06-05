@@ -50,7 +50,7 @@ Use \code{nrows = NA} to display all rows.}
 
 \item{table}{If TRUE, displays jobs table}
 
-\item{sweep}{If TRUE, call \code{sweep} to update jobs database first}
+\item{sweep}{If TRUE, call \code{sweep_jobs} to update jobs database first}
 
 \item{timezone}{Time zone for launch time; use NULL to leave times in native UTC}
 }
@@ -60,6 +60,6 @@ The processed jobs table, invisibly
 \description{
 Provides information on jobs in the batch jobs database. Options allow for
 selecting columns, filtering, sorting, and displaying a brief summary or a
-complete table. Normally, \code{sweep} is called up front to update the database,
+complete table. Normally, \code{sweep_jobs} is called up front to update the database,
 so there may be a delay of a second or two.
 }

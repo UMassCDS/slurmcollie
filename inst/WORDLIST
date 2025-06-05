@@ -24,3 +24,10 @@ vectorize
 vectorized
 GiB
 slurmcollie
+GPU
+GPUs
+onDemand
+RStudio
+SSHing
+walltime
+parallelization

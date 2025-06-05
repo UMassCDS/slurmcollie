@@ -2,7 +2,7 @@
 % Please edit documentation in R/launch_test_finish.R
 \name{launch_test_finish}
 \alias{launch_test_finish}
-\title{a test finish function for launch and sweep}
+\title{a test finish function for launch and sweep_jobs}
 \usage{
 launch_test_finish(jobid, status)
 }
@@ -12,5 +12,5 @@ launch_test_finish(jobid, status)
 \item{status}{Job status}
 }
 \description{
-a test finish function for launch and sweep
+a test finish function for launch and sweep_jobs
 }

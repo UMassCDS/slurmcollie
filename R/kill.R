@@ -35,7 +35,7 @@ kill <- function(filter = NULL, quiet = FALSE) {
       return(invisible())
    
    
-   sweep(quiet = TRUE)                                                                             # make sure we're up to date
+   sweep_jobs(quiet = TRUE)                                                                        # make sure we're up to date
    
    
    alreadydone <- rows[slu$jdb$done[rows]]

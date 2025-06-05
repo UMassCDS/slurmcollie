@@ -2,7 +2,7 @@
 #'
 #' Provides information on jobs in the batch jobs database. Options allow for
 #' selecting columns, filtering, sorting, and displaying a brief summary or a
-#' complete table. Normally, `sweep` is called up front to update the database,
+#' complete table. Normally, `sweep_jobs` is called up front to update the database,
 #' so there may be a delay of a second or two.
 #'
 #' @param columns Specifies which columns to include in the jobs table. May be
@@ -27,7 +27,7 @@
 #'   Use `nrows = NA` to display all rows.
 #' @param summary If TRUE, displays jobs summary
 #' @param table If TRUE, displays jobs table
-#' @param sweep If TRUE, call `sweep` to update jobs database first
+#' @param sweep If TRUE, call `sweep_jobs` to update jobs database first
 #' @param timezone Time zone for launch time; use NULL to leave times in native UTC
 #' @returns The processed jobs table, invisibly
 #' @importFrom lubridate with_tz
@@ -38,7 +38,7 @@ info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing 
                  summary = TRUE, table = TRUE, sweep = TRUE, timezone = 'America/New_York') {
    
    if(sweep)
-      sweep(quiet = TRUE)
+      sweep_jobs(quiet = TRUE)
    else
       load_slu_database('jdb')
    

@@ -12,8 +12,8 @@
 #' Getting run stats (memory, CPU time, etc.) take about 75% of the execution time, so if you
 #' don't need them and are impatient, use `stats = FALSE`.
 #' 
-#' Since `info` calls `sweep` by default, `info` is the normal user-facing function for updating
-#' the jobs database, though calling `sweep` is functionally equivalent to calling `info()`, so 
+#' Since `info` calls `sweep_jobs` by default, `info` is the normal user-facing function for updating
+#' the jobs database, though calling `sweep_jobs` is functionally equivalent to calling `info()`, so 
 #' take your pick.
 #' 
 #' @param stats If TRUE, fills in run stats
@@ -24,7 +24,7 @@
 #' @export
 
 
-sweep <- function(stats = TRUE, quiet = FALSE) {
+sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
    
    
    load_slu_database('jdb')

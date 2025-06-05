@@ -8,7 +8,8 @@ launch(
   call,
   args,
   reps = 1,
-  argname = "rep",
+  repname = "rep",
+  jobid = FALSE,
   moreargs = list(),
   resources = list(),
   local = FALSE,
@@ -24,11 +25,14 @@ launch(
 \item{args}{Named list of arguments to called function}
 
 \item{reps}{Vector, list, or data frame to vectorize call over. If a named list or data frame,
-the names must correspond to the function's arguments. If a vector or unnamed list, \code{argname}
+the names must correspond to the function's arguments. If a vector or unnamed list, \code{repname}
 is used.}
 
-\item{argname}{Name of \code{reps} argument in function to be called, used only when \code{reps} is a
+\item{repname}{Name of \code{reps} argument in function to be called, used only when \code{reps} is a
 vector or unnamed list}
+
+\item{jobid}{If TRUE, the current \code{slurmcollie} job id is passed as \code{jobid}. You'll need to include
+\code{jobid} as an argument to your function if you include this.}
 
 \item{moreargs}{a named list of additional arguments to the called function, not vectorized over}
 
@@ -48,11 +52,11 @@ jobs database if the job is interrupted.}
 existing jobs}
 }
 \description{
-Updates jobs database, \code{slu$jdb} to track jobs.
+Launches one or more reps of an R function as batch jobs and updates jobs database to track jobs.
 }
 \details{
 Use \code{finish = 'function'} to name functions to, for example, update a parent database. The finish
-function must take two arguments, \code{jobid} and \code{status}. These functions are called by \link{sweep} for
+function must take two arguments, \code{jobid} and \code{status}. These functions are called by \link{sweep_jobs} for
 any newly-done jobs, whether they were successful or not. Finishing functions run in the user
 console, so they should be quick--they're intended to update databases, not do actual work. You
 can, of course, \code{launch} additional batch jobs from a finishing function.

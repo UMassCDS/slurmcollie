@@ -7,7 +7,8 @@
 batch_test(
   rep,
   wait = 0,
-  file = "/work/pi_cschweik_umass_edu/batch_test/btest/test_"
+  file = "/work/pi_cschweik_umass_edu/batch_test/btest/test_",
+  jobid = "none"
 )
 }
 \arguments{
@@ -16,6 +17,8 @@ batch_test(
 \item{wait}{Minutes to wait before doing anything}
 
 \item{file}{File to write to}
+
+\item{jobid}{Get the job id}
 }
 \description{
 Rep 2 will throw an error, and rep 4 will blow out memory

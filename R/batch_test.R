@@ -5,6 +5,7 @@
 #' @param rep Rep number
 #' @param wait Minutes to wait before doing anything
 #' @param file File to write to
+#' @param jobid Get the job id
 #' @importFrom stats runif
 #' @export
 

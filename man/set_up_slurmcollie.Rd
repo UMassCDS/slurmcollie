@@ -26,7 +26,9 @@ automatically run upon loading the package, and may be rerun by the user if para
 files are changed.
 
 This function also creates the directory named in \code{directory} and subdirectories
-\code{databases}, \code{template}, \verb{registries', and }logs\verb{if they don't already exist. It's okay to share these directories with other R code; for instance, the}saltmarsh\verb{package also uses}databases`.
+\code{databases}, \code{template}, \code{registries}, and \code{logs} if they don't already exist. It's okay to share
+these directories with other R code; for instance, the \code{saltmarsh} package also uses
+\code{databases}.
 
 See \code{README} for details on how to set up ssh access to the login node, which is required
 for launching batch jobs in Slurm from R.

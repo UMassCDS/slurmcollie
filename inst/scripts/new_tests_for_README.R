@@ -10,7 +10,6 @@ info()
 
 
 kill('all')
-sweep()
 purge('all')
 
 

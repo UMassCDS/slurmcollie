@@ -11,7 +11,7 @@
 #' files are changed.
 #' 
 #' This function also creates the directory named in `directory` and subdirectories 
-#' `databases`, `template`, `registries', and `logs` if they don't already exist. It's okay to share
+#' `databases`, `template`, `registries`, and `logs` if they don't already exist. It's okay to share
 #' these directories with other R code; for instance, the `saltmarsh` package also uses
 #' `databases`.
 #'

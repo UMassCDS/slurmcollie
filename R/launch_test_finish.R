@@ -1,4 +1,4 @@
-#' a test finish function for launch and sweep
+#' a test finish function for launch and sweep_jobs
 #' 
 #' @param jobid Job ids to finish for
 #' @param status Job status
