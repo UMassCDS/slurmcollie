@@ -12,16 +12,15 @@
 #' which means you'll have to wait for them to complete. 
 #'
 #' @param call Name of function to call
-#' @param args Named list of arguments to called function
 #' @param reps Vector, list, or data frame to vectorize call over. If a named list or data frame,
 #'   the names must correspond to the function's arguments. If a vector or unnamed list, `repname`
 #'   is used.
 #' @param repname Name of `reps` argument in function to be called, used only when `reps` is a
 #'   vector or unnamed list
-#' @param jobid If TRUE, the current `slurmcollie` job id is passed as `jobid`. You'll need to include
-#'   `jobid` as an argument to your function if you include this.
 #' @param moreargs a named list of additional arguments to the called function, not vectorized over
 #' @param resources Named list of resources, overriding defaults in `batchtools.conf`
+#' @param jobid If TRUE, the current `slurmcollie` job id is passed as `jobid`. You'll need to include
+#'   `jobid` as an argument to your function if you include this.
 #' @param local If TRUE, launch job locally instead of as a batch job, tying up the console while it
 #'   runs. The jobs database will be updated on completion, so no information will be saved to the
 #'   jobs database if the job is interrupted.
@@ -37,7 +36,7 @@
 #' @export
 
 
-launch <- function(call, args, reps = 1, repname = 'rep', jobid = FALSE, moreargs = list(), 
+launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = FALSE, 
                    resources = list(), local = FALSE, regdir = slu$regdir, 
                    comment = '', finish = NA, replace = TRUE) {
    

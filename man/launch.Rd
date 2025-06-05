@@ -6,11 +6,10 @@
 \usage{
 launch(
   call,
-  args,
   reps = 1,
   repname = "rep",
-  jobid = FALSE,
   moreargs = list(),
+  jobid = FALSE,
   resources = list(),
   local = FALSE,
   regdir = slu$regdir,
@@ -22,8 +21,6 @@ launch(
 \arguments{
 \item{call}{Name of function to call}
 
-\item{args}{Named list of arguments to called function}
-
 \item{reps}{Vector, list, or data frame to vectorize call over. If a named list or data frame,
 the names must correspond to the function's arguments. If a vector or unnamed list, \code{repname}
 is used.}
@@ -31,10 +28,10 @@ is used.}
 \item{repname}{Name of \code{reps} argument in function to be called, used only when \code{reps} is a
 vector or unnamed list}
 
+\item{moreargs}{a named list of additional arguments to the called function, not vectorized over}
+
 \item{jobid}{If TRUE, the current \code{slurmcollie} job id is passed as \code{jobid}. You'll need to include
 \code{jobid} as an argument to your function if you include this.}
-
-\item{moreargs}{a named list of additional arguments to the called function, not vectorized over}
 
 \item{resources}{Named list of resources, overriding defaults in \code{batchtools.conf}}
 
