@@ -49,6 +49,8 @@ get_job_efficiency <- function(id, login_node = slu$login_node) {
    c$user_group <- NULL
    names(c)[names(c) == "job_wall-clock_time"] <- "walltime"
    
+   # When launched with ncpus > 1, 'cores' will be reported as 'cores_per_node'
+   c$cores <- c$cores                                       # cores is either 'cores' or 'cores_per_node'
    
    bytes <- fs::fs_bytes(c$memory_utilized) |> as.numeric() 
    c$mem_gb <- bytes / 1024^3
