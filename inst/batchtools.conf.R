@@ -6,7 +6,7 @@
 
 
 cluster.functions <- makeClusterFunctionsSlurm(
-   template = file.path(slu$templatedir, 'slurm.tmpl'))
+   template = slurmcollie::get_slurm_template())
 
 
 default.resources <- list(                # Set defaults. These may be overridden by passing resources to submitJobs.
