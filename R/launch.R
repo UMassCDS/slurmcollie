@@ -2,6 +2,15 @@
 #'
 #' Launches one or more reps of an R function as batch jobs and updates jobs database to track jobs.
 #' 
+#' You can override the default resources (defined in `batchtools.conf.R` in your `slurmcollie` 
+#' `template` folder) with the `resources` option. Pass a named list. It can include any of the following:
+#' 
+#' - `walltime` (any of `minutes`, `'mm:ss'`, `'hh:mm:ss'`, or `'days-hh:mm'`)
+#' - `memory` (GB)
+#' - `ncpus` (number of CPUs to request)
+#' - `ngpus` (number of GPUs to request)
+#' - `partition.cpu` (partitions to request, e.g., `'cpu-preempt,cpu'`)
+#' 
 #' Use `finish = 'function'` to name functions to, for example, update a parent database. The finish
 #' function must take two arguments, `jobid` and `status`. These functions are called by [sweep_jobs] for
 #' any newly-done jobs, whether they were successful or not. Finishing functions run in the user
@@ -18,7 +27,7 @@
 #' @param repname Name of `reps` argument in function to be called, used only when `reps` is a
 #'   vector or unnamed list
 #' @param moreargs a named list of additional arguments to the called function, not vectorized over
-#' @param resources Named list of resources, overriding defaults in `batchtools.conf`
+#' @param resources Named list of resources, overriding defaults in `batchtools.conf` (see Details)
 #' @param jobid If TRUE, the current `slurmcollie` job id is passed as `jobid`. You'll need to include
 #'   `jobid` as an argument to your function if you include this.
 #' @param local If TRUE, launch job locally instead of as a batch job, tying up the console while it

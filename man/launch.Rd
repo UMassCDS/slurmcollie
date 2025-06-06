@@ -32,7 +32,7 @@ vector or unnamed list}
 \item{jobid}{If TRUE, the current \code{slurmcollie} job id is passed as \code{jobid}. You'll need to include
 \code{jobid} as an argument to your function if you include this.}
 
-\item{resources}{Named list of resources, overriding defaults in \code{batchtools.conf}}
+\item{resources}{Named list of resources, overriding defaults in \code{batchtools.conf} (see Details)}
 
 \item{local}{If TRUE, launch job locally instead of as a batch job, tying up the console while it
 runs. The jobs database will be updated on completion, so no information will be saved to the
@@ -48,6 +48,16 @@ jobs database if the job is interrupted.}
 Launches one or more reps of an R function as batch jobs and updates jobs database to track jobs.
 }
 \details{
+You can override the default resources (defined in \code{batchtools.conf.R} in your \code{slurmcollie}
+\code{template} folder) with the \code{resources} option. Pass a named list. It can include any of the following:
+\itemize{
+\item \code{walltime} (any of \code{minutes}, \code{'mm:ss'}, \code{'hh:mm:ss'}, or \code{'days-hh:mm'})
+\item \code{memory} (GB)
+\item \code{ncpus} (number of CPUs to request)
+\item \code{ngpus} (number of GPUs to request)
+\item \code{partition.cpu} (partitions to request, e.g., \code{'cpu-preempt,cpu'})
+}
+
 Use \code{finish = 'function'} to name functions to, for example, update a parent database. The finish
 function must take two arguments, \code{jobid} and \code{status}. These functions are called by \link{sweep_jobs} for
 any newly-done jobs, whether they were successful or not. Finishing functions run in the user
