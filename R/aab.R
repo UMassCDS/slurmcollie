@@ -7,3 +7,4 @@
 
 
 slu <- new.env(parent = emptyenv())
+print('defined slu!')
