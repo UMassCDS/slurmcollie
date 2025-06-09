@@ -13,7 +13,7 @@ filter_jobs <- function(filter) {
    
    
    if(identical(filter, 'all'))                                   # if 'all', return all jobs
-      return(1:dim(slu$jdb)[1])
+      return(seq_len(dim(slu$jdb)[1]))
    
    if(is.numeric(filter)) {                                       # if we have supplied jobids,
       z <- match(filter, slu$jdb$jobid)
@@ -34,5 +34,5 @@ filter_jobs <- function(filter) {
          z <- z & (col == val)
    }
    
-   (1:dim(slu$jdb)[1])[z]
+   (seq_len(dim(slu$jdb)[1]))[z]
 }

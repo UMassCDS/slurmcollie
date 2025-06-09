@@ -1,4 +1,4 @@
-# slurmcollie <a href="https://github.com/UMass-UAS-Salt-Marsh/slurmcollie/"><img src="man/figures/hexsticker.png" align="right" height="139" /></a>
+# slurmcollie <a href="https://github.com/UMassCDS/slurmcollie/"><img src="man/figures/hexsticker.png" align="right" height="139" /></a>
 
 A lightweight border collie eager to herd your R Slurm jobs
 
@@ -181,7 +181,7 @@ terminal`) and a Unity login banner. If so, you should be good to go.
 
 ```
 # install.packages("devtools")
-devtools::install_github("UMass-UAS-Salt-Marsh/slurmcollie")
+devtools::install_github("UMassCDS/slurmcollie")
 ```
 
 ### 4. Set up slurmcollie directories and files 
