@@ -132,17 +132,18 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
                err <- tryCatch({                                              #          trap any errors
                   do.call(call, c(r, moreargs))                               #             call the function with rep, jobid, and more args
                },
-               error = function(cond) {                                       #          if there was an error
-                  message('Error: ', cond[[1]])                               #             display the error on the console
+               error = function(cond)                                         #          if there was an error
                   return(cond[[1]])                                           #             capture error message
-               }
                )
-            else                                                              #       else,
+            else {                                                            #       else,
                do.call(call, c(r, moreargs))                                  #          call function without error trapping
+               err <- NULL
+            }
          )
          
-         # have captured mem and err
-         # now update jdb
+ 
+         if(!is.null(err))                                                    #    if there was an error,
+            message('Error: ', cond[[1]])                                     #       display the error on the console
          
          slu$jdb[i <- nrow(slu$jdb) + 1, ] <- NA                              #    add row to database (one rep at a time, as we'll save after each rep)
          
