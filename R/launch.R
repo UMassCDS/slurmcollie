@@ -143,7 +143,7 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
          
  
          if(!is.null(err))                                                    #    if there was an error,
-            message('Error: ', cond[[1]])                                     #       display the error on the console
+            message('Error: ', err)                                           #       display the error on the console
          
          slu$jdb[i <- nrow(slu$jdb) + 1, ] <- NA                              #    add row to database (one rep at a time, as we'll save after each rep)
          
