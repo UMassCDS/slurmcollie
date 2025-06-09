@@ -33,6 +33,9 @@
 #' @param local If TRUE, launch job locally instead of as a batch job, tying up the console while it
 #'   runs. The jobs database will be updated on completion, so no information will be saved to the
 #'   jobs database if the job is interrupted.
+#' @param trap If TRUE, trap errors in local mode; if FALSE, use normal R error handling. Use this
+#'   for debugging. If you get unrecovered errors, the job won't be added to the jobs database. Has
+#'   no effect if local = FALSE.
 #' @param regdir Directory containing `batchtools` registries; defaults to the `slurmcollie` `regdir` setting
 #' @param comment Optional comment; will be recycled for multiple reps
 #' @param finish Optional name of a function to run for completed jobs, for example `finish =
@@ -44,7 +47,7 @@
 
 
 launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = FALSE, 
-                   resources = list(), local = FALSE, regdir = slu$regdir, 
+                   resources = list(), local = FALSE, trap = TRUE, regdir = slu$regdir, 
                    comment = '', finish = NA) {
    
    
@@ -125,14 +128,17 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
             message('   Running rep ', reps[[1]][j], '...')
          
          mem <- peakRAM(                                                      #       Capture walltime and peak RAM used
-            err <- tryCatch({                                                 #          trap any errors
-               do.call(call, c(r, moreargs))                                  #             call the function with rep, jobid, and more args
-            },
-            error = function(cond) {                                          #          if there was an error
-               message('Error: ', cond[[1]])                                  #             display the error on the console
-               return(cond[[1]])                                              #             capture error message
-            }
-            )
+            if(trap)                                                          #          if trapping errors,
+               err <- tryCatch({                                              #          trap any errors
+                  do.call(call, c(r, moreargs))                               #             call the function with rep, jobid, and more args
+               },
+               error = function(cond) {                                       #          if there was an error
+                  message('Error: ', cond[[1]])                               #             display the error on the console
+                  return(cond[[1]])                                           #             capture error message
+               }
+               )
+            else                                                              #       else,
+               do.call(call, c(r, moreargs))                                  #          call function without error trapping
          )
          
          # have captured mem and err

@@ -12,6 +12,7 @@ launch(
   jobid = FALSE,
   resources = list(),
   local = FALSE,
+  trap = TRUE,
   regdir = slu$regdir,
   comment = "",
   finish = NA
@@ -37,6 +38,10 @@ vector or unnamed list}
 \item{local}{If TRUE, launch job locally instead of as a batch job, tying up the console while it
 runs. The jobs database will be updated on completion, so no information will be saved to the
 jobs database if the job is interrupted.}
+
+\item{trap}{If TRUE, trap errors in local mode; if FALSE, use normal R error handling. Use this
+for debugging. If you get unrecovered errors, the job won't be added to the jobs database. Has
+no effect if local = FALSE.}
 
 \item{regdir}{Directory containing \code{batchtools} registries; defaults to the \code{slurmcollie} \code{regdir} setting}
 
