@@ -128,8 +128,10 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
             err <- tryCatch({                                                 #          trap any errors
                do.call(call, c(r, moreargs))                                  #             call the function with rep, jobid, and more args
             },
-            error = function(cond)                                            #          if there was an error
+            error = function(cond) {                                          #          if there was an error
+               message('Error: ', cond[[1]])                                  #             display the error on the console
                return(cond[[1]])                                              #             capture error message
+            }
             )
          )
          
