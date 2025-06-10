@@ -11,7 +11,7 @@ within an hour of reading this.
 `slurmcollie` is a front end for the [batchtools](https://github.com/mlr-org/batchtools) package,
 which is a front end for [Slurm](https://slurm.schedmd.com/overview.html) [^1]. `batchtools` has 64
 user-facing functions, while Slurm has more commands and options than there are stars in the sky.
-`slurmcollie`, on the other hand, has 5 user-facing functions, including the set up function you'll
+`slurmcollie`, on the other hand, has 5 primary user-facing functions, including the set up function you'll
 likely only run once.
 
 `slurmcollie`'s focus is on simplicity. You don't need to know the details of job scheduling nor
