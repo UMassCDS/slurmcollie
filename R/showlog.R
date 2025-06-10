@@ -12,8 +12,8 @@
 showlog <- function(jobid) {
    
    
-   print_oneperline <- function(x)                                         # helper function to print one line per line with nice line numbers
-      cat(sprintf(paste0('% ', floor(log10(length(x))) + 3,'s "%s"\n'), 
+   print_oneperline <- function(x)                                            # helper function to print one line per line with nice line numbers
+      cat(sprintf(paste0('% ', floor(log10(length(x))) + 3,'s %s\n'), 
                   paste0("[", seq_along(x), "]"), x), sep = "")
    
    
