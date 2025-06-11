@@ -13,7 +13,7 @@
 #'    done by `slurmcollie`}
 #'    \item{done}{The path to the job's log file once the job has been registered as `done` by
 #'       `slurmcollie`}
-#' @importFrom batchtools getJobStatus
+#' @importFrom batchtools getJobStatus loadRegistry
 #' @export
 
 
