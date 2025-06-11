@@ -87,8 +87,8 @@ info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing 
    if(columns != 'all') {
       co <- switch(columns,
                    brief = c('jobid', 'status', 'error', 'comment'),
-                   normal = c('jobid', 'status', 'error', 'message', 'cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'comment'),
-                   long = c('jobid', 'sjobid', 'status', 'state', 'reason', 'error', 'message', 'done', 'cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'log', 'comment')
+                   normal = c('jobid', 'launched', 'local', 'status', 'error', 'message', 'cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'comment'),
+                   long = c('jobid', 'launched', 'local', 'sjobid', 'status', 'state', 'reason', 'error', 'message', 'done', 'cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'log', 'comment')
       )
       z <- z[, co]
    }

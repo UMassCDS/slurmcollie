@@ -23,7 +23,9 @@
 #' @param call Name of function to call
 #' @param reps Vector, list, or data frame to vectorize call over. If a named list or data frame,
 #'   the names must correspond to the function's arguments. If a vector or unnamed list, `repname`
-#'   is used.
+#'   is used. If you omit the `reps` and `repname` arguments, your function will be called with 
+#'   `rep = 1`. Your function must take `rep` or the value of `repname` as an argument. In some 
+#'   cases, you may want to throw this away.
 #' @param repname Name of `reps` argument in function to be called, used only when `reps` is a
 #'   vector or unnamed list
 #' @param moreargs a named list of additional arguments to the called function, not vectorized over
@@ -94,6 +96,7 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
       slu$jdb$jobid[i] <- jobids                                              #    add job ids to jobs database
       slu$jdb$launched[i] <- now()                                            #    launch date and time in UTC, leaving pretty formatting for info()  
       slu$jdb$call[i] <- call                                                 #    name of called function
+      slu$jdb$local[i] <- FALSE                                               #    not a local run
       slu$jdb$bjobid[i] <- jobs$job.id                                        #    and add batchtools job ids to jobs database
       slu$jdb$registry[i] <- regid
       slu$jdb$sjobid[i] <- getJobTable(slu$jdb$bjobid[i])$batch.id            #    Slurm job id (it's easier than I thought!)
@@ -117,7 +120,8 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
       message('Running ', call, ' locally', 
               ifelse(length(reps) > 1, paste0(' (', length(reps), ' reps)'), ''))
       launched <- now()
-      
+    
+
       for(j in 1:length(reps[[1]])) {                                         #    For each rep,
          r <- list(reps[[1]][j])
          names(r) <- names(reps)                                              #       named list of current rep
@@ -125,7 +129,9 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
             r <- c(r, list(jobid = jobids[j]))                                #          add jobid to reps so called function can see it
          
          if(length(reps[[1]] > 1))
-            message('   Running rep ', reps[[1]][j], '...')
+            message('   Running rep ', reps[[1]][j], ', jobid ', jobids[j], '...')
+         else
+            message('   Running jobid ', jobids[j], '...')
          
          mem <- peakRAM(                                                      #       Capture walltime and peak RAM used
             if(trap)                                                          #          if trapping errors,
@@ -147,9 +153,10 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
          
          slu$jdb[i <- nrow(slu$jdb) + 1, ] <- NA                              #    add row to database (one rep at a time, as we'll save after each rep)
          
-         slu$jdb$jobid[i] <- jobids[i]                                        #    add job ids to jobs database
+         slu$jdb$jobid[i] <- jobids[j]                                        #    add job ids to jobs database
          slu$jdb$launched[i] <- launched                                      #    launch date and time in UTC, leaving pretty formatting for info() 
          slu$jdb$call[i] <- call                                              #    name of called function
+         slu$jdb$local[i] <- TRUE                                             #    it's a local run
          slu$jdb$status[i] <- ifelse(is.null(err), 'finished', 'error')
          if(!is.null(err))
             slu$jdb$error[i] <- err
@@ -165,12 +172,12 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
          #    ***************** I want to capture all output to a log, including messages and warnings, and reliably recover on 
          #                      interrupt. This looks like quite a project, so later.
          slu$jdb$log[i] <- NA                                                 
-         slu$jdb$finish[i] <- 'finishing...'
          
          save_slu_database('jdb')                                             #    save the database after each rep
          
          if(!is.na(finish)) {                                                 #    if we have a finish function
             message('   Finishing with ', finish)
+            slu$jdb$finish[i] <- 'finishing...'
             do.call(finish, list(jobid = slu$jdb$jobid[i], 
                                  status = slu$jdb$status[i]))                 #       run the finish function
             slu$jdb$finish[i] <- 'done'

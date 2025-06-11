@@ -30,6 +30,7 @@ new_slurmcollie_db <- function(database = 'jdb', really = FALSE) {
                 jobid = integer(),
                 launched = as.POSIXct(character()),
                 call = character(),
+                local = logical(),
                 bjobid = integer(),
                 registry = character(),
                 sjobid = character(),

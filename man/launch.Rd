@@ -23,7 +23,9 @@ launch(
 
 \item{reps}{Vector, list, or data frame to vectorize call over. If a named list or data frame,
 the names must correspond to the function's arguments. If a vector or unnamed list, \code{repname}
-is used.}
+is used. If you omit the \code{reps} and \code{repname} arguments, your function will be called with
+\code{rep = 1}. Your function must take \code{rep} or the value of \code{repname} as an argument. In some
+cases, you may want to throw this away.}
 
 \item{repname}{Name of \code{reps} argument in function to be called, used only when \code{reps} is a
 vector or unnamed list}
