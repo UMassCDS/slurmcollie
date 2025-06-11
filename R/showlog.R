@@ -18,7 +18,7 @@ showlog <- function(jobid) {
    
    
    if(file.exists(f <- logfile(jobid)$now)) {
-      x <- readLines(f)
+      suppressWarnings(x <- readLines(f))
       print_oneperline(x)
    }
    else

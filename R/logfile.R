@@ -13,6 +13,7 @@
 #'    done by `slurmcollie`}
 #'    \item{done}{The path to the job's log file once the job has been registered as `done` by
 #'       `slurmcollie`}
+#' @importFrom batchtools getJobStatus
 #' @export
 
 
@@ -28,9 +29,11 @@ logfile <- function(jobid) {
    z$done <- file.path(slu$logdir, paste0('job_', formatC(slu$jdb$jobid[i], width = 4, 
                                                           format = 'd', flag = 0), '.log'))  # the final location
    
-   if(!slu$jdb$done[i])                                                                      # if job is still running,
+   if(!slu$jdb$done[i]) {                                                                    # if job is still running,
+      suppressMessages(loadRegistry(file.path(slu$regdir, slu$jdb$registry[i])))
       z$now <- file.path(slu$regdir, slu$jdb$registry[i], 'logs', 
                              paste0(getJobStatus(slu$jdb$bjobid[i])$job.hash, '.log'))       #    assemble logfile path
+   }
    else                                                                                      # else job is registered as done,
       z$now <- z$done                                                                        #    so there's no running path
    
