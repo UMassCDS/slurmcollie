@@ -83,7 +83,7 @@ info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing 
    
    z$local <- ifelse(is.na(z$local), '', ifelse(z$local, 'local', 'remote'))                          # prettier formatting for local, error, and done
    z$error <- ifelse(is.na(z$error), '', ifelse(z$error, 'error', 'ok'))  
-   z$done <- ifelse(is.na(z$done), '', ifelse(z$done, 'done', 'not done'))  
+   z$done <- ifelse(is.na(z$done), '', ifelse(z$done, 'done', '...'))  
    
    
    if(is.numeric(columns))                                                                            # print only requested columns
