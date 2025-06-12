@@ -8,11 +8,13 @@
 #'  - a named list to filter jobs with. List items are `<field in jdb> = <value>`, 
 #'    where `<value>` is a regex for character fields, or an actual value (or vector of 
 #'    values) for logical or numeric fields.
+#' @param force If TRUE, purges jobs even if they're pending, queued, or running - don't
+#'    do this casually!
 #' @param quiet If TRUE, don't chatter
 #' @export
 
 
-purge <- function(filter = NULL, quiet = FALSE) {
+purge <- function(filter = NULL, force = FALSE, quiet = FALSE) {
    
    
    load_slu_database('jdb')
@@ -28,7 +30,7 @@ purge <- function(filter = NULL, quiet = FALSE) {
    rows <- filter_jobs(filter)
    
    x <- slu$jdb$status[rows] %in% c('pending', 'queued', 'running')
-   if(any(x))
+   if(any(x) & !force)
       stop('You may not purge jobs that are pending, queued, or running--kill them first (jobs ', paste(slu$jdb$jobid[rows[x]], collapse = ', '), ')')
    
    
