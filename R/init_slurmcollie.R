@@ -15,6 +15,7 @@
 #' See `README` for details on how to set up ssh access to the login node, which is required
 #' for launching batch jobs in Slurm from R.
 #' @export
+#' @export slu
 
 
 init_slurmcollie <- function() {
