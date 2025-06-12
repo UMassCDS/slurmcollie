@@ -81,6 +81,11 @@ info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing 
       z$launched <- with_tz(z$launched, timezone)                                                     #    format launch time in eastern time zone
    
    
+   z$local <- ifelse(is.na(z$local), '', ifelse(z$local, 'local', 'remote'))                          # prettier formatting for local, error, and done
+   z$error <- ifelse(is.na(z$error), '', ifelse(z$error, 'error', 'ok'))  
+   z$done <- ifelse(is.na(z$done), '', ifelse(z$done, 'done', 'not done'))  
+   
+   
    if(is.numeric(columns))                                                                            # print only requested columns
       if(columns %in% 1:4)
          columns <- c('brief', 'normal', 'long', 'all')[columns]
