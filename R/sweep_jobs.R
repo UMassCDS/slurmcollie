@@ -45,7 +45,9 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
       }
       
       
-      newdone <- (1:nrow(slu$jdb))[!slu$jdb$done & !is.na(slu$jdb$state) & (slu$jdb$state == 'COMPLETED')]  # newly-completed jobs
+      over <- c('COMPLETED', 'CANCELLED', 'DEADLINE', 'FAILED', 'NODE_FAIL', 
+                'OUT_OF_MEMORY', 'PREEMPTED', 'SUSPENDED', 'TIMEOUT')
+      newdone <- (1:nrow(slu$jdb))[!slu$jdb$done & !is.na(slu$jdb$state) & (slu$jdb$state %in% over)]       # newly-completed jobs
       for(i in newdone) {
          slu$jdb[i, c('error', 'message')] <- getErrorMessages(slu$jdb$bjobid[i], reg = suppressMessages(
             loadRegistry(file.path(slu$regdir, slu$jdb$registry[i]))))[, c('error', 'message')]             # get error messages

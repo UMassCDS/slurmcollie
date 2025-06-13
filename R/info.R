@@ -4,13 +4,17 @@
 #' selecting columns, filtering, sorting, and displaying a brief summary or a
 #' complete table. Normally, `sweep_jobs` is called up front to update the database,
 #' so there may be a delay of a second or two.
+#' 
+#' Not that memory is always reported in GB.
 #'
 #' @param columns Specifies which columns to include in the jobs table. May be
 #'   one of
 #'   - *brief* (1) includes `jobid`, `status`, `error`, `comment`
-#'   - *normal* (2)  includes `jobid`, `launched`, `call`, `rep`, `local`, `status`, `message`, `comment`
-#'   - *long* (3) includes `jobid`, `launched`, `call`, `rep`, `local`, `sjobid`, `status`, `state`, `reason`, `error`, `message`,
-#'      `done`, `cores`, `gb`, `walltime`, `cpu`, `cpu_pct`, `log`, `comment`
+#'   - *normal* (2)  includes `jobid`, `launched`, `call`, `rep`, `local`, `status`, 
+#'      `error`, `message`, `cores`, `mem_req`, `mem_gb`, `walltime`, `cpu`, `cpu_pct`, `comment`
+#'   - *long* (3) includes `jobid`, `launched`, `call`, `rep`, `local`, `sjobid`, `status`, 
+#'      `state`, `reason`, `error`, `message`, `done`, `cores`, `mem_req`, `mem_gb`, `walltime`, 
+#'      `cpu`, `cpu_pct`, `log`, `comment`
 #'   - *all* (4) includes all columns
 #'   - 1, 2, 3, or 4 is a shortcut for the above column sets
 #'   - A vector of column names to include
@@ -92,8 +96,8 @@ info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing 
    if(columns != 'all') {
       co <- switch(columns,
                    brief = c('jobid', 'status', 'error', 'comment'),
-                   normal = c('jobid', 'launched', 'call', 'rep', 'local', 'status', 'error', 'message', 'cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'comment'),
-                   long = c('jobid', 'launched', 'call', 'rep', 'local', 'sjobid', 'status', 'state', 'reason', 'error', 'message', 'done', 'cores', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'log', 'comment')
+                   normal = c('jobid', 'launched', 'call', 'rep', 'local', 'status', 'error', 'message', 'cores', 'mem_req', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'comment'),
+                   long = c('jobid', 'launched', 'call', 'rep', 'local', 'sjobid', 'status', 'state', 'reason', 'error', 'message', 'done', 'cores', 'mem_req', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'log', 'comment')
       )
       z <- z[, co]
    }

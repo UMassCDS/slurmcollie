@@ -24,3 +24,4 @@ launch('batch_test', reps = 30:32, comment = 'A test using slurmcollie')
 
 
 
+launch('batch_test', reps = 61, comment = 'A big test', resources = list(memory = 33))

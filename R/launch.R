@@ -42,7 +42,7 @@
 #' @param comment Optional comment; will be recycled for multiple reps
 #' @param finish Optional name of a function to run for completed jobs, for example `finish =
 #'   'sweep_fit'` to gather fit stats
-#' @importFrom batchtools makeRegistry batchMap submitJobs getJobTable
+#' @importFrom batchtools makeRegistry batchMap submitJobs getJobTable getJobResources
 #' @importFrom peakRAM peakRAM
 #' @importFrom lubridate seconds_to_period minute second
 #' @export
@@ -105,6 +105,7 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
       slu$jdb$done[i] <- FALSE
       slu$jdb$finish[i] <- finish
       slu$jdb$comment[i] <- rep(comment, length = length(i))                  #    job comment
+      slu$jdb$mem_req[i] <- getJobResources(slu$jdb$bjobid[i])$resources[[1]]$memory    # requested memory (GB)
       
       save_slu_database('jdb')
       

@@ -21,9 +21,11 @@ info(
 one of
 \itemize{
 \item \emph{brief} (1) includes \code{jobid}, \code{status}, \code{error}, \code{comment}
-\item \emph{normal} (2)  includes \code{jobid}, \code{launched}, \code{call}, \code{rep}, \code{local}, \code{status}, \code{message}, \code{comment}
-\item \emph{long} (3) includes \code{jobid}, \code{launched}, \code{call}, \code{rep}, \code{local}, \code{sjobid}, \code{status}, \code{state}, \code{reason}, \code{error}, \code{message},
-\code{done}, \code{cores}, \code{gb}, \code{walltime}, \code{cpu}, \code{cpu_pct}, \code{log}, \code{comment}
+\item \emph{normal} (2)  includes \code{jobid}, \code{launched}, \code{call}, \code{rep}, \code{local}, \code{status},
+\code{error}, \code{message}, \code{cores}, \code{mem_req}, \code{mem_gb}, \code{walltime}, \code{cpu}, \code{cpu_pct}, \code{comment}
+\item \emph{long} (3) includes \code{jobid}, \code{launched}, \code{call}, \code{rep}, \code{local}, \code{sjobid}, \code{status},
+\code{state}, \code{reason}, \code{error}, \code{message}, \code{done}, \code{cores}, \code{mem_req}, \code{mem_gb}, \code{walltime},
+\code{cpu}, \code{cpu_pct}, \code{log}, \code{comment}
 \item \emph{all} (4) includes all columns
 \item 1, 2, 3, or 4 is a shortcut for the above column sets
 \item A vector of column names to include
@@ -62,4 +64,7 @@ Provides information on jobs in the batch jobs database. Options allow for
 selecting columns, filtering, sorting, and displaying a brief summary or a
 complete table. Normally, \code{sweep_jobs} is called up front to update the database,
 so there may be a delay of a second or two.
+}
+\details{
+Not that memory is always reported in GB.
 }

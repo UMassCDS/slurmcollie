@@ -4,7 +4,7 @@
 \alias{purge}
 \title{Purge selected jobs from the jobs database}
 \usage{
-purge(filter = NULL, quiet = FALSE)
+purge(filter = NULL, force = FALSE, quiet = FALSE)
 }
 \arguments{
 \item{filter}{Specify jobs with one of:
@@ -15,6 +15,9 @@ purge(filter = NULL, quiet = FALSE)
 where \verb{<value>} is a regex for character fields, or an actual value (or vector of
 values) for logical or numeric fields.
 }}
+
+\item{force}{If TRUE, purges jobs even if they're pending, queued, or running - don't
+do this casually!}
 
 \item{quiet}{If TRUE, don't chatter}
 }
