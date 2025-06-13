@@ -105,7 +105,8 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
       slu$jdb$done[i] <- FALSE
       slu$jdb$finish[i] <- finish
       slu$jdb$comment[i] <- rep(comment, length = length(i))                  #    job comment
-      slu$jdb$mem_req[i] <- getJobResources(slu$jdb$bjobid[i])$resources[[1]]$memory    # requested memory (GB)
+      slu$jdb$cores[i] <- getJobResources(slu$jdb$bjobid[i])$resources[[1]]$ncpus      # we can get number of cores here
+      slu$jdb$mem_req[i] <- getJobResources(slu$jdb$bjobid[i])$resources[[1]]$memory   # requested memory (GB)
       
       save_slu_database('jdb')
       
