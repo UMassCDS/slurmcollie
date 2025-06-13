@@ -96,7 +96,7 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
       slu$jdb$jobid[i] <- jobids                                              #    add job ids to jobs database
       slu$jdb$launched[i] <- now()                                            #    launch date and time in UTC, leaving pretty formatting for info()  
       slu$jdb$call[i] <- call                                                 #    name of called function
-      slu$jdb$rep[i] <- reps                                                  #    rep for this job
+      slu$jdb$rep[i] <- reps[[1]]                                             #    rep for each job
       slu$jdb$local[i] <- FALSE                                               #    not a local run
       slu$jdb$bjobid[i] <- jobs$job.id                                        #    and add batchtools job ids to jobs database
       slu$jdb$registry[i] <- regid
