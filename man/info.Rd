@@ -22,7 +22,7 @@ one of
 \itemize{
 \item \emph{brief} (1) includes \code{jobid}, \code{status}, \code{error}, \code{comment}
 \item \emph{normal} (2)  includes \code{jobid}, \code{launched}, \code{call}, \code{rep}, \code{local}, \code{status},
-\code{error}, \code{message}, \code{cores}, \code{mem_req}, \code{mem_gb}, \code{walltime}, \code{cpu}, \code{cpu_pct}, \code{comment}
+\code{error}, \code{cores}, \code{mem_req}, \code{mem_gb}, \code{walltime}, \code{cpu}, \code{cpu_pct}, \code{comment}
 \item \emph{long} (3) includes \code{jobid}, \code{launched}, \code{call}, \code{rep}, \code{local}, \code{sjobid}, \code{status},
 \code{state}, \code{reason}, \code{error}, \code{message}, \code{done}, \code{cores}, \code{mem_req}, \code{mem_gb}, \code{walltime},
 \code{cpu}, \code{cpu_pct}, \code{log}, \code{comment}
