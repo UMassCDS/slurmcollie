@@ -188,7 +188,7 @@ devtools::install_github("UMassCDS/slurmcollie")
 You'll need to do this once after installation. You'll need to know two things: 
 
 1. Pick a
-`slurmcollie` base directory. This is where it will store various files it needs, most of which you
+`slurmcollie` **base directory**. This is where it will store various files it needs, most of which you
 won't need to worry about. The exceptions are if you want to change default Slurm configuration or
 if you want to look at log files. This directory may be shared with other uses, such as databases
 for the calling code. **It must not be shared with other users**, as `slurmcollie` has a single-user
