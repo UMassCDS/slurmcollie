@@ -53,7 +53,7 @@ statistics are gathered as for batch jobs, and saved to the jobs database after 
 
 - You can specify a **finishing function** at launch. This function will be passed the job id and job 
 status when `info()` reports the job as done (successfully or not). Finishing functions are intended 
-to update databases in the calling code. They should run quickly, as you'll have to wait for the on an 
+to update databases in the calling code. They should run quickly, as you'll have to wait for it on an 
 `info()` call.
 
 - There is **no support for job dependencies**: you can't for example, ask it to run job x once jobs 
@@ -185,14 +185,17 @@ devtools::install_github("UMassCDS/slurmcollie")
 ```
 
 ### 4. Set up slurmcollie directories and files 
-You'll need to do this once after installation. You'll need to know two things: 1. Pick a
+You'll need to do this once after installation. You'll need to know two things: 
+
+1. Pick a
 `slurmcollie` base directory. This is where it will store various files it needs, most of which you
 won't need to worry about. The exceptions are if you want to change default Slurm configuration or
 if you want to look at log files. This directory may be shared with other uses, such as databases
 for the calling code. **It must not be shared with other users**, as `slurmcollie` has a single-user
-database, and concurrent access to the database will corrupt it. 2. You'll need the name of the
-**login node**, from Step 1 above. Run the following, substituting your base directory and the login
-node if it's different.
+database, and concurrent access to the database will corrupt it. 
+
+2. You'll need the name of the **login node**, from Step 1 above. Run the following, substituting 
+your base directory and the login node if it's different.
 
 ```
 set_up_slurmcollie(dir = 'my/base/directory', login_node = 'login1')
@@ -317,7 +320,7 @@ Purged 5 jobs
 
 ## Support 
 If you run into trouble, please try to determine whether the problem is related to the R
-code in `slurmcollie` (if so, [file an issue](https://github.com/UMass-UAS-Salt-Marsh/slurmcollie/issues)) 
+code in `slurmcollie` (if so, [file an issue](https://github.com/UMassCDS/slurmcollie/issues)) 
 or with Slurm or Unity (in which case, contact [Unity](https://docs.unity.rc.umass.edu/contact/)).
 If you're using a cluster other than Unity, the system's administrators may be able to help you. We have 
 limited ability to support users, but will attempt to fix all package bugs promptly. We'll also entertain 
