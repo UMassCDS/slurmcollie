@@ -1,0 +1,5 @@
+
+
+output <- "sbatch: INFO: Note that 128 GB per node will require a node with more than 128 GB memory because of overhead. Check https://docs.unity.rc.umass.edu/nodes for an appropriate limit.\nSubmitted batch job 38140533"
+output2 <- 'Submitted batch job 123'
+output3 <- 'Submitted batch job 38140533\nsbatch: INFO: Note that 128 GB per node will require a node with more than 128 GB memory because of overhead. Check https://docs.unity.rc.umass.edu/nodes for an appropriate limit.'
