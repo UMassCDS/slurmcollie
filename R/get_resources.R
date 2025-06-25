@@ -9,7 +9,7 @@
 get_resources <- function(user, func) {
    
    
-   resources <- function
+   resources <- func
    if(!is.null(user)) {
       both <- c(user, func)
       resources <- both[unique(names(both))]
