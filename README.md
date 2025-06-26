@@ -78,11 +78,11 @@ objects. It tracks the status and statistics of fits over many rounds of launchi
 interact with the console).
 - Your functions can take any number of arguments. If you want to run multiple reps in a single 
 launch, one or more arguments should distinguish reps (unless you just want to do the same thing 
-over and over, presumably with randomization). See `launch()` under Using slurmcollie below for 
+over and over, presumably with randomization). See `help(launch)` for 
 details on how to pass arguments.
 - Your functions should not return values, as these will be printed in the log files but not 
 otherwise captured. Your code must provide side-effects, typically by writing to files.
-- Your functions must use library or package mechanisms to attach any needed packages, which should 
+- Your functions must use `library()` or package mechanisms to attach any needed packages, which should 
 be installed before launching.
 - You may provide an optional finishing function at launch, to be run after each jobs done, 
 triggered by `info()`. This is intended to support updating databases in the calling code.
@@ -295,7 +295,7 @@ Now we'll launch a different job, one that will take longer. This job doesn't ha
      6  running                         NA     NA                             this will take longer
 ```
 
-We now see the final status for each job: jobs #1, 4, and 5 finished without error. Job #2 threw an
+We now see the final status for most of the jobs: jobs #1, 4, and 5 finished without error. Job #2 threw an
 error, and we killed job #3. Job 6 is still running. The finished jobs have now reported statistics:
 how many cores they used, memory used, the total runtime ("walltime"), CPU time, and percent
 utilization of the CPU. There are several other fields available from info, but these are usually
