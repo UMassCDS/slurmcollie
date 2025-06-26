@@ -18,8 +18,7 @@ filter_jobs <- function(filter) {
    if(is.numeric(filter)) {                                       # if we have supplied jobids,
       z <- match(filter, slu$jdb$jobid)
       if(any(is.na(z)))
-         stop('Jobids ', paste(filter[is.na(z)], collapse = ', '), ' don\'t exist')
-      return(z)
+         message('Note: jobids ', paste(filter[is.na(z)], collapse = ', '), ' don\'t exist')
    }
    
    if(any(n <- !names(filter) %in% names(slu$jdb)))               # else, it's a named list of field = value
