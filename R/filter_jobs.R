@@ -21,12 +21,13 @@ filter_jobs <- function(filter) {
          message('Note: jobids ', paste(filter[m], collapse = ', '), ' don\'t exist')
          filter <- filter[!m]
       }
+      return(filter)
    }
    
    if(any(n <- !names(filter) %in% names(slu$jdb)))               # else, it's a named list of field = value
       stop('Fields not in jobs database: ', paste(names(filter)[n], collapse = ', '))
    z <- rep(TRUE, dim(slu$jdb)[1])
-   for(i in 1:length(filter)) {
+   for(i in seq_along(filter)) {
       col <- slu$jdb[, names(filter)[i]]
       val <- filter[[i]]
       if(is.character(col[i]))
