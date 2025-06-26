@@ -19,7 +19,7 @@ filter_jobs <- function(filter) {
       z <- match(filter, slu$jdb$jobid)
       if(any(m <- is.na(z))) {
          message('Note: jobids ', paste(filter[m], collapse = ', '), ' don\'t exist')
-         z <- z[!m]
+         filter <- filter[!m]
       }
    }
    
