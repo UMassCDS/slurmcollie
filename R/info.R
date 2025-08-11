@@ -11,7 +11,7 @@
 #'   one of
 #'   - *brief* (1) includes `jobid`, `status`, `error`, `comment`
 #'   - *normal* (2)  includes `jobid`, `launched`, `call`, `rep`, `local`, `status`, 
-#'      `error`, `cores`, `mem_req`, `mem_gb`, `walltime`, `cpu`, `cpu_pct`, `comment`
+#'      `error`, `cores`, `cpu`, `cpu_pct`, `mem_req`, `mem_gb`, `walltime`, `comment`
 #'   - *long* (3) includes `jobid`, `launched`, `call`, `rep`, `local`, `sjobid`, `status`, 
 #'      `state`, `reason`, `error`, `message`, `done`, `cores`, `mem_req`, `mem_gb`, `walltime`, 
 #'      `cpu`, `cpu_pct`, `log`, `comment`
@@ -96,8 +96,8 @@ info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing 
    if(columns != 'all') {
       co <- switch(columns,
                    brief = c('jobid', 'status', 'error', 'comment'),
-                   normal = c('jobid', 'launched', 'call', 'rep', 'local', 'status', 'error', 'cores', 'mem_req', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'comment'),
-                   long = c('jobid', 'launched', 'call', 'rep', 'local', 'sjobid', 'status', 'state', 'reason', 'error', 'message', 'done', 'cores', 'mem_req', 'mem_gb', 'walltime', 'cpu', 'cpu_pct', 'log', 'comment')
+                   normal = c('jobid', 'launched', 'call', 'rep', 'local', 'status', 'error', 'cores', 'cpu', 'cpu_pct', 'mem_req', 'mem_gb', 'walltime', 'comment'),
+                   long = c('jobid', 'launched', 'call', 'rep', 'local', 'sjobid', 'status', 'state', 'reason', 'error', 'message', 'done', 'cores', 'cpu', 'cpu_pct', 'mem_req', 'mem_gb', 'walltime', 'log', 'comment')
       )
       z <- z[, co]
    }

@@ -43,11 +43,11 @@ new_slurmcollie_db <- function(database = 'jdb', really = FALSE) {
                 message = character(),
                 finish  = character(),
                 cores = integer(),
+                cpu = character(),
+                cpu_pct = character(),
                 mem_req = double(),
                 mem_gb = double(),
                 walltime = character(),
-                cpu = character(),
-                cpu_pct = character(),
                 log = character(),
                 comment = character()
              )
