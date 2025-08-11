@@ -66,7 +66,8 @@ by the University of Massachusetts, University of Rhode Island, and others). It 
 on other Linux clusters using Slurm, but you'll be on your own.
 
 It is designed for those who want to do task-level parallelization of R code with a minimum of
-effort. The canonical example (which it was designed for), is fitting several hundred random forest
+effort. The [canonical example](https://github.com/UMass-UAS-Salt-Marsh/salt-marsh-mapping) 
+(for which it was designed), is fitting several hundred random forest
 models over a period of weeks. Each fit takes a while (typically tens of minutes), so
 launch-wait-launch-wait would be an excruciating workflow. `slurmcollie` allows launching model fits
 as fast as you can define them, either as single-fit jobs or as reps over, say, a vector of formula
