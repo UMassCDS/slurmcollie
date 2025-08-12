@@ -4,12 +4,10 @@
 \alias{load_slu_database}
 \title{Load the specified slurmcollie database unless we've already got it}
 \usage{
-load_slu_database(database = "jdb", force = FALSE)
+load_slu_database(database = "jdb")
 }
 \arguments{
 \item{database}{Name of database (should be \code{jdb})}
-
-\item{force}{If TRUE, always loads the database, replacing the current one if it exists}
 }
 \description{
 Loads the database from directory \code{slu$dbdir} into environment \code{slu} if it hasn't
