@@ -5,7 +5,7 @@
 #' complete table. Normally, `sweep_jobs` is called up front to update the database,
 #' so there may be a delay of a second or two.
 #' 
-#' Not that memory is always reported in GB.
+#' Note that memory is always reported in GB.
 #'
 #' @param columns Specifies which columns to include in the jobs table. May be
 #'   one of

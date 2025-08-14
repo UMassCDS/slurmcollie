@@ -66,5 +66,5 @@ complete table. Normally, \code{sweep_jobs} is called up front to update the dat
 so there may be a delay of a second or two.
 }
 \details{
-Not that memory is always reported in GB.
+Note that memory is always reported in GB.
 }

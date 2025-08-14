@@ -29,9 +29,11 @@
 #' @param repname Name of `reps` argument in function to be called, used only when `reps` is a
 #'   vector or unnamed list
 #' @param moreargs a named list of additional arguments to the called function, not vectorized over
+#' @param callerid An optional character id that allows the calling function and finish function
+#'    to track jobs.
 #' @param resources Named list of resources, overriding defaults in `batchtools.conf` (see Details)
-#' @param jobid If TRUE, the current `slurmcollie` job id is passed as `jobid`. You'll need to include
-#'   `jobid` as an argument to your function if you include this.
+#' @param jobid If TRUE, the current `slurmcollie` job id is passed to the called function as `jobid`. 
+#'    You'll need to include `jobid` as an argument to your function if you include this.
 #' @param local If TRUE, launch job locally instead of as a batch job, tying up the console while it
 #'   runs. The jobs database will be updated on completion, so no information will be saved to the
 #'   jobs database if the job is interrupted.
@@ -44,13 +46,13 @@
 #'   'sweep_fit'` to gather fit stats
 #' @importFrom batchtools makeRegistry batchMap submitJobs getJobTable getJobResources
 #' @importFrom peakRAM peakRAM
-#' @importFrom lubridate seconds_to_period minute second
+#' @importFrom lubridate seconds_to_period minute second now
 #' @export
 
 
-launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = FALSE, 
-                   resources = list(), local = FALSE, trap = TRUE, regdir = slu$regdir, 
-                   comment = '', finish = NA) {
+launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), callerid = '', 
+                   resources = list(), jobid = FALSE, local = FALSE, trap = TRUE, 
+                   regdir = slu$regdir, comment = '', finish = NA) {
    
    
    load_slu_database('jdb')                                                   # load the jobs database if we don't already have it

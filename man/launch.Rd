@@ -9,8 +9,9 @@ launch(
   reps = 1,
   repname = "rep",
   moreargs = list(),
-  jobid = FALSE,
+  callerid = "",
   resources = list(),
+  jobid = FALSE,
   local = FALSE,
   trap = TRUE,
   regdir = slu$regdir,
@@ -32,10 +33,13 @@ vector or unnamed list}
 
 \item{moreargs}{a named list of additional arguments to the called function, not vectorized over}
 
-\item{jobid}{If TRUE, the current \code{slurmcollie} job id is passed as \code{jobid}. You'll need to include
-\code{jobid} as an argument to your function if you include this.}
+\item{callerid}{An optional character id that allows the calling function and finish function
+to track jobs.}
 
 \item{resources}{Named list of resources, overriding defaults in \code{batchtools.conf} (see Details)}
+
+\item{jobid}{If TRUE, the current \code{slurmcollie} job id is passed to the called function as \code{jobid}.
+You'll need to include \code{jobid} as an argument to your function if you include this.}
 
 \item{local}{If TRUE, launch job locally instead of as a batch job, tying up the console while it
 runs. The jobs database will be updated on completion, so no information will be saved to the

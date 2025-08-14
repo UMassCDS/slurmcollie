@@ -27,29 +27,30 @@ new_slurmcollie_db <- function(database = 'jdb', really = FALSE) {
           
           'jdb' = {
              slu$jdb <- data.frame(
-                jobid = integer(),
-                launched = as.POSIXct(character()),
-                call = character(),
-                rep = character(),
-                local = logical(),
-                bjobid = integer(),
-                registry = character(),
-                sjobid = character(),
-                status = character(),
-                state = character(),
-                reason = character(),
-                done = logical(),
-                error = character(),
-                message = character(),
-                finish  = character(),
-                cores = integer(),
-                cpu = character(),
-                cpu_pct = character(),
-                mem_req = double(),
-                mem_gb = double(),
-                walltime = character(),
-                log = character(),
-                comment = character()
+                jobid = integer(),                          # slurmcollie job id
+                launched = as.POSIXct(character()),         # date and time job was launched
+                call = character(),                         # name of called function
+                rep = character(),                          # Vector, list, or data frame to vectorize call over
+                callerid = character(),                     # Optional character id allowing caller to track jobs on its terms
+                local = logical(),                          # TRUE if calling as a local job, FALSE if batch
+                bjobid = integer(),                         # batchtools job id
+                registry = character(),                     # batchtools registry file name
+                sjobid = character(),                       # Slurm job id
+                status = character(),                       # slurmcollie job status
+                state = character(),                        # Slurm job state
+                reason = character(),                       # Slurm job reason
+                done = logical(),                           # TRUE if job is complete
+                error = character(),                        # TRUE if there was an error
+                message = character(),                      # error message
+                finish  = character(),                      # name of function to be called by info when job is finished
+                cores = integer(),                          # number of CPU cores to request
+                cpu = character(),                          # CPU time used (hh:mm:ss)
+                cpu_pct = character(),                      # percent CPU used
+                mem_req = double(),                         # memory requested (GB)
+                mem_gb = double(),                          # memory used (GB)
+                walltime = character(),                     # elapsed job time (hh:mm:ss)
+                log = character(),                          # name of log file
+                comment = character()                       # user or generated job comment
              )
              
              unlink(file.path(slu$dbdir, paste0(database, '*.RDS')))             # delete old database and backups
