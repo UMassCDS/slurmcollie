@@ -163,6 +163,7 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), callerid 
          slu$jdb$launched[i] <- launched                                      #    launch date and time in UTC, leaving pretty formatting for info() 
          slu$jdb$call[i] <- call                                              #    name of called function
          slu$jdb$rep[i] <- r[[1]]                                             #    rep of this call
+         slu$jdb$callerid[i] <- callerid                                      #    job's caller id
          slu$jdb$local[i] <- TRUE                                             #    it's a local run
          slu$jdb$status[i] <- ifelse(is.null(err), 'finished', 'error')
          if(!is.null(err))
