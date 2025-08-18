@@ -43,7 +43,8 @@ You'll need to include \code{jobid} as an argument to your function if you inclu
 
 \item{local}{If TRUE, launch job locally instead of as a batch job, tying up the console while it
 runs. The jobs database will be updated on completion, so no information will be saved to the
-jobs database if the job is interrupted.}
+jobs database if the job is interrupted. Note that local calls will not record \code{cores}, \code{cpu},
+\code{cpu_pct}, nor \code{mem_req}. They do record mem_gb and walltime.}
 
 \item{trap}{If TRUE, trap errors in local mode; if FALSE, use normal R error handling. Use this
 for debugging. If you get unrecovered errors, the job won't be added to the jobs database. Has

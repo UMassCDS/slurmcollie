@@ -6,6 +6,9 @@
 #' so there may be a delay of a second or two.
 #' 
 #' Note that memory is always reported in GB.
+#' 
+#' Also note that local calls will not record `cores`, `cpu`, `cpu_pct`, nor `mem_req`.
+#' They do record mem_gb and walltime.
 #'
 #' @param columns Specifies which columns to include in the jobs table. May be
 #'   one of

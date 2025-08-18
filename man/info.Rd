@@ -67,4 +67,7 @@ so there may be a delay of a second or two.
 }
 \details{
 Note that memory is always reported in GB.
+
+Also note that local calls will not record \code{cores}, \code{cpu}, \code{cpu_pct}, nor \code{mem_req}.
+They do record mem_gb and walltime.
 }
