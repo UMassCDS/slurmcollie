@@ -47,7 +47,7 @@ can view the full output of your runs, including debugging messages and errors.
 
 - It supports **local runs**. Though it is intended to spawn batch jobs on other computers and return 
 console control to you immediately, you can include `local = TRUE` in a launch call to run a job 
-locally while you wait. This can be useful for debugging, assessing CPU and memory needs, or when you 
+locally while you wait. This can be useful for debugging, assessing memory needs, or when you 
 want to run code on your local computer rather than on Unity. In local mode, most messages and run 
 statistics are gathered as for batch jobs, and saved to the jobs database after each rep.
 
