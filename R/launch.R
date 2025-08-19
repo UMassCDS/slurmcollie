@@ -53,6 +53,8 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
                    comment = '', finish = NA) {
    
    
+   launchtime <- now()                                                        # get launched time right up front, so it agrees with launch time from calling function
+   
    load_slu_database('jdb')                                                   # load the jobs database if we don't already have it
    
    
@@ -94,7 +96,7 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
       slu$jdb[i <- nrow(slu$jdb) + (1:length(jobids)), ] <- NA                #    add rows to database 
       
       slu$jdb$jobid[i] <- jobids                                              #    add job ids to jobs database
-      slu$jdb$launched[i] <- now()                                            #    launch date and time in UTC, leaving pretty formatting for info()  
+      slu$jdb$launched[i] <- launchtime                                       #    launch date and time in UTC, leaving pretty formatting for info()  
       slu$jdb$call[i] <- call                                                 #    name of called function
       slu$jdb$rep[i] <- reps[[1]]                                             #    rep for each job
       slu$jdb$local[i] <- FALSE                                               #    not a local run
@@ -136,7 +138,7 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
          else
             message('   Running jobid ', jobids[j], '...')
          
-         mem <- peakRAM(                                                      #       Capture walltime and peak RAM used
+         mem <- peakRAM(                                                      #       Capture walltime and peak RAM used  --- call function locally ---
             if(trap)                                                          #          if trapping errors,
                err <- tryCatch({                                              #          trap any errors
                   do.call(call, c(r, moreargs))                               #             call the function with rep, jobid, and more args
@@ -145,7 +147,7 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = F
                   return(cond[[1]])                                           #             capture error message
                )
             else {                                                            #       else,
-               do.call(call, c(r, moreargs))                                  #          call function without error trapping
+               do.call(call, c(r, moreargs))                                  #          call function without error trapping 
                err <- NULL
             }
          )

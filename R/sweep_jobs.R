@@ -74,14 +74,18 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
             slu$jdb$status[i] <- 'pending'
          else
             switch(stringr::word(slu$jdb$state[i]),
-                   'PENDING' = slu$jdb$status[i] <- 'queued',
-                   'TIMEOUT' = slu$jdb$status[i] <- 'timeout',
+                   'PENDING' = 
+                      slu$jdb$status[i] <- 'queued',
+                   'TIMEOUT' = 
+                      slu$jdb$status[i] <- 'timeout',
                    'CANCELLED' = {
                       slu$jdb$status[i] <- 'killed'
                       newdone <- c(newdone, i)
                    },
-                   'RUNNING' = slu$jdb$status[i] <- 'running',
-                   'COMPLETING' = slu$jdb$status[i] <- 'running',
+                   'RUNNING' = 
+                      slu$jdb$status[i] <- 'running',
+                   'COMPLETING' = 
+                      slu$jdb$status[i] <- 'running',
                    'COMPLETED' = {
                       if(slu$jdb$error[i])
                          slu$jdb$status[i] <- 'error'
