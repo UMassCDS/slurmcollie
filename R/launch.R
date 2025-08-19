@@ -168,9 +168,18 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), callerid 
          slu$jdb$rep[i] <- r[[1]]                                             #    rep of this call
          slu$jdb$callerid[i] <- callerid                                      #    job's caller id
          slu$jdb$local[i] <- TRUE                                             #    it's a local run
-         slu$jdb$status[i] <- ifelse(is.null(err), 'finished', 'error')
-         if(!is.null(err))
-            slu$jdb$error[i] <- err
+
+         if(!is.null(err)) {                                                  #    if there's an error, set status, error flag and message
+            slu$jdb$status[i] <- 'error'
+            slu$jdb$error[i] <- TRUE
+            slu$jdb$message[i] <- err
+         }
+         else {                                                               #    otherwise, no error
+            slu$jdb$status[i] <- 'finished'
+            slu$jdb$error[i] <- FALSE
+            slu$jdb$message[i] <- ''
+         }
+         
          slu$jdb$done[i] <- TRUE
          slu$jdb$comment[i] <- comment                                        #    job comment
          
