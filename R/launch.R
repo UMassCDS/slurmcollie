@@ -29,15 +29,12 @@
 #' @param repname Name of `reps` argument in function to be called, used only when `reps` is a
 #'   vector or unnamed list
 #' @param moreargs a named list of additional arguments to the called function, not vectorized over
-#' @param callerid An optional character id that allows the calling function and finish function
-#'    to track jobs.
 #' @param resources Named list of resources, overriding defaults in `batchtools.conf` (see Details)
-#' @param jobid If TRUE, the current `slurmcollie` job id is passed to the called function as `jobid`. 
-#'    You'll need to include `jobid` as an argument to your function if you include this.
+#' @param jobid If TRUE, the current `slurmcollie` job id is passed as `jobid`. You'll need to include
+#'   `jobid` as an argument to your function if you include this.
 #' @param local If TRUE, launch job locally instead of as a batch job, tying up the console while it
 #'   runs. The jobs database will be updated on completion, so no information will be saved to the
-#'   jobs database if the job is interrupted. Note that local calls will not record `cores`, `cpu`, 
-#'   `cpu_pct`, nor `mem_req`. They do record mem_gb and walltime.
+#'   jobs database if the job is interrupted.
 #' @param trap If TRUE, trap errors in local mode; if FALSE, use normal R error handling. Use this
 #'   for debugging. If you get unrecovered errors, the job won't be added to the jobs database. Has
 #'   no effect if local = FALSE.
@@ -47,13 +44,13 @@
 #'   'sweep_fit'` to gather fit stats
 #' @importFrom batchtools makeRegistry batchMap submitJobs getJobTable getJobResources
 #' @importFrom peakRAM peakRAM
-#' @importFrom lubridate seconds_to_period minute second now
+#' @importFrom lubridate seconds_to_period minute second
 #' @export
 
 
-launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), callerid = '', 
-                   resources = list(), jobid = FALSE, local = FALSE, trap = TRUE, 
-                   regdir = slu$regdir, comment = '', finish = NA) {
+launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), jobid = FALSE, 
+                   resources = list(), local = FALSE, trap = TRUE, regdir = slu$regdir, 
+                   comment = '', finish = NA) {
    
    
    load_slu_database('jdb')                                                   # load the jobs database if we don't already have it
@@ -100,7 +97,6 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), callerid 
       slu$jdb$launched[i] <- now()                                            #    launch date and time in UTC, leaving pretty formatting for info()  
       slu$jdb$call[i] <- call                                                 #    name of called function
       slu$jdb$rep[i] <- reps[[1]]                                             #    rep for each job
-      slu$jdb$callerid[i] <- callerid                                         #    job's caller id
       slu$jdb$local[i] <- FALSE                                               #    not a local run
       slu$jdb$bjobid[i] <- jobs$job.id                                        #    and add batchtools job ids to jobs database
       slu$jdb$registry[i] <- regid
@@ -164,12 +160,20 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), callerid 
          slu$jdb$launched[i] <- launched                                      #    launch date and time in UTC, leaving pretty formatting for info() 
          slu$jdb$call[i] <- call                                              #    name of called function
          slu$jdb$rep[i] <- r[[1]]                                             #    rep of this call
-         slu$jdb$callerid[i] <- callerid                                      #    job's caller id
          slu$jdb$local[i] <- TRUE                                             #    it's a local run
-         slu$jdb$status[i] <- ifelse(is.null(err), 'finished', 'error')
-         if(!is.null(err))
-            slu$jdb$error[i] <- err
-         slu$jdb$done[i] <- TRUE
+         
+         if(!is.null(err)) {                                                  #    if there's an error, set status, error flag and message
+            slu$jdb$status[i] <- 'error'
+            slu$jdb$error[i] <- TRUE
+            slu$jdb$message[i] <- err
+         }
+         else {                                                               #    otherwise, no error
+            slu$jdb$status[i] <- 'finished'
+            slu$jdb$error[i] <- FALSE
+            slu$jdb$message[i] <- ''
+         }
+         
+            slu$jdb$done[i] <- TRUE
          slu$jdb$comment[i] <- comment                                        #    job comment
          
          slu$jdb$mem_gb[i] <- mem$Peak_RAM_Used_MiB / 1000                    #     peak RAM used (GB)
