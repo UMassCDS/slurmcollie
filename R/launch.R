@@ -111,6 +111,7 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), callerid 
       slu$jdb$done[i] <- FALSE
       slu$jdb$finish[i] <- finish
       slu$jdb$comment[i] <- rep(comment, length = length(i))                  #    job comment
+      xxx <<- deparse(sys.calls()[[1]])
       slu$jdb$call[i] <- deparse(sys.calls()[[1]])                            #    top-level call
       slu$jdb$cores[i] <- 
          getJobResources(slu$jdb$bjobid[i])$resources[[1]]$ncpus              # we can get number of cores here
