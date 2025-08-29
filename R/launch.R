@@ -111,8 +111,8 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), callerid 
       slu$jdb$done[i] <- FALSE
       slu$jdb$finish[i] <- finish
       slu$jdb$comment[i] <- rep(comment, length = length(i))                  #    job comment
-      xxx <<- gsub('\\"', '\'', deparse(sys.calls()[[1]])) 
-      slu$jdb$call[i] <- gsub('\\"', '\'', deparse(sys.calls()[[1]]))         #    top-level call
+      slu$jdb$call[i] <- paste(trimws(
+         gsub('\\"', '\'', deparse(sys.calls()[[1]]))), collapse = ' ')       #    top-level call
       slu$jdb$cores[i] <- 
          getJobResources(slu$jdb$bjobid[i])$resources[[1]]$ncpus              # we can get number of cores here
       slu$jdb$mem_req[i] <- 
@@ -186,8 +186,8 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), callerid 
          
          slu$jdb$done[i] <- TRUE
          slu$jdb$comment[i] <- comment                                        #    job comment
-         slu$jdb$call[i] <- deparse(sys.calls()[[1]])                         #    top-level call
-         
+         slu$jdb$call[i] <- paste(trimws(
+            gsub('\\"', '\'', deparse(sys.calls()[[1]]))), collapse = ' ')    #    top-level call
          
          slu$jdb$mem_gb[i] <- mem$Peak_RAM_Used_MiB / 1000                    #     peak RAM used (GB)
          t <- seconds_to_period(mem$Elapsed_Time_sec)
