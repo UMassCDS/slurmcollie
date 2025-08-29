@@ -29,7 +29,7 @@ new_slurmcollie_db <- function(database = 'jdb', really = FALSE) {
              slu$jdb <- data.frame(
                 jobid = integer(),                          # slurmcollie job id
                 launched = as.POSIXct(character()),         # date and time job was launched
-                call = character(),                         # name of called function
+                called_fn = character(),                    # name of called function
                 rep = character(),                          # Vector, list, or data frame to vectorize call over
                 callerid = character(),                     # Optional character id allowing caller to track jobs on its terms
                 local = logical(),                          # TRUE if calling as a local job, FALSE if batch
@@ -50,7 +50,8 @@ new_slurmcollie_db <- function(database = 'jdb', really = FALSE) {
                 mem_gb = double(),                          # memory used (GB)
                 walltime = character(),                     # elapsed job time (hh:mm:ss)
                 log = character(),                          # name of log file
-                comment = character()                       # user or generated job comment
+                comment = character(),                      # user or generated job comment
+                call = character()                          # top-level function call
              )
              
              unlink(file.path(slu$dbdir, paste0(database, '*.RDS')))             # delete old database and backups
