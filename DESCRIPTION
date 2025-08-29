@@ -26,7 +26,6 @@ Imports:
     hms
 Encoding: UTF-8
 Language: en-US
-LazyData: true
 Depends: R (>= 4.1.0)
 License: GPL (>= 3) + file LICENSE
 Roxygen: list(markdown = TRUE)
