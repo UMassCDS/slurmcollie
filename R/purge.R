@@ -29,21 +29,28 @@ purge <- function(filter = NULL, force = FALSE, quiet = FALSE) {
    
    rows <- filter_jobs(filter)
    
-   x <- slu$jdb$status[rows] %in% c('pending', 'queued', 'running')
-   if(any(x) & !force)
-      stop('You may not purge jobs that are pending, queued, or running--kill them first (jobs ', paste(slu$jdb$jobid[rows[x]], collapse = ', '), ')')
+   if(length(rows) == 0)
+      if(!quiet)
+         message('No jobs specified')
    
-   
-   for(i in rows)                                                       # delete logs
-      if(!is.na(slu$jdb$log[i]))
-         unlink(file.path(slu$logdir, slu$jdb$log[i]))
-   
-   
-   slu$jdb <- slu$jdb[-rows, ]                                          # drop purged rows of database
-   
-   
-   save_slu_database('jdb')
-   
-   if(!quiet)
-      message('Purged ', length(rows), ' jobs')
+   else {
+      
+      x <- slu$jdb$status[rows] %in% c('pending', 'queued', 'running')
+      if(any(x) & !force)
+         stop('You may not purge jobs that are pending, queued, or running--kill them first (jobs ', paste(slu$jdb$jobid[rows[x]], collapse = ', '), ')')
+      
+      
+      for(i in rows)                                                       # delete logs
+         if(!is.na(slu$jdb$log[i]))
+            unlink(file.path(slu$logdir, slu$jdb$log[i]))
+      
+      
+      slu$jdb <- slu$jdb[-rows, ]                                          # drop purged rows of database
+      
+      
+      save_slu_database('jdb')
+      
+      if(!quiet)
+         message('Purged ', length(rows), ' jobs')
+   }
 }
