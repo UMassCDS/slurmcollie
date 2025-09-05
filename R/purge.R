@@ -29,9 +29,10 @@ purge <- function(filter = NULL, force = FALSE, quiet = FALSE) {
    
    rows <- filter_jobs(filter)
    
-   if(length(rows) == 0)
+   if(length(rows) == 0) {
       if(!quiet)
          message('No jobs specified')
+   }
    
    else {
       
