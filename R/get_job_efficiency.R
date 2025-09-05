@@ -36,7 +36,8 @@ get_job_efficiency <- function(id, login_node = slu$login_node) {
    cmd <- paste("seff ", id, sep = "")
    a <- batchtools::runOSCommand(cmd, nodename = login_node)
    if(a$exit.code != 0) {
-      stop("seff command failed")
+      message('get_job_efficency: seff command failed for job ', id)
+      return(NULL)
    }
    
    b <- a$output
