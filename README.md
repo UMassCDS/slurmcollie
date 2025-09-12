@@ -183,6 +183,8 @@ terminal`) and a Unity login banner. If so, you should be good to go.
 ```
 # install.packages("devtools")
 devtools::install_github("UMassCDS/slurmcollie")
+devtools::install_github('bwcompton/batchtools', ref = 'bwcompton-robust-sbatch')   # while waiting for fix in batchtools package
+
 ```
 
 ### 4. Set up slurmcollie directories and files 
