@@ -111,8 +111,13 @@ info <- function(columns = 'normal', filter = 'all', sort = 'jobid', decreasing 
    if(summary & table)
       cat('\n')
    
-   if(table)
+   if(table) {
+      mp <- getOption('max.print')
+      on.exit(options(max.print = mp))
+      options(max.print = 20000)
+      
       print(z, row.names = FALSE, na.print = '')
+   }
    
    return(invisible(z))
 }
