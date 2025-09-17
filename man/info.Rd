@@ -5,8 +5,8 @@
 \title{Give info on batch jobs}
 \usage{
 info(
-  columns = "normal",
-  filter = "all",
+  rows = "all",
+  cols = "normal",
   sort = "jobid",
   decreasing = FALSE,
   nrows = NA,
@@ -17,7 +17,16 @@ info(
 )
 }
 \arguments{
-\item{columns}{Specifies which columns to include in the jobs table. May be
+\item{rows}{Specify jobs with one of:
+\itemize{
+\item a vector of \code{jobids}
+\item 'all' for all jobs
+\item a named list to filter jobs with. List items are \verb{<field in jdb> = <value>},
+where \verb{<value>} is a regex for character fields, or an actual value (or vector of
+values) for logical or numeric fields.
+}}
+
+\item{cols}{Specifies which columns to include in the jobs table. May be
 one of
 \itemize{
 \item \emph{brief} (1) includes \code{jobid}, \code{status}, \code{error}, \code{comment}
@@ -29,15 +38,6 @@ one of
 \item \emph{all} (4) includes all columns
 \item 1, 2, 3, or 4 is a shortcut for the above column sets
 \item A vector of column names to include
-}}
-
-\item{filter}{Specify jobs with one of:
-\itemize{
-\item a vector of \code{jobids}
-\item 'all' for all jobs
-\item a named list to filter jobs with. List items are \verb{<field in jdb> = <value>},
-where \verb{<value>} is a regex for character fields, or an actual value (or vector of
-values) for logical or numeric fields.
 }}
 
 \item{sort}{The name of the column to be used to sort the table}
