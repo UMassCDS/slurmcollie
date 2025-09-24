@@ -20,7 +20,7 @@
 #'   one of
 #'   - *brief* (1) includes `jobid`, `status`, `error`, `comment`
 #'   - *normal* (2)  includes `jobid`, `launched`, `called_fn`, `rep`, `local`, `status`, 
-#'      `error`, `cores`, `cpu`, `cpu_pct`, `mem_req`, `mem_gb`, `walltime`, `comment`
+#'      `error`, `cores`, `cpu_pct`, `mem_gb`, `walltime`, `comment`
 #'   - *long* (3) includes `jobid`, `launched`, `called_fn`, `rep`, `local`, `sjobid`, `status`, 
 #'      `state`, `reason`, `error`, `message`, `done`, `cores`, `mem_req`, `mem_gb`, `walltime`, 
 #'      `cpu`, `cpu_pct`, `log`, `comment`, `call`
@@ -101,7 +101,7 @@ info <- function(rows = 'all', cols = 'normal', sort = 'jobid', decreasing = FAL
       cols <- switch(cols,
                    brief = c('jobid', 'status', 'error', 'comment'),
                    normal = c('jobid', 'launched', 'called_fn', 'rep', 'local', 'status', 'error', 
-                              'cores', 'cpu', 'cpu_pct', 'mem_req', 'mem_gb', 'walltime', 'callerid', 'comment'),
+                              'cores', 'cpu_pct', 'mem_gb', 'walltime', 'comment'),
                    long = c('jobid', 'launched', 'called_fn', 'rep', 'local', 'sjobid', 'status', 'state', 
                             'reason', 'error', 'message', 'done', 'cores', 'cpu', 'cpu_pct', 
                             'mem_req', 'mem_gb', 'walltime', 'log', 'comment', 'callerid', 'call')
