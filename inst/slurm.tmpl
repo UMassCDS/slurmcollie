@@ -23,7 +23,7 @@ log.file = fs::path_expand(log.file)
 #SBATCH --mem=<%= resources$memory %>G                ## memory is reported in GB, not MB
 #SBATCH --export=None
 ##SBATCH --mail-type=END                              ## send an email when job finishes
-#SBATCH -C mpi                                        # Avoid error about not specifying --nodes=1
+#SBATCH --nodes=1                                     ## set minimum nodes to 1 to avoid new error
 
 
 ## Export value of DEBUGME environemnt var
