@@ -35,7 +35,7 @@ init_slurmcollie <- function() {
    
    
    slu$dbdir <- file.path(slu$slurmcollie_dir, 'databases')
-   slu$templatedir <- file.path(slu$slurmcollie_dir, 'template')
+   slu$templatedir <- file.path(slu$slurmcollie_dir, 'pars')
    slu$regdir <- file.path(slu$slurmcollie_dir, 'registries')
    slu$logdir <- file.path(slu$slurmcollie_dir, 'logs')
 
