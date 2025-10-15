@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 # slurmcollie <a href="https://github.com/UMassCDS/slurmcollie/"><img src="man/figures/hexsticker.png" align="right" height="139"/></a>
 
 A lightweight border collie eager to herd your R Slurm jobs
