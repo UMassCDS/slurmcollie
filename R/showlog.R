@@ -22,5 +22,5 @@ showlog <- function(jobid) {
       print_oneperline(x)
    }
    else
-      message('Log doesn\'t exist (Job may still by queued)')
+      message('Log doesn\'t exist (Job may still be queued, or it failed without a log)')
 }

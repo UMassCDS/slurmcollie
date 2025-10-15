@@ -48,13 +48,21 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
       over <- c('COMPLETED', 'CANCELLED', 'DEADLINE', 'FAILED', 'NODE_FAIL', 
                 'OUT_OF_MEMORY', 'PREEMPTED', 'SUSPENDED', 'TIMEOUT')
       newdone <- (1:nrow(slu$jdb))[!slu$jdb$done & !is.na(slu$jdb$state) & (slu$jdb$state %in% over)]       # newly-completed jobs
+      
+
       for(i in newdone) {
          slu$jdb[i, c('error', 'message')] <- getErrorMessages(slu$jdb$bjobid[i], reg = suppressMessages(
             loadRegistry(file.path(slu$regdir, slu$jdb$registry[i]))))[, c('error', 'message')]             # get error messages
          
          f <- paste0('job_', formatC(slu$jdb$jobid[i], width = 4, format = 'd', flag = 0), '.log')
-         writeLines(getLog(slu$jdb$bjobid[i]), file.path(slu$logdir, f))                                    # save log file
-         slu$jdb$log[i] <- f
+         
+         err <- tryCatch({
+            suppressWarnings(writeLines(getLog(slu$jdb$bjobid[i]), file.path(slu$logdir, f)))               # save log file
+            slu$jdb$log[i] <- f
+         },
+         error = function(cond)                                                                             # if no log file, just save ''
+            slu$jdb$log[i] <- ''
+         )
       }
       slu$jdb$message[newdone] <- sub('^.*: \\n  ', '', slu$jdb$message[newdone])                           # we just want juicy part of error message
       
