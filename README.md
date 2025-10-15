@@ -279,6 +279,7 @@ need to add the following line to .Rprofile in your home directory,
 ```         
 .libPaths(c(Sys.getenv('R_LIBS_USER')))
 ```
+This will ensure that your user library path is first in the search order.
 
 ## Usage
 
