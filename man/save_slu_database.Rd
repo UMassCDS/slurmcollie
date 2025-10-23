@@ -11,5 +11,6 @@ save_slu_database(database)
 }
 \description{
 Saves the database in directory \code{slu$dbdir}. Previous versions are renamed e.g., \code{jdb_1.RDS},
-\code{jdb_2.RDS}, etc. Will need a mechanism to delete databases more than a week old (or something).
+\code{jdb_2.RDS}, etc and moved to \verb{backups/}. Everything in \verb{backups/} is save to purge if you're
+hurting for disk space.
 }

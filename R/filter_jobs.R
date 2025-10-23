@@ -27,14 +27,16 @@ filter_jobs <- function(filter) {
    
    if(any(n <- !names(filter) %in% names(slu$jdb)))               # else, it's a named list of field = value
       stop('Fields not in jobs database: ', paste(names(filter)[n], collapse = ', '))
+   
    z <- rep(TRUE, dim(slu$jdb)[1])
    for(i in seq_along(filter)) {
       col <- slu$jdb[, names(filter)[i]]
       val <- filter[[i]]
+      
       if(is.character(col[i]))
-         z <- z & ((1:length(col)) %in% grep(val, col))
+         z <- z & ((1:length(col[i])) %in% grep(col[i], as.character(val)))
       else
-         z <- z & (col %in% val)
+         z <- z & (col[i] %in% val)
    }
    
    (seq_len(dim(slu$jdb)[1]))[z]
