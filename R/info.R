@@ -96,7 +96,7 @@ info <- function(rows = 'all', cols = 'normal', sort = 'jobid', decreasing = FAL
    if(is.numeric(cols))                                                                               # print only requested columns
       if(cols %in% 1:4)
          cols <- c('brief', 'normal', 'long', 'all')[cols]
-   if(cols != 'all') {
+   if(!identical(cols, 'all')) {
       if(cols[1] %in% c('brief', 'normal', 'long', 'all'))
       cols <- switch(cols,
                    brief = c('jobid', 'status', 'error', 'comment'),
@@ -106,7 +106,11 @@ info <- function(rows = 'all', cols = 'normal', sort = 'jobid', decreasing = FAL
                             'reason', 'error', 'message', 'done', 'cores', 'cpu', 'cpu_pct', 
                             'mem_req', 'mem_gb', 'walltime', 'log', 'comment', 'callerid', 'call')
       )
-      z <- z[, cols]
+      
+      if(any(!cols %in% names(z)))
+         stop('Undefined column names requested: ', paste(cols[!cols %in% names(z)], collapse = ', '))
+      
+      z <- z[, c(setdiff('jobid', cols), cols), drop = FALSE]                                         # always include job id
    }
    
    if(summary & table)
