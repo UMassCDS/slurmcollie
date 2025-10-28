@@ -20,7 +20,10 @@ swept, we'll get to start over at reg001. Saves the database, of course!
 \details{
 Calls \code{finish} functions passed to \code{launch}, to, for example, update a parent database. These
 are called for any newly-done jobs, whether they were successful or not. See \link{launch} for
-details.
+details. If finish functions don't exist in the workspace (i.e., their package isn't loaded),
+you'll get a warning. You'll need to load the finish functions and rerun \code{info}. Any actions
+the finish functions are supposed to do (e.g., update a database) will be left undone until
+you attend to this.
 
 Getting run stats (memory, CPU time, etc.) take about 75\% of the execution time, so if you
 don't need them and are impatient, use \code{stats = FALSE}.
