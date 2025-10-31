@@ -54,6 +54,7 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
    tofinish <- unfinished[sapply(slu$jdb$finish[unfinished], exists)]                                    # unfinished jobs that have finish functions loaded
    mia <- setdiff(unfinished, tofinish)                                                                  # missing finish functions
    
+   
    if(length(mia) > 0)
       warning(length(mia), ' jobs have missing finish functions(', paste(unique(slu$jdb$finish[mia]), collapse = ', '), ') - load packages and try info() again.')
    
@@ -121,12 +122,13 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
    slu$jdb$done[newdone] <- TRUE                                                                         # mark newly-finished jobs as done
    save_slu_database('jdb')                                                                              # save the database before calling finish functions or deleting registries
    
-   
+
    if(length(tofinish) > 0) {                                                                            # if any jobs have finish functions to run,
       for(i in tofinish)                                                                                 #    call finish functions
          err <- tryCatch({                                                                               #          trap any errors
             do.call(slu$jdb$finish[i], 
                     args <- list(jobid = slu$jdb$jobid[i], status = slu$jdb$status[i]))
+            slu$jdb$finish[i] <- 'done'
          },
          error = function(cond) {                                                                        #          if there was an error
             args <- sapply(args, function(x) ifelse(is.character(x), paste0('\'', x, '\''), x))
@@ -135,7 +137,6 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
             warning('Error in finish function call ', call, ':\n    ', cond[[1]])                        #             give readable error message
          })
 
-      slu$jdb$finish[tofinish] <- 'done'
       save_slu_database('jdb')                                                                           #    set finish to 'done' and save the database, yet again
    }
    
