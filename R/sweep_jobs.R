@@ -36,6 +36,7 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
       dir.create(slu$logdir, recursive = TRUE)
    
    
+   
    trying <- (1:nrow(slu$jdb))[!slu$jdb$done & !is.na(slu$jdb$sjobid)]                                   # jobs that aren't done yet, but did get a Slurm job id
    if(length(trying) > 0) {
       oldest <- ceiling(time_length(interval(min(
@@ -51,7 +52,11 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
    done <- (seq_along(slu$jdb$jobid))[!is.na(slu$jdb$state) & (slu$jdb$state %in% over)]                 # rows of completed jobs (old and new)
    newdone <- done[!slu$jdb$done[done]]                                                                  # newly-completed jobs, not yet marked as done
    unfinished <- done[!slu$jdb$finish[done] %in% c(NA, 'done')]                                          # jobs that have not had their finish functions run yet
-   tofinish <- unfinished[sapply(slu$jdb$finish[unfinished], exists)]                                    # unfinished jobs that have finish functions loaded
+
+   if(length(unfinished) != 0)
+      tofinish <- unfinished[sapply(slu$jdb$finish[unfinished], exists)]                                    # unfinished jobs that have finish functions loaded
+   else
+      tofinish <- NULL
    mia <- setdiff(unfinished, tofinish)                                                                  # missing finish functions
    
    
@@ -122,7 +127,7 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
    slu$jdb$done[newdone] <- TRUE                                                                         # mark newly-finished jobs as done
    save_slu_database('jdb')                                                                              # save the database before calling finish functions or deleting registries
    
-
+   
    if(length(tofinish) > 0) {                                                                            # if any jobs have finish functions to run,
       for(i in tofinish)                                                                                 #    call finish functions
          err <- tryCatch({                                                                               #          trap any errors
@@ -136,7 +141,7 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
                                                           unlist(args), collapse = ', '), ')')
             warning('Error in finish function call ', call, ':\n    ', cond[[1]])                        #             give readable error message
          })
-
+      
       save_slu_database('jdb')                                                                           #    set finish to 'done' and save the database, yet again
    }
    
