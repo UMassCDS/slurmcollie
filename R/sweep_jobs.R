@@ -124,7 +124,17 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
    
    if(length(tofinish) > 0) {                                                                            # if any jobs have finish functions to run,
       for(i in tofinish)                                                                                 #    call finish functions
-         do.call(slu$jdb$finish[i], list(jobid = slu$jdb$jobid[i], status = slu$jdb$status[i]))
+         err <- tryCatch({                                                                               #          trap any errors
+            do.call(slu$jdb$finish[i], 
+                    args <- list(jobid = slu$jdb$jobid[i], status = slu$jdb$status[i]))
+         },
+         error = function(cond) {                                                                        #          if there was an error
+            args <- sapply(args, function(x) ifelse(is.character(x), paste0('\'', x, '\''), x))
+            call <- paste0(slu$jdb$finish[i], '(', paste0(names(args), ' = ', 
+                                                          unlist(args), collapse = ', '), ')')
+            warning('Error in finish function call ', call, ':\n    ', cond[[1]])                        #             give readable error message
+         })
+
       slu$jdb$finish[tofinish] <- 'done'
       save_slu_database('jdb')                                                                           #    set finish to 'done' and save the database, yet again
    }
