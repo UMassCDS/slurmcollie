@@ -52,7 +52,7 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
    done <- (seq_along(slu$jdb$jobid))[!is.na(slu$jdb$state) & (slu$jdb$state %in% over)]                 # rows of completed jobs (old and new)
    newdone <- done[!slu$jdb$done[done]]                                                                  # newly-completed jobs, not yet marked as done
    unfinished <- done[!slu$jdb$finish[done] %in% c(NA, 'done')]                                          # jobs that have not had their finish functions run yet
-
+   
    if(length(unfinished) != 0)
       tofinish <- unfinished[sapply(slu$jdb$finish[unfinished], exists)]                                    # unfinished jobs that have finish functions loaded
    else
@@ -133,7 +133,8 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
          err <- tryCatch({                                                                               #          trap any errors
             do.call(slu$jdb$finish[i], 
                     args <- list(jobid = slu$jdb$jobid[i], status = slu$jdb$status[i]))
-            slu$jdb$finish[i] <- 'done'
+            slu$jdb$finish[i] <- 'done'                                                                  #    set finish to 'done'
+            save_slu_database('jdb')                                                                     #    agressively save the database after every damn job
          },
          error = function(cond) {                                                                        #          if there was an error
             args <- sapply(args, function(x) ifelse(is.character(x), paste0('\'', x, '\''), x))
@@ -141,8 +142,6 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
                                                           unlist(args), collapse = ', '), ')')
             warning('Error in finish function call ', call, ':\n    ', cond[[1]])                        #             give readable error message
          })
-      
-      save_slu_database('jdb')                                                                           #    set finish to 'done' and save the database, yet again
    }
    
    if(length(newdone) > 0) {
