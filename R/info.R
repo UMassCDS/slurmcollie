@@ -58,10 +58,11 @@ info <- function(rows = 'all', cols = 'normal', sort = 'jobid', decreasing = FAL
    }
    
    
-   if(all(rows < 0)) {                                                                 # convenience: info(-5) -> info(nrows = -5)
-      nrows <- rows
-      rows <- 'all'
-   }
+   if(!is.list(rows))
+      if(all(rows < 0)) {                                                                             # convenience: info(-5) -> info(nrows = -5)
+         nrows <- rows
+         rows <- 'all'
+      }
    
    
    if(summary) {
@@ -107,14 +108,14 @@ info <- function(rows = 'all', cols = 'normal', sort = 'jobid', decreasing = FAL
          cols <- c('brief', 'normal', 'long', 'all')[cols]
    if(!identical(cols, 'all')) {
       if(cols[1] %in% c('brief', 'normal', 'long', 'all'))
-      cols <- switch(cols,
-                   brief = c('jobid', 'status', 'error', 'comment'),
-                   normal = c('jobid', 'launched', 'called_fn', 'rep', 'local', 'status', 'error', 
-                              'cores', 'cpu_pct', 'mem_gb', 'walltime', 'comment'),
-                   long = c('jobid', 'launched', 'called_fn', 'rep', 'local', 'sjobid', 'status', 'state', 
-                            'reason', 'error', 'message', 'done', 'cores', 'cpu', 'cpu_pct', 
-                            'mem_req', 'mem_gb', 'walltime', 'log', 'comment', 'callerid', 'call')
-      )
+         cols <- switch(cols,
+                        brief = c('jobid', 'status', 'error', 'comment'),
+                        normal = c('jobid', 'launched', 'called_fn', 'rep', 'local', 'status', 'error', 
+                                   'cores', 'cpu_pct', 'mem_gb', 'walltime', 'comment'),
+                        long = c('jobid', 'launched', 'called_fn', 'rep', 'local', 'sjobid', 'status', 'state', 
+                                 'reason', 'error', 'message', 'done', 'cores', 'cpu', 'cpu_pct', 
+                                 'mem_req', 'mem_gb', 'walltime', 'log', 'comment', 'callerid', 'call')
+         )
       
       if(any(!cols %in% names(z)))
          stop('Undefined column names requested: ', paste(cols[!cols %in% names(z)], collapse = ', '))
