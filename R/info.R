@@ -16,6 +16,8 @@
 #'  - a named list to filter jobs with. List items are `<field in jdb> = <value>`, 
 #'    where `<value>` is a regex for character fields, or an actual value (or vector of 
 #'    values) for logical or numeric fields.
+#'  - you can supply a negative number as a convenience option to display the last *n*
+#'    rows. This is equivalent to `info(rows = 'all', nrows = -n)`.
 #' @param cols Specifies which columns to include in the jobs table. May be
 #'   one of
 #'   - *brief* (1) includes `jobid`, `status`, `error`, `comment`
@@ -31,7 +33,8 @@
 #' @param decreasing If TRUE, sort in descending order
 #' @param nrows Number of rows to display in the jobs table. Positive numbers
 #'   display the first *n* rows, and negative numbers display the last *n* rows.
-#'   Use `nrows = NA` to display all rows.
+#'   Use `nrows = NA` to display all rows. Note that, as a convenience, you can 
+#'   supply a negative number to `rows` to set `nrows`.
 #' @param summary If TRUE, displays jobs summary
 #' @param table If TRUE, displays jobs table
 #' @param sweep If TRUE, call `sweep_jobs` to update jobs database first
@@ -52,6 +55,12 @@ info <- function(rows = 'all', cols = 'normal', sort = 'jobid', decreasing = FAL
    if(dim(slu$jdb)[1] == 0) {
       message('No jobs in database')
       return(invisible())
+   }
+   
+   
+   if(all(rows < 0)) {                                                                 # convenience: info(-5) -> info(nrows = -5)
+      nrows <- rows
+      rows <- 'all'
    }
    
    
