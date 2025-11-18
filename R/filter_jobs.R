@@ -18,11 +18,12 @@ filter_jobs <- function(filter) {
    
    if(is.numeric(filter)) {                                       # if we have supplied jobids,
       z <- match(filter, slu$jdb$jobid)
-      if(any(m <- is.na(z))) {
+      if(any(m <- is.na(z))) {                                    #    if any jobs don't exist,
+         d <- filter[m]                                           #       these are them
+         if(length(d) > 10)                                       #       if the list is long
+            d <- c(d[1:3], '...', d[length(d) - 2:0])             #          elide the middle
+         message('Note: jobids ', paste(d, collapse = ', '), ' don\'t exist')
          z <- z[!m]
-         if(length(m) > 10)                                       # if the list is long
-            m <- c(m[1:3], '...', m[length(m) - 2:0])             #    elide the middle
-         message('Note: jobids ', paste(filter[m], collapse = ', '), ' don\'t exist')
       }
       return(z)
    }
