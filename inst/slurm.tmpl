@@ -34,4 +34,4 @@ export DEBUGME=<%= Sys.getenv("DEBUGME") %>
 module load apptainer/latest
 export APPTAINER_BINDPATH="/run/munge,/var/run/munge,/etc/slurm,/var/spool/slurm/slurmd/conf-cache/slurm.conf,$APPTAINER_BINDPATH"
 
-apptainer exec /modules/admin-resources/ood-dev/unity-r_4.4.0.sif Rscript --no-restore --quiet --no-save -e 'batchtools::doJobCollection("<%= uri %>")'
+apptainer exec /modules/admin-resources/ood-dev/unity-r_4.4.0.sif Rscript --no-restore --quiet --no-save -e '.libPaths(c(file.path(path.expand("~"), "R/x86_64-pc-linux-gnu-library/4.4"), .libPaths()))' -e 'batchtools::doJobCollection("<%= uri %>")'
