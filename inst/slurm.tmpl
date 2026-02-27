@@ -25,8 +25,24 @@ log.file = fs::path_expand(log.file)
 #SBATCH --cpus-per-task=<%= resources$ncpus %>
 #SBATCH --mem=<%= resources$memory %>G                ## memory is reported in GB, not MB
 #SBATCH --export=None
-##SBATCH --mail-type=END                              ## send an email when job finishes
 #SBATCH --nodes=1                                     ## set minimum nodes to 1 to avoid new error
+<%
+use_gpu <- !is.null(resources$ngpus) && resources$ngpus > 0
+if (use_gpu) {
+   gres <- if (!is.null(resources$gpu_type) && nzchar(resources$gpu_type))
+      paste0('gpu:', resources$gpu_type, ':', resources$ngpus)
+   else
+      paste0('gpu:', resources$ngpus)
+}
+-%>
+<% if (use_gpu) { %>
+#SBATCH --gres=<%= gres %>
+#SBATCH --partition=<%= if (!is.null(resources$partition.gpu)) resources$partition.gpu else 'gpu-preempt,gpu' %>
+<% } else { %>
+#SBATCH --partition=<%= if (!is.null(resources$partition.cpu)) resources$partition.cpu else 'cpu-preempt,cpu' %>
+<% } %>
+
+##SBATCH --mail-type=END                              ## send an email when job finishes
 
 
 ## Export value of DEBUGME environemnt var
@@ -37,4 +53,4 @@ export DEBUGME=<%= Sys.getenv("DEBUGME") %>
 module load apptainer/latest
 export APPTAINER_BINDPATH="/run/munge,/var/run/munge,/etc/slurm,/var/spool/slurm/slurmd/conf-cache/slurm.conf,$APPTAINER_BINDPATH"
 
-apptainer exec /modules/admin-resources/ood-dev/unity-r_4.4.0.sif Rscript --no-restore --quiet --no-save -e '.libPaths(c(file.path(path.expand("~"), "R/x86_64-pc-linux-gnu-library/4.4"), .libPaths()))' -e 'batchtools::doJobCollection("<%= uri %>")'
+apptainer exec <%= if (use_gpu) '--nv' else '' %> /modules/admin-resources/ood-dev/unity-r_4.4.0.sif Rscript --no-restore --quiet --no-save -e '.libPaths(c(file.path(path.expand("~"), "R/x86_64-pc-linux-gnu-library/4.4"), .libPaths()))' -e 'batchtools::doJobCollection("<%= uri %>")'
