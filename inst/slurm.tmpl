@@ -1,16 +1,8 @@
 ## Slurm template for launching batch jobs from RStudio on Unity
-## Thanks to Georgia Stuart!
-## You may need to include the following in Override RStudio image location when 
-## launching RStudio OnDemand:
-##    /modules/admin-resources/ood-dev/unity-r_4.4.0.sif
-##
-## Note: this script is hardcoded to R 4.4; it'll need updating when going to a newer version
-##
-## 26 Feb 2026
-
+## Uses r-rocker-ml-verse/4.4.3_cuda12.8.1+apptainer for GPU and CPU jobs
+## 03 Mar 2026
 
 #!/bin/bash
-
 
 ## Relative paths are not handled well by Slurm
 <%
@@ -25,7 +17,7 @@ log.file = fs::path_expand(log.file)
 #SBATCH --cpus-per-task=<%= resources$ncpus %>
 #SBATCH --mem=<%= resources$memory %>G                ## memory is reported in GB, not MB
 #SBATCH --export=None
-#SBATCH --nodes=1                                     ## set minimum nodes to 1 to avoid new error
+#SBATCH --nodes=1                                     ## avoid error about not specifying --nodes=1
 <%
 use_gpu <- !is.null(resources$ngpus) && resources$ngpus > 0
 if (use_gpu) {
@@ -45,12 +37,18 @@ if (use_gpu) {
 ##SBATCH --mail-type=END                              ## send an email when job finishes
 
 
-## Export value of DEBUGME environemnt var
+## Export value of DEBUGME environment var
 export DEBUGME=<%= Sys.getenv("DEBUGME") %>
 
+. /etc/profile.d/z00-lmod-profile.sh
+module load r-rocker-ml-verse/4.4.3_cuda12.8.1+apptainer
 
-## Call batchtools inside container
-module load apptainer/latest
-export APPTAINER_BINDPATH="/run/munge,/var/run/munge,/etc/slurm,/var/spool/slurm/slurmd/conf-cache/slurm.conf,$APPTAINER_BINDPATH"
+<% if (use_gpu) { %>
+echo "Node: $(hostname), GPU: $(nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null || echo 'unknown')"
+<% } else { %>
+echo "Node: $(hostname)"
+<% } %>
 
-apptainer exec <%= if (use_gpu) '--nv' else '' %> /modules/admin-resources/ood-dev/unity-r_4.4.0.sif Rscript --no-restore --quiet --no-save -e '.libPaths(c(file.path(path.expand("~"), "R/x86_64-pc-linux-gnu-library/4.4"), .libPaths()))' -e 'batchtools::doJobCollection("<%= uri %>")'
+Rscript --no-restore --quiet --no-save \
+    -e '.libPaths(c(file.path(path.expand("~"), "R/x86_64-pc-linux-gnu-library/4.4-rocker"), .libPaths()))' \
+    -e 'batchtools::doJobCollection("<%= uri %>")'
