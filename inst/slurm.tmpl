@@ -33,6 +33,9 @@ if (use_gpu) {
 <% if (!is.null(resources$prefer_gpu) && nzchar(resources$prefer_gpu)) { %>
 #SBATCH --prefer=<%= resources$prefer_gpu %>
 <% } %>
+<% if (!is.null(resources$constraint) && nzchar(resources$constraint)) { %>
+#SBATCH --constraint=<%= resources$constraint %>
+<% } %>
 <% } else { %>
 #SBATCH --partition=<%= if (!is.null(resources$partition.cpu)) resources$partition.cpu else 'cpu-preempt,cpu' %>
 <% } %>
