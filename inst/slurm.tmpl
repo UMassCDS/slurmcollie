@@ -30,6 +30,9 @@ if (use_gpu) {
 <% if (use_gpu) { %>
 #SBATCH --gres=<%= gres %>
 #SBATCH --partition=<%= if (!is.null(resources$partition.gpu)) resources$partition.gpu else 'gpu-preempt,gpu' %>
+<% if (!is.null(resources$prefer_gpu) && nzchar(resources$prefer_gpu)) { %>
+#SBATCH --prefer=<%= resources$prefer_gpu %>
+<% } %>
 <% } else { %>
 #SBATCH --partition=<%= if (!is.null(resources$partition.cpu)) resources$partition.cpu else 'cpu-preempt,cpu' %>
 <% } %>
