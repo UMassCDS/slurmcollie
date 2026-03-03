@@ -14,6 +14,9 @@ default.resources <- list(                # Set defaults. These may be overridde
    memory = 1,                            #    max memory (GB); minimum should be 1 GB (slurm.tmpl changes this from default MB to GB)
    measure.memory = FALSE,                #    enable memory measurement for getJobStatus; not needed if using get_job_efficiency
    ncpus = 1,                             #    number of CPUs
+   ngpus = 0,                             #    number of GPUs (0 = CPU job)
+   gpu_type = '',                         #    GPU type, e.g. 'a100', 'l40s'; '' = any available
    chunks.as.arrayjobs = FALSE,           #    group selected jobs sequentially; must set up chunks in submitJobs; see help(submitJobs)
-   partition.cpu = 'cpu-preempt,cpu'      #    which partitions jobs can run on
+   partition.cpu = 'cpu-preempt,cpu',     #    partitions for CPU jobs
+   partition.gpu = 'gpu-preempt,gpu'      #    partitions for GPU jobs
 )
