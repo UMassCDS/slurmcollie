@@ -12,7 +12,7 @@
 #' the finish functions are supposed to do (e.g., update a database) will be left undone until
 #' you attend to this.
 #' 
-#' Getting run stats (memory, CPU time, etc.) take about 75% of the execution time, so if you
+#' Getting run stats (memory, CPU time, etc.) slows down `sweep_jobs` and thus `info`, so if you
 #' don't need them and are impatient, use `stats = FALSE`.
 #' 
 #' Since `info` calls `sweep_jobs` by default, `info` is the normal user-facing function for updating

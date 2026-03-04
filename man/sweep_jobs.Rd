@@ -25,7 +25,7 @@ you'll get a warning. You'll need to load the finish functions and rerun \code{i
 the finish functions are supposed to do (e.g., update a database) will be left undone until
 you attend to this.
 
-Getting run stats (memory, CPU time, etc.) take about 75\% of the execution time, so if you
+Getting run stats (memory, CPU time, etc.) slows down \code{sweep_jobs} and thus \code{info}, so if you
 don't need them and are impatient, use \code{stats = FALSE}.
 
 Since \code{info} calls \code{sweep_jobs} by default, \code{info} is the normal user-facing function for updating

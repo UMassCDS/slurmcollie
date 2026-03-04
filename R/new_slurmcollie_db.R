@@ -48,7 +48,7 @@ new_slurmcollie_db <- function(database = 'jdb', really = FALSE) {
                 cpu_pct = double(),                         # percent CPU utilization
                 mem_req = double(),                         # memory requested (GB)
                 mem_gb = double(),                          # memory used (GB)
-                gpu_name = character(),                     # name of GPU(s) used
+                gpu = character(),                          # name and count of GPU(s) used
                 gpu_pct = double(),                         # percent GPU utilization
                 gpu_mem_gb = double(),                      # GPU memory used (GB)
                 walltime = character(),                     # elapsed job time (hh:mm:ss)
