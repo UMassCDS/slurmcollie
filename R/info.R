@@ -84,9 +84,12 @@ info <- function(rows = 'all', cols = 'normal', sort = 'jobid', decreasing = FAL
    z <- slu$jdb[filter_jobs(rows), ]                                                                  # jobs database, filtered
    z <- z[order(z[, sort], decreasing = decreasing), ]                                                # and sorted
    
-   z$cpu_pct <- round(z$cpu_pct, 0)
-   z$mem_gb <- round(z$mem_gb, 3)
-   z$gpu_mem_gb <- round(z$gpu_mem_gb, 3)
+   
+   z$cpu_pct <- round(z$cpu_pct, 0)                                                                   # rounding
+   z$gpu_pct <- round(z$gpu_pct, 0)
+   z$mem_gb <- round(z$mem_gb, 2)
+   z$gpu_mem_gb <- round(z$gpu_mem_gb, 2)
+   
    
    if(!is.na(nrows)) {                                                                                # display just selected rows
       if(nrows > 0)
