@@ -202,27 +202,9 @@ prompt now changes again to say you're on the login node, it means your
 compute nodes should now be able to submit jobs to the login node in an
 automated fashion, with keys only and no passwords required.
 
-### 2. Set up a container for R
+### 2. Install slurmcollie
 
-If you're using RStudio onDemand, you'll need to include the following
-in the `Override Rstudio image location` field on the launching page:
-
-```         
-/modules/admin-resources/ood-dev/unity-r_4.4.0.sif
-```
-
-Now you can launch R. You can do one more test of your ssh connection
-from R if you want:
-
-```         
-system('ssh login1)
-```
-
-You should get an error message
-(`Pseudo-terminal will not be allocated because stdin is not a terminal`)
-and a Unity login banner. If so, you should be good to go.
-
-### 3. Install slurmcollie
+Launch R and install packages:
 
 ```         
 # install.packages("devtools")
@@ -230,7 +212,7 @@ devtools::install_github("UMassCDS/slurmcollie")
 devtools::install_github('bwcompton/batchtools', ref = 'bwcompton-robust-sbatch')   # while waiting for fix in batchtools package
 ```
 
-### 4. Set up slurmcollie directories and files
+### 3. Set up slurmcollie directories and files
 
 You'll need to do this once after installation. You'll need to know two
 things:
@@ -269,7 +251,7 @@ directory. This will contain a log for each of your `slurmcollie` jobs
 once it's finished and been checked in with a call to `info()`. The job
 id is included in the file name. These can be invaluable for debugging.
 
-### 5. Modify library path order (optional)
+### 4. Modify library path order (optional)
 Finally, if you need to run locally installed alternate versions of
 packages that may be preinstalled (for instance, if you need a newer
 version of a package from GitHub rather than the CRAN version), you'll
