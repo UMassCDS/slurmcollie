@@ -86,8 +86,8 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
          x <- get_job_efficiency(slu$jdb$sjobid[i], slu$login_node)
          if(!is.null(x)) {
             x$cpu_pct <- as.numeric(sub('%.*$', '', x$cpu_efficiency))
-            slu$jdb[i, c('mem_gb', 'walltime', 'cpu', 'cpu_pct', 'gpu_pct', 'gpu_mem_gb')] <- 
-               x[c('mem_gb', 'walltime', 'cpu_utilized', 'cpu_pct', 'gpu_util_pct', 'gpu_mem_gb')]
+            slu$jdb[i, c('mem_gb', 'walltime', 'cpu', 'cpu_pct', 'gpu', 'gpu_pct', 'gpu_mem_gb')] <- 
+               x[c('mem_gb', 'walltime', 'cpu_utilized', 'cpu_pct', 'gpu', 'gpu_util_pct', 'gpu_mem_gb')]
          }
       }
    }

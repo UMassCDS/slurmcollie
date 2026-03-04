@@ -27,6 +27,7 @@ A list with items:
 \item{\code{wall_min}}{Job wall-clock time in decimal minutes}
 \item{\code{gpu_util_pct}}{GPU utilization percentage (NA for non-GPU jobs)}
 \item{\code{gpu_mem_gb}}{GPU memory used in GiB (NA for non-GPU jobs)}
+\item{\code{gpu_name}}{GPU model name(s): \code{"l40s x4"} if all the same, \code{"l40s, v100, v100"} if mixed (NA for non-GPU jobs)}
 }
 \description{
 \code{get_job_efficiency()} calls the shell command \code{"seff"} on the job ID

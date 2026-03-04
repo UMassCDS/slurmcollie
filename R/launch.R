@@ -9,6 +9,8 @@
 #' - `memory` (GB)
 #' - `ncpus` (number of CPUs to request)
 #' - `ngpus` (number of GPUs to request)
+#' - `prefer_gpu` (preferred GPUs to request)
+#' - `constraint` (alternative GPUs to accept)
 #' - `partition.cpu` (partitions to request, e.g., `'cpu-preempt,cpu'`)
 #' 
 #' Use `finish = 'function'` to name functions to, for example, update a parent database. The finish

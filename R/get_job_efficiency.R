@@ -23,6 +23,7 @@
 #' \item{`wall_min`}{Job wall-clock time in decimal minutes}
 #' \item{`gpu_util_pct`}{GPU utilization percentage (NA for non-GPU jobs)}
 #' \item{`gpu_mem_gb`}{GPU memory used in GiB (NA for non-GPU jobs)}
+#' \item{`gpu_name`}{GPU model name(s): `"l40s x4"` if all the same, `"l40s, v100, v100"` if mixed (NA for non-GPU jobs)}
 #' @importFrom batchtools runOSCommand
 #' @importFrom yaml read_yaml
 #' @importFrom fs fs_bytes
@@ -76,6 +77,26 @@ get_job_efficiency <- function(id, login_node = slu$login_node) {
          c$gpu_util_pct <- as.numeric(vals["gres/gpuutil"])
       if(!is.na(vals["gres/gpumem"]))
          c$gpu_mem_gb <- fs::fs_bytes(vals["gres/gpumem"]) |> as.numeric() / 1024^3
+   }
+
+   # Get GPU name from AllocTRES
+   c$gpu_name <- NA_character_
+   cmd_tres <- paste("sacct -j", id, "--format=AllocTRES", "--parsable2", "--noheader", "--allocations")
+   tres_out <- batchtools::runOSCommand(cmd_tres, nodename = login_node)
+   if(tres_out$exit.code == 0 && length(tres_out$output) > 0 && nzchar(tres_out$output[1])) {
+      tres_pairs <- strsplit(tres_out$output[1], ",")[[1]]
+      gpu_entries <- grep("^gres/gpu:[^=]+=", tres_pairs, value = TRUE)   # typed only, e.g. gres/gpu:l40s=1
+      if(length(gpu_entries) > 0) {
+         gpu_types  <- sub("^gres/gpu:([^=]+)=\\d+$", "\\1", gpu_entries)
+         gpu_counts <- as.integer(sub("^gres/gpu:[^=]+=([0-9]+)$", "\\1", gpu_entries))
+         all_gpus   <- rep(gpu_types, gpu_counts)
+         if(length(unique(all_gpus)) == 1) {
+            n <- length(all_gpus)
+            c$gpu_name <- if(n == 1) all_gpus[1] else paste0(all_gpus[1], " x", n)
+         } else {
+            c$gpu_name <- paste(all_gpus, collapse = ", ")
+         }
+      }
    }
 
    return(c)

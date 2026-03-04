@@ -67,6 +67,8 @@ You can override the default resources (defined in \code{batchtools.conf.R} in y
 \item \code{memory} (GB)
 \item \code{ncpus} (number of CPUs to request)
 \item \code{ngpus} (number of GPUs to request)
+\item \code{prefer_gpu} (preferred GPUs to request)
+\item \code{constraint} (alternative GPUs to accept)
 \item \code{partition.cpu} (partitions to request, e.g., \code{'cpu-preempt,cpu'})
 }
 

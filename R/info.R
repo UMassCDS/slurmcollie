@@ -24,7 +24,7 @@
 #'   - *normal* (2)  includes `jobid`, `launched`, `called_fn`, `rep`, `local`, `status`, 
 #'      `error`, `cores`, `cpu_pct`, `mem_gb`, `gpu_pct`, `gpu_mem_gb`, `walltime`, `comment`
 #'   - *long* (3) includes `jobid`, `launched`, `called_fn`, `rep`, `local`, `sjobid`, `status`, 
-#'      `state`, `reason`, `error`, `message`, `done`, `cores`, `mem_req`, `mem_gb`, `gpu_pct`, 
+#'      `state`, `reason`, `error`, `message`, `done`, `cores`, `mem_req`, `mem_gb`, `gpu`, `gpu_pct`, 
 #'      `gpu_mem_gb`, `walltime`, `cpu`, `cpu_pct`, `log`, `comment`, `call`
 #'   - *all* (4) includes all columns
 #'   - 1, 2, 3, or 4 is a shortcut for the above column sets
@@ -116,10 +116,11 @@ info <- function(rows = 'all', cols = 'normal', sort = 'jobid', decreasing = FAL
          cols <- switch(cols,
                         brief = c('jobid', 'status', 'error', 'comment'),
                         normal = c('jobid', 'launched', 'called_fn', 'rep', 'local', 'status', 'error', 
-                                   'cores', 'cpu_pct', 'mem_gb', 'gpu_pct', 'gpu_mem_gb', 'walltime', 'comment'),
+                                   'cores', 'cpu_pct', 'mem_gb', 'gpu', 'gpu_pct', 'gpu_mem_gb', 'walltime', 'comment'),
                         long = c('jobid', 'launched', 'called_fn', 'rep', 'local', 'sjobid', 'status', 'state', 
                                  'reason', 'error', 'message', 'done', 'cores', 'cpu', 'cpu_pct', 
-                                 'mem_req', 'mem_gb', 'gpu_pct', 'gpu_mem_gb', 'walltime', 'log', 'comment', 'callerid', 'call')
+                                 'mem_req', 'mem_gb', 'gpu', 'gpu_pct', 'gpu_mem_gb', 'walltime', 'log', 'comment',
+                                 'callerid', 'call')
          )
       
       if(any(!cols %in% names(z)))
