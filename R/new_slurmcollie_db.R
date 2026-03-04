@@ -45,9 +45,11 @@ new_slurmcollie_db <- function(database = 'jdb', really = FALSE) {
                 finish  = character(),                      # name of function to be called by info when job is finished
                 cores = integer(),                          # number of CPU cores to request
                 cpu = character(),                          # CPU time used (hh:mm:ss)
-                cpu_pct = character(),                      # percent CPU used
+                cpu_pct = double(),                         # percent CPU utilization
                 mem_req = double(),                         # memory requested (GB)
                 mem_gb = double(),                          # memory used (GB)
+                gpu_pct = double(),                         # percent GPU utilization
+                gpu_mem_gb = double(),                      # GPU memory used (GB)
                 walltime = character(),                     # elapsed job time (hh:mm:ss)
                 log = character(),                          # name of log file
                 comment = character(),                      # user or generated job comment

@@ -17,14 +17,16 @@ A list with items:
 \item{\code{job_id}}{Slurm job id - without array suffix}
 \item{\code{array_job_id}}{Slurm job id with array suffix}
 \item{\code{state}}{The job state}
-\item{\code{cores}}{How many cores did the job use.}
-\item{\code{cpu_utilized}}{How much CPU time was used.}
+\item{\code{cores}}{How many cores did the job use}
+\item{\code{cpu_utilized}}{How much CPU time was used}
 \item{\code{cpu_efficiency}}{CPU efficiency}
 \item{\code{walltime}}{ Job wall-clock time (elapsed time) in h:m:s format}
 \item{\code{memory_utilized}}{Memory utilized in human readable format with (varying) units}
 \item{\code{memory_efficiency}}{Memory efficiency.}
 \item{\code{mem_gb}}{Utilized memory in GiB (bytes * 1024^3)}
 \item{\code{wall_min}}{Job wall-clock time in decimal minutes}
+\item{\code{gpu_util_pct}}{GPU utilization percentage (NA for non-GPU jobs)}
+\item{\code{gpu_mem_gb}}{GPU memory used in GiB (NA for non-GPU jobs)}
 }
 \description{
 \code{get_job_efficiency()} calls the shell command \code{"seff"} on the job ID

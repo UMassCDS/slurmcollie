@@ -13,8 +13,8 @@
 #' \item{`job_id`}{Slurm job id - without array suffix}
 #' \item{`array_job_id`}{Slurm job id with array suffix}
 #' \item{`state`}{The job state}
-#' \item{`cores`}{How many cores did the job use.}
-#' \item{`cpu_utilized`}{How much CPU time was used.}
+#' \item{`cores`}{How many cores did the job use}
+#' \item{`cpu_utilized`}{How much CPU time was used}
 #' \item{`cpu_efficiency`}{CPU efficiency}
 #' \item{`walltime`}{ Job wall-clock time (elapsed time) in h:m:s format}
 #' \item{`memory_utilized`}{Memory utilized in human readable format with (varying) units}

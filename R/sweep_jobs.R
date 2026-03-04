@@ -54,7 +54,7 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
    unfinished <- done[!slu$jdb$finish[done] %in% c(NA, 'done')]                                          # jobs that have not had their finish functions run yet
    
    if(length(unfinished) != 0)
-      tofinish <- unfinished[sapply(slu$jdb$finish[unfinished], exists)]                                    # unfinished jobs that have finish functions loaded
+      tofinish <- unfinished[sapply(slu$jdb$finish[unfinished], exists)]                                 # unfinished jobs that have finish functions loaded
    else
       tofinish <- NULL
    mia <- setdiff(unfinished, tofinish)                                                                  # missing finish functions
@@ -86,8 +86,8 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
          x <- get_job_efficiency(slu$jdb$sjobid[i], slu$login_node)
          if(!is.null(x)) {
             x$cpu_pct <- as.numeric(sub('%.*$', '', x$cpu_efficiency))
-            slu$jdb[i, c('mem_gb', 'walltime', 'cpu', 'cpu_pct')] <- 
-               x[c('mem_gb', 'walltime', 'cpu_utilized', 'cpu_pct')]
+            slu$jdb[i, c('mem_gb', 'walltime', 'cpu', 'cpu_pct', 'gpu_pct', 'gpu_mem_gb')] <- 
+               x[c('mem_gb', 'walltime', 'cpu_utilized', 'cpu_pct', 'gpu_util_pct', 'gpu_mem_gb')]
          }
       }
    }

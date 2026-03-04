@@ -33,10 +33,10 @@ one of
 \itemize{
 \item \emph{brief} (1) includes \code{jobid}, \code{status}, \code{error}, \code{comment}
 \item \emph{normal} (2)  includes \code{jobid}, \code{launched}, \code{called_fn}, \code{rep}, \code{local}, \code{status},
-\code{error}, \code{cores}, \code{cpu_pct}, \code{mem_gb}, \code{walltime}, \code{comment}
+\code{error}, \code{cores}, \code{cpu_pct}, \code{mem_gb}, \code{gpu_pct}, \code{gpu_mem_gb}, \code{walltime}, \code{comment}
 \item \emph{long} (3) includes \code{jobid}, \code{launched}, \code{called_fn}, \code{rep}, \code{local}, \code{sjobid}, \code{status},
-\code{state}, \code{reason}, \code{error}, \code{message}, \code{done}, \code{cores}, \code{mem_req}, \code{mem_gb}, \code{walltime},
-\code{cpu}, \code{cpu_pct}, \code{log}, \code{comment}, \code{call}
+\code{state}, \code{reason}, \code{error}, \code{message}, \code{done}, \code{cores}, \code{mem_req}, \code{mem_gb}, \code{gpu_pct},
+\code{gpu_mem_gb}, \code{walltime}, \code{cpu}, \code{cpu_pct}, \code{log}, \code{comment}, \code{call}
 \item \emph{all} (4) includes all columns
 \item 1, 2, 3, or 4 is a shortcut for the above column sets
 \item A vector of column names to include

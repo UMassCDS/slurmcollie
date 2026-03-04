@@ -37,7 +37,7 @@
 #' @param local If TRUE, launch job locally instead of as a batch job, tying up the console while it
 #'   runs. The jobs database will be updated on completion, so no information will be saved to the
 #'   jobs database if the job is interrupted. Note that local calls will not record `cores`, `cpu`, 
-#'   `cpu_pct`, nor `mem_req`. They do record mem_gb and walltime.
+#'   `cpu_pct`, `gpu_pct`, `gpu_mem_gb`, nor `mem_req`. They do record mem_gb and walltime.
 #' @param trap If TRUE, trap errors in local mode; if FALSE, use normal R error handling. Use this
 #'   for debugging. If you get unrecovered errors, the job won't be added to the jobs database. Has
 #'   no effect if local = FALSE.
