@@ -108,7 +108,12 @@ launch <- function(call, reps = 1, repname = 'rep', moreargs = list(), callerid 
       slu$jdb$local[i] <- FALSE                                               #    not a local run
       slu$jdb$bjobid[i] <- jobs$job.id                                        #    and add batchtools job ids to jobs database
       slu$jdb$registry[i] <- regid
-      slu$jdb$sjobid[i] <- getJobTable(slu$jdb$bjobid[i])$batch.id            #    Slurm job id (it's easier than I thought!)
+      raw.id <- getJobTable(slu$jdb$bjobid[i])$batch.id                        #    Slurm job id -- Unity may prepend messages to sbatch output, so extract just the integer
+      m <- regexpr('\\d+', raw.id)
+      slu$jdb$sjobid[i] <- if(m != -1L) regmatches(raw.id, m) else {
+         warning('Could not extract Slurm job ID from batch.id: ', raw.id)
+         NA_character_
+      }
       slu$jdb$status[i] <- 'queued'
       slu$jdb$done[i] <- FALSE
       slu$jdb$finish[i] <- finish

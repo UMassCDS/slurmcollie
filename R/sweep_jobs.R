@@ -42,9 +42,24 @@ sweep_jobs <- function(stats = TRUE, quiet = FALSE) {
       oldest <- ceiling(time_length(interval(min(
          slu$jdb$launched[trying], na.rm = TRUE), now()), 'day'))                                        # oldest unfinished job in days
       x <- get_job_state(days = oldest)                                                                  # get state for all jobs, reaching back far enough to get oldest unfinished job
-      y <- merge(slu$jdb[trying, 'sjobid', drop = FALSE], x, 
-                 by.x = 'sjobid', by.y = 'JobID', all.x = TRUE)
-      slu$jdb[trying, c('state', 'reason')] <- y[, c('State', 'Reason')]                                 # set state and reason
+      m <- match(slu$jdb$sjobid[trying], x$JobID)                                                        # use match (not merge) to preserve trying order
+      slu$jdb$state[trying]  <- x$State[m]
+      slu$jdb$reason[trying] <- x$Reason[m]
+
+      not_in_sacct <- trying[is.na(slu$jdb$state[trying])]                                               # jobs not yet in sacct (e.g., newly submitted) -- fall back to squeue
+      if(length(not_in_sacct) > 0) {
+         sq_cmd <- paste0('squeue -h -o "%i %T" --job ',                                                 # space-delimited; no Reason (avoids pipe interpretation by SSH)
+                          paste(slu$jdb$sjobid[not_in_sacct], collapse = ','))
+         sq <- batchtools::runOSCommand(sq_cmd, nodename = slu$login_node)
+         if(sq$exit.code == 0 && length(sq$output) > 0 && nchar(sq$output[1]) > 0) {
+            sq_parts <- strsplit(trimws(sq$output), '\\s+')
+            sq_df <- data.frame(JobID = sapply(sq_parts, `[`, 1),
+                                State = sapply(sq_parts, `[`, 2),
+                                stringsAsFactors = FALSE)
+            m2 <- match(slu$jdb$sjobid[not_in_sacct], sq_df$JobID)
+            slu$jdb$state[not_in_sacct] <- sq_df$State[m2]
+         }
+      }
    }
    
    over <- c('COMPLETED', 'CANCELLED', 'DEADLINE', 'FAILED', 'NODE_FAIL', 
