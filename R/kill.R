@@ -10,15 +10,13 @@
 #'  - a named list to filter jobs with. List items are `<field in jdb> = <value>`, 
 #'    where `<value>` is a regex for character fields, or an actual value (or vector of 
 #'    values) for logical or numeric fields.
-#' @param force If TRUE, kill the jobs even if Slurm scancel fails. This will potentially
-#'    leave hanging batch jobs on Slurm that slurmcollie doesn't know about. 
 #' @param quiet If TRUE, don't complain about jobs not found nor report on
 #'   killed jobs
 #' @importFrom batchtools runOSCommand
 #' @export
 
 
-kill <- function(filter = NULL, force = FALSE, quiet = FALSE) {
+kill <- function(filter = NULL, quiet = FALSE) {
    
    
    load_slu_database('jdb')
@@ -53,11 +51,8 @@ kill <- function(filter = NULL, force = FALSE, quiet = FALSE) {
    
    cmd <- paste(c('scancel', sjobids), collapse = ' ')
    a <- batchtools::runOSCommand(cmd, nodename = slu$login_node)
-   if(a$exit.code != 0) {                                                                          # if scancel fails, throw error unless force
-      if(force)
-         message('Slurm scancel command failed')
-      else
-         stop('Slurm scancel command failed')
+   if(a$exit.code != 0) {
+      stop("scancel command failed")
    }
    
    
@@ -65,8 +60,8 @@ kill <- function(filter = NULL, force = FALSE, quiet = FALSE) {
       suppressMessages(loadRegistry(file.path(slu$regdir, slu$jdb$registry[i])))
       f <- paste0('job_', formatC(slu$jdb$jobid[i], width = 4, format = 'd', flag = 0), '.log')
       x <- suppressWarnings(try(writeLines(getLog(slu$jdb$bjobid[i]), 
-                                           file.path(slu$logdir, f)), silent = TRUE))              # get log if it's available; it may not be for early kills
-      if(!inherits(x, 'try-error'))
+                                      file.path(slu$logdir, f)), silent = TRUE))                   # get log if it's available; it may not be for early kills
+      if(!inherits(x, "try-error"))
          slu$jdb$log[i] <- f
    }
    
