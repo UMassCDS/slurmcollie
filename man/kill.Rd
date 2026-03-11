@@ -4,7 +4,7 @@
 \alias{kill}
 \title{Kill launched Slurm jobs}
 \usage{
-kill(filter = NULL, quiet = FALSE)
+kill(filter = NULL, force = FALSE, quiet = FALSE)
 }
 \arguments{
 \item{filter}{Specify jobs with one of:
@@ -15,6 +15,9 @@ kill(filter = NULL, quiet = FALSE)
 where \verb{<value>} is a regex for character fields, or an actual value (or vector of
 values) for logical or numeric fields.
 }}
+
+\item{force}{If TRUE, kill the jobs even if Slurm scancel fails. This will potentially
+leave hanging batch jobs on Slurm that slurmcollie doesn't know about.}
 
 \item{quiet}{If TRUE, don't complain about jobs not found nor report on
 killed jobs}
