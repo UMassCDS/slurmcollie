@@ -42,9 +42,10 @@ get_job_state <- function(sjobid = NULL, days = NULL) {
       stop('Slurm sacct call failed with exit code ', a$exit.code)
    
    x <- strsplit(a$output, '|', fixed = TRUE)
-   x <- matrix(unlist(x), length(x), 3, byrow = TRUE)
-   y <- data.frame(x[-1, , drop = FALSE])
-   names(y) <- x[1, ]
+   ncols <- length(x[[1]])                                                      # infer column count from header (handles trailing | in newer Slurm versions)
+   x <- matrix(unlist(x), length(x), ncols, byrow = TRUE)
+   y <- data.frame(x[-1, 1:3, drop = FALSE])
+   names(y) <- x[1, 1:3]
    y <- y[grep('^\\d*$', y$JobID), ]
    y
 }
