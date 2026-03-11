@@ -52,7 +52,7 @@ kill <- function(filter = NULL, quiet = FALSE) {
    cmd <- paste(c('scancel', sjobids), collapse = ' ')
    a <- batchtools::runOSCommand(cmd, nodename = slu$login_node)
    if(a$exit.code != 0) {
-      stop("scancel command failed")
+      stop('Slrum scancel command failed. Use purge(..., force = TRUE) to purge these jobs')
    }
    
    
@@ -61,7 +61,7 @@ kill <- function(filter = NULL, quiet = FALSE) {
       f <- paste0('job_', formatC(slu$jdb$jobid[i], width = 4, format = 'd', flag = 0), '.log')
       x <- suppressWarnings(try(writeLines(getLog(slu$jdb$bjobid[i]), 
                                       file.path(slu$logdir, f)), silent = TRUE))                   # get log if it's available; it may not be for early kills
-      if(!inherits(x, "try-error"))
+      if(!inherits(x, 'try-error'))
          slu$jdb$log[i] <- f
    }
    
